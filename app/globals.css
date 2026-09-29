@@ -6,8 +6,8 @@
 
    Components use the semantic tokens only. Every text pair below was measured
    against the surface it renders on (WCAG 2 ratio):
-     label            #1d1d1f on surface 16.8, on page 15.5
-     label-secondary  #6e6e73 on surface 5.07, on fill 4.66
+     label            #1d1d1f on page and surface 16.8, on fill 15.5
+     label-secondary  #6e6e73 on page and surface 5.07, on fill 4.66
      white on accent  #0071e3 4.70     accent-text #0066cc on surface 5.57
      orange-text  on orange-tint 5.46   teal-text  on teal-tint 4.68
      green-text   on green-tint  4.88   grey-text  on grey-tint 6.95
@@ -16,7 +16,7 @@
    --------------------------------------------------------------------------- */
 @theme {
   /* Surfaces */
-  --color-page: #f5f5f7;
+  --color-page: #ffffff;
   --color-surface: #ffffff;
   --color-fill: #f5f5f7;          /* inset tiles on a white card */
   --color-fill-strong: #ececf0;   /* chips, monograms, segmented track */
@@ -53,11 +53,12 @@
   --color-logo-tile: #d0eafe;
   --color-avatar: #cee4f9;
 
-  /* Elevation: a hairline of shadow, then soft ambient light */
+  /* Elevation. Cards sit on a white page, so a 1px hairline draws the edge
+     and a soft ambient shadow lifts it. */
   --shadow-card:
-    0 0 0 0.5px rgb(0 0 0 / 0.04),
+    0 0 0 1px rgb(0 0 0 / 0.07),
     0 1px 2px rgb(0 0 0 / 0.04),
-    0 8px 24px -12px rgb(0 0 0 / 0.08);
+    0 8px 24px -12px rgb(0 0 0 / 0.1);
   --shadow-raised:
     0 0 0 0.5px rgb(0 0 0 / 0.05),
     0 4px 12px rgb(0 0 0 / 0.06),
