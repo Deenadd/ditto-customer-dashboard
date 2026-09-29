@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { CSSProperties, ReactNode } from "react";
-import { PillButton } from "@/components/ui/buttons";
+import { Button } from "@/components/ui/buttons";
 import { cardClass } from "@/components/ui/card-bits";
 
 const tileShadow =
@@ -23,9 +23,9 @@ export function EmptyApplications() {
         When you apply for a policy, you can follow it here. Looking for new
         cover? Our team can help you choose.
       </p>
-      <PillButton size="large" className="mt-7">
+      <Button size="large" className="mt-7">
         Talk to our team
-      </PillButton>
+      </Button>
     </div>
   );
 }

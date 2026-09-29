@@ -34,7 +34,7 @@ export default async function PolicyPage({
       <main id="main" className="mx-auto max-w-[1112px] px-4 pt-5 pb-20 sm:px-6 sm:pt-8 xl:px-0">
         <Link
           href={dashboardHref({ tab: "active", customer })}
-          className="group -ml-2 inline-flex h-9 items-center gap-1 rounded-full pr-3 pl-2 text-[15px] leading-5 font-medium text-accent-text transition-colors duration-150 active:bg-accent-tint [@media(hover:hover)]:hover:bg-accent-tint"
+          className="group -ml-2 inline-flex h-9 items-center gap-1 rounded-control pr-3 pl-2 text-[15px] leading-5 font-medium text-accent-text transition-colors duration-150 active:bg-accent-tint [@media(hover:hover)]:hover:bg-accent-tint"
         >
           <svg
             aria-hidden

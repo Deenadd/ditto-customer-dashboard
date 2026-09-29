@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { pillClass } from "@/components/ui/buttons";
+import { buttonClass } from "@/components/ui/buttons";
 
 type Mode = "mobile" | "application";
 
@@ -66,7 +66,7 @@ export function LoginForm() {
         {text.label}
       </label>
       <div
-        className={`flex h-[52px] w-full items-center rounded-[14px] bg-surface pl-4 transition-shadow duration-150 ${
+        className={`flex h-[52px] w-full items-center rounded-control bg-surface pl-4 transition-shadow duration-150 ${
           invalid
             ? "shadow-[0_0_0_1.5px_var(--color-red-text)] has-[:focus-visible]:shadow-[0_0_0_2px_var(--color-red-text),0_0_0_6px_rgb(196_30_58_/_0.12)]"
             : "shadow-[0_0_0_1px_rgb(0_0_0_/_0.1),0_1px_2px_rgb(0_0_0_/_0.04)] has-[:focus-visible]:shadow-[0_0_0_2px_var(--color-accent),0_0_0_6px_rgb(0_113_227_/_0.15)]"
@@ -94,7 +94,7 @@ export function LoginForm() {
             setValue(event.target.value);
             if (invalid && isValid(event.target.value)) setInvalid(false);
           }}
-          className="h-full min-w-0 flex-1 rounded-r-[14px] bg-transparent pr-4 text-[17px] leading-6 text-label tabular-nums placeholder:text-label-tertiary focus:outline-none"
+          className="h-full min-w-0 flex-1 rounded-r-control bg-transparent pr-4 text-[17px] leading-6 text-label tabular-nums placeholder:text-label-tertiary focus:outline-none"
         />
       </div>
       {invalid ? (
@@ -106,7 +106,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={submitting}
-        className={`${pillClass("filled", "large")} mt-4 w-full disabled:cursor-progress disabled:opacity-80`}
+        className={`${buttonClass("filled", "large")} mt-4 w-full disabled:cursor-progress disabled:opacity-80`}
       >
         {submitting ? "Signing in…" : "Continue"}
       </button>
@@ -114,7 +114,7 @@ export function LoginForm() {
       <button
         type="button"
         onClick={switchMode}
-        className="mt-5 rounded-full px-3 py-1.5 text-[15px] leading-5 text-accent-text transition-colors duration-150 active:bg-accent-tint [@media(hover:hover)]:hover:underline [@media(hover:hover)]:hover:underline-offset-4"
+        className="mt-5 rounded-control px-3 py-1.5 text-[15px] leading-5 text-accent-text transition-colors duration-150 active:bg-accent-tint [@media(hover:hover)]:hover:underline [@media(hover:hover)]:hover:underline-offset-4"
       >
         {text.switchTo}
       </button>

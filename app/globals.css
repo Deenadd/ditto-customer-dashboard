@@ -49,6 +49,11 @@
   --color-red-text: #c41e3a;
   --color-red-tint: #fdeeee;
 
+  /* Corner radius shared by the input field and every text button, so all
+     controls read as one family. Inner is for things inset 3px inside one. */
+  --radius-control: 14px;
+  --radius-control-inner: 11px;
+
   /* Brand artwork from the Figma file */
   --color-logo-tile: #d0eafe;
   --color-avatar: #cee4f9;

@@ -15,21 +15,21 @@ const sizes: Record<Size, string> = {
   large: "h-12 px-6 text-[17px] gap-2",
 };
 
-/** Class list for anything that should look like a pill button, links too. */
-export function pillClass(variant: Variant = "filled", size: Size = "medium") {
-  return `inline-flex shrink-0 items-center justify-center rounded-full font-medium leading-none tracking-[-0.01em] whitespace-nowrap select-none transition-[transform,background-color] duration-150 ease-out active:scale-[0.96] ${variants[variant]} ${sizes[size]}`;
+/** Class list for anything that should look like a button, links too. */
+export function buttonClass(variant: Variant = "filled", size: Size = "medium") {
+  return `inline-flex shrink-0 items-center justify-center rounded-control font-medium leading-none tracking-[-0.01em] whitespace-nowrap select-none transition-[transform,background-color] duration-150 ease-out active:scale-[0.96] ${variants[variant]} ${sizes[size]}`;
 }
 
 /**
- * Apple-style pill. Filled is the one primary action in a view; tinted and
- * plain are its quieter peers. Presses scale on pointer-down.
+ * Button with the input field's 14px corners. Filled is the one primary
+ * action in a view; tinted and plain are its quieter peers. Presses scale.
  */
-export function PillButton({
+export function Button({
   variant = "filled",
   size = "medium",
   className = "",
   type = "button",
   ...props
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; size?: Size }) {
-  return <button type={type} className={`${pillClass(variant, size)} ${className}`} {...props} />;
+  return <button type={type} className={`${buttonClass(variant, size)} ${className}`} {...props} />;
 }

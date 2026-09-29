@@ -65,7 +65,7 @@ export function SegmentedLinks({
   return (
     <nav aria-label={label} className="max-w-full overflow-x-auto overscroll-x-contain">
       <ul
-        className={`inline-flex rounded-full bg-fill-strong p-[3px] ${small ? "h-8" : "h-9"}`}
+        className={`inline-flex rounded-control bg-fill-strong p-[3px] ${small ? "h-8" : "h-9"}`}
       >
         {segments.map((segment) => {
           const current = segment.value === selected;
@@ -75,7 +75,7 @@ export function SegmentedLinks({
                 <span
                   ref={thumbRef}
                   aria-hidden
-                  className="absolute inset-0 origin-left rounded-full bg-surface shadow-thumb"
+                  className="absolute inset-0 origin-left rounded-control-inner bg-surface shadow-thumb"
                 />
               ) : null}
               <Link
@@ -90,7 +90,7 @@ export function SegmentedLinks({
                   }
                   setPressed(segment.value);
                 }}
-                className={`relative flex items-center gap-1.5 rounded-full font-medium whitespace-nowrap transition-colors duration-150 ${
+                className={`relative flex items-center gap-1.5 rounded-control-inner font-medium whitespace-nowrap transition-colors duration-150 ${
                   small ? "px-3 text-[13px]" : "px-4 text-[14px]"
                 } ${
                   current

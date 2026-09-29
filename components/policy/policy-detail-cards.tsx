@@ -1,6 +1,6 @@
 import { Monogram } from "@/components/dashboard/policy-pair";
 import { Asset } from "@/components/ui/asset";
-import { PillButton } from "@/components/ui/buttons";
+import { Button } from "@/components/ui/buttons";
 import { AddOnChips, FieldItem, StatusPill, cardClass } from "@/components/ui/card-bits";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
 import type { CoverIcon, CoverItem, Exclusion } from "@/lib/policy-detail";
@@ -22,7 +22,7 @@ export function PolicyHeader({ policy }: { policy: typeof policyDetail }) {
           <span className="text-[13px] leading-[18px] text-label-secondary">{policy.kind}</span>
         </div>
       </div>
-      <PillButton variant="tinted" size="medium" className="max-sm:ml-[72px]">
+      <Button variant="tinted" size="medium" className="max-sm:ml-[72px]">
         <svg aria-hidden width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path
             d="M8 2v8.5m0 0L4.75 7.25M8 10.5l3.25-3.25M2.75 13.25h10.5"
@@ -33,7 +33,7 @@ export function PolicyHeader({ policy }: { policy: typeof policyDetail }) {
           />
         </svg>
         Download policy
-      </PillButton>
+      </Button>
     </header>
   );
 }
