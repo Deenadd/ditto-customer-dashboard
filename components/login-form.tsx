@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { OtpField } from "@/components/otp-field";
@@ -250,15 +249,7 @@ function CodeStep({ mobile, onChangeNumber }: { mobile: string; onChangeNumber: 
 
   return (
     <>
-      <Image
-        src="/login/otp-key.png"
-        alt=""
-        width={190}
-        height={190}
-        priority
-        className="mt-8 size-24"
-      />
-      <h1 className="mt-3 text-center text-[32px] leading-9 font-bold tracking-[-0.03em] text-balance text-label">
+      <h1 className="mt-8 text-center text-[32px] leading-9 font-bold tracking-[-0.03em] text-balance text-label">
         Verify your number
       </h1>
       <p
