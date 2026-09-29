@@ -44,13 +44,23 @@ polished Apple style:
   can be redirected mid-slide. Document rows glide into place when reordered
   (FLIP), popovers grow from their trigger, and presses scale to 0.96. Every
   motion drops to a cross-fade or nothing under *Reduce motion*.
+- **Progressive blur** along the bottom of the dashboard and policy pages,
+  ported from Deena's portfolio (80px, 4px blur, masked; technique from
+  Skiper UI). Content softens into the page instead of being cut off by the
+  window edge.
 - **Colour**: every text/background pair is measured and meets WCAG AA; the
   values are listed at the top of `app/globals.css`.
 
 ## What works
 
 - **Sign in** accepts any 10-digit mobile number, or an 11-digit application
-  number; anything else shows an inline error.
+  number; anything else shows an inline error. A mobile number moves on to
+  **Verify your number**, modelled on the older "Ditto - Link - Confirm
+  phone" screen. It has four code boxes that are really one input, so paste
+  and SMS autofill (`one-time-code`) work. A full code verifies itself, and a
+  short one shows an error and shakes. There's a 30-second resend timer and a
+  Change number link. Any four digits sign in. An application number skips
+  the code.
 - **Segmented controls** are links, so every view has its own URL.
 - **Notifications** (the bell) lists the latest application updates and marks
   them read; each opens the timeline.
