@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Design tokens.
+   The Ditto base palette, carried over from the renewal flow (Figma file
+   kalCtplJimHm1xtOJGC60d). Names follow the Figma variable paths. Add
+   dashboard-specific tokens below this block as the screens come in.
+   --------------------------------------------------------------------------- */
+@theme {
+  /* Text */
+  --color-ink: #222324;            /* text/primary-text */
+  --color-ink-secondary: #5e6063;  /* text/secondary-text */
+  --color-ink-muted: #b6b8ba;      /* text/muted-text */
+  --color-ink-inverted: #ffffff;   /* text/inverted-text */
+
+  /* Semantic accents */
+  --color-link: #2580d3;           /* text/link-text */
+  --color-attention: #bc4c00;      /* text/attention-text */
+  --color-success: #3f9256;        /* text/success-text */
+  --color-error-text: #cf222e;     /* text/error-text */
+
+  /* Neutral scale */
+  --color-grey-50: #fcfcfd;        /* scale/grey/grey-50 */
+  --color-grey-100: #f7f7f8;       /* scale/grey/grey-100 */
+  --color-grey-150: #edeeee;       /* scale/grey/grey-150 */
+  --color-grey-200: #d6d7d8;       /* scale/grey/grey-200 */
+  --color-grey-300: #b6b8ba;       /* scale/grey/grey-300 */
+  --color-slate-4: #e8e8ec;        /* Slate/Light/4 - nav border */
+  --color-slate-5: #e0e1e6;        /* Slate/Light/5 - button border */
+
+  /* Tinted surfaces */
+  --color-orange-50: #fff1e5;      /* scale/orange/orange-50 */
+  --color-green-100: #ecf8ef;      /* scale/green/green-100 */
+  --color-blue-light: #ebf5ff;     /* bg/primary-blue-light */
+
+  /* Action */
+  --color-primary: #389bf5;        /* primary/solid/default */
+  --color-primary-hover: #2482f7;
+  --color-disabled: #d6d7d8;       /* primary/solid/disabled */
+  --color-focus-ring: #bfe0ff;     /* scale/blue/blue-100 */
+
+  /* elevation/default.card */
+  --shadow-card:
+    0 2px 2px 0 rgb(30 37 75 / 0.01),
+    0 3px 16px 0 rgb(30 37 75 / 0.02);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+
+  /* The strong ease-out UI motion Ditto settles on. */
+  --ease-strong: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: #ffffff;
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-optical-sizing: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Keep focus rings visible and on-brand for keyboard users only. */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer utilities {
+  /* Figma applies "liga" 0 / "calt" 0 to figures so currency and digits keep
+     their designed shapes, and "case" 1 to uppercase micro-labels. */
+  .ff-figures {
+    font-feature-settings: "liga" 0, "calt" 0;
+  }
+
+  .ff-case {
+    font-feature-settings: "case" 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
