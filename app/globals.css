@@ -2,53 +2,85 @@
 
 /* ---------------------------------------------------------------------------
    Design tokens.
-   The Ditto base palette, carried over from the renewal flow (Figma file
-   kalCtplJimHm1xtOJGC60d). Names follow the Figma variable paths. Add
-   dashboard-specific tokens below this block as the screens come in.
+   Values mirror the Figma variables on the customer dashboard page
+   (file kalCtplJimHm1xtOJGC60d, page 5:5). Names follow the Figma paths.
    --------------------------------------------------------------------------- */
 @theme {
-  /* Text */
-  --color-ink: #222324;            /* text/primary-text */
-  --color-ink-secondary: #5e6063;  /* text/secondary-text */
-  --color-ink-muted: #b6b8ba;      /* text/muted-text */
-  --color-ink-inverted: #ffffff;   /* text/inverted-text */
+  /* Grey scale (Grey 50 … Grey 900) */
+  --color-grey-50: #f7f9fa;
+  --color-grey-100: #f2f4f5;
+  --color-grey-200: #e8eaeb;
+  --color-grey-300: #d9ddde;
+  --color-grey-400: #bfc4c6;
+  --color-grey-500: #9ca3a5;
+  --color-grey-600: #737575;
+  --color-grey-700: #525454;
+  --color-grey-900: #1e1f20;
 
-  /* Semantic accents */
-  --color-link: #2580d3;           /* text/link-text */
-  --color-attention: #bc4c00;      /* text/attention-text */
-  --color-success: #3f9256;        /* text/success-text */
-  --color-error-text: #cf222e;     /* text/error-text */
+  /* Text roles */
+  --color-ink: #1e1f20;            /* Grey 900 */
+  --color-ink-secondary: #525454;  /* Grey 700 */
+  --color-ink-tertiary: #737575;   /* Grey 600 */
+  --color-ink-label: #888888;      /* field labels above values */
+  --color-ink-title: #3a3b3c;      /* active policy card title */
 
-  /* Neutral scale */
-  --color-grey-50: #fcfcfd;        /* scale/grey/grey-50 */
-  --color-grey-100: #f7f7f8;       /* scale/grey/grey-100 */
-  --color-grey-150: #edeeee;       /* scale/grey/grey-150 */
-  --color-grey-200: #d6d7d8;       /* scale/grey/grey-200 */
-  --color-grey-300: #b6b8ba;       /* scale/grey/grey-300 */
-  --color-slate-4: #e8e8ec;        /* Slate/Light/4 - nav border */
-  --color-slate-5: #e0e1e6;        /* Slate/Light/5 - button border */
+  /* Surfaces and hairlines */
+  --color-card-border: #e4e7ec;
+  --color-avatar: #cee4f9;
+  --color-logo-tile: #d0eafe;
 
-  /* Tinted surfaces */
-  --color-orange-50: #fff1e5;      /* scale/orange/orange-50 */
-  --color-green-100: #ecf8ef;      /* scale/green/green-100 */
-  --color-blue-light: #ebf5ff;     /* bg/primary-blue-light */
+  /* Blue */
+  --color-primary: #3dabf5;        /* Primary/Blue */
+  --color-primary-strong: #0e9dff; /* primary.blue/blue.600 - active tab */
+  --color-falcon: #0087ff;         /* ditto.falcon-blue - section count */
+  --color-blue-400: #70befc;
+  --color-blue-100: #f0f8ff;
+  --color-blue-50: #f1f9ff;        /* "Add ons" chip */
+  --color-link: #1176f9;           /* login page link */
 
-  /* Action */
-  --color-primary: #389bf5;        /* primary/solid/default */
-  --color-primary-hover: #2482f7;
-  --color-disabled: #d6d7d8;       /* primary/solid/disabled */
-  --color-focus-ring: #bfe0ff;     /* scale/blue/blue-100 */
+  /* Status labels */
+  --color-status-pending: #d9942e; /* Yellow / 801 */
+  --color-status-pending-ink: #faf5ed; /* Yellow / 100 */
+  --color-status-verifying: #52b9ab;
+  --color-status-rejected: #9ca3a5; /* Grey 500 */
+  --color-danger: #f24c4c;         /* Red / 500 - delete icon */
+  --color-danger-text: #e04a4a;    /* Red / 600 - rejection reason */
+
+  /* Login page */
+  --color-login-ink: #121315;
+  --color-login-muted: #767676;
+  --color-field: #f4f5fa;
+  --color-field-border: #d8dbea;
+  --color-field-placeholder: #bdc0c9;
 
   /* elevation/default.card */
   --shadow-card:
     0 2px 2px 0 rgb(30 37 75 / 0.01),
     0 3px 16px 0 rgb(30 37 75 / 0.02);
+  /* Active policy cards (node 149:10050) */
+  --shadow-policy: 0 2.767px 2.214px 0 rgb(0 0 0 / 0.02);
+  /* The white panel inside an active policy card */
+  --shadow-panel:
+    0 2.767px 1.107px rgb(0 0 0 / 0.02),
+    0 2px 10px rgb(0 0 0 / 0.05);
+  /* dropshadow/level 2 - a document lifted in the stack */
+  --shadow-lifted:
+    0 79px 60px rgb(16 17 18 / 0.07),
+    0 18px 10px rgb(16 17 18 / 0.04),
+    0 5px 4px rgb(16 17 18 / 0.03);
+  /* Insurer logo tiles */
+  --shadow-logo:
+    0 6px 241px 0 rgb(0 0 0 / 0.07),
+    0 1.34px 53.831px 0 rgb(0 0 0 / 0.04),
+    0 0.399px 16.027px 0 rgb(0 0 0 / 0.03);
 
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
   /* The strong ease-out UI motion Ditto settles on. */
   --ease-strong: cubic-bezier(0.23, 1, 0.32, 1);
+
+  --animate-menu: menu-in 160ms cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 
 @layer base {
@@ -67,21 +99,16 @@
 
   /* Keep focus rings visible and on-brand for keyboard users only. */
   :focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--color-primary-strong);
     outline-offset: 2px;
     border-radius: 4px;
   }
 }
 
 @layer utilities {
-  /* Figma applies "liga" 0 / "calt" 0 to figures so currency and digits keep
-     their designed shapes, and "case" 1 to uppercase micro-labels. */
-  .ff-figures {
-    font-feature-settings: "liga" 0, "calt" 0;
-  }
-
+  /* Figma sets "case" and "dlig" on tab and section labels. */
   .ff-case {
-    font-feature-settings: "case" 1;
+    font-feature-settings: "case" 1, "dlig" 1;
   }
 }
 
@@ -93,5 +120,17 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Menus scale in from their trigger rather than from nothing. */
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }

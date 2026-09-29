@@ -1,11 +1,67 @@
 # Ditto customer dashboard
 
-A web prototype of the Ditto customer dashboard. It shares its stack, design
-tokens and brand assets with the
+A web prototype of the Ditto customer dashboard, built from the Figma page
+**"🧁 Deena's draft" / Page 5** (file `kalCtplJimHm1xtOJGC60d`, node `5:5`).
+It shares its stack and conventions with the
 [Ditto renewal flow](https://github.com/Deenadd/ditto-renewal-flow).
 
 - Live: https://ditto-customer-dashboard.vercel.app
 - Every push to `main` deploys to production on Vercel.
+
+## Screens
+
+| Route | Screen | Figma node |
+| --- | --- | --- |
+| `/` | Sign in | `149:10704` |
+| `/dashboard` | Pending applications, card view | `149:8862` |
+| `/dashboard?view=timeline` | Pending applications, timeline view | `149:9509` |
+| `/dashboard?tab=active` | Active policies | `149:9845` |
+| `/dashboard?tab=inactive` | Inactive policies | `149:10213` |
+| `/dashboard?customer=new` | No pending applications (empty state) | `149:10485` |
+| `/dashboard/policies/474-981-34EDH20` | Policy view | `149:9188` |
+
+State lives in the URL, so every screen has a link to share. The avatar menu
+switches between the customer with pending applications and the one with
+none, and logs out.
+
+## What works
+
+- **Sign in** accepts any 10-digit mobile number, or an 11-digit application
+  number via the link under the button; anything else shows an inline error.
+- **Tabs** are links, with `aria-current` on the open one.
+- **Switch timeline view** is a real checkbox.
+- **Active policy card** (the health policy) opens the policy view; the
+  breadcrumb leads back.
+- **Document Stack**: hovering or focusing a row lifts it and shows delete and
+  a drag handle (always shown on touch screens). Rows reorder by drag and
+  drop, or with the arrow keys on the handle; both announce the new position.
+  Delete removes the row and moves focus to its neighbour.
+- **Quick support links** show the design's hover state.
+
+Buttons with no destination in the design are real buttons that do nothing
+yet: notifications, Chat now, Learn more, Download and the quick support
+links.
+
+## Fidelity notes
+
+- **Counts**: the design shows 2 active policies but lists 3 (one health, two
+  term). The badge and welcome card show the real count, 3.
+- **Tab names**: the design calls the first tab "Pending Policies" on the
+  pending screens and "Pending Applications" elsewhere; it is "Pending
+  Applications" throughout, matching the empty state's copy. The empty state
+  also keeps the usual tab order.
+- **Copy fixes**: "drap & drop this" → "drag & drop these", "Sucide" →
+  "Suicide", "Domicillary" → "Domiciliary", "Whats Covered" → "What's
+  Covered", "Timeline showed based on the latest updates" → "Timeline of your
+  latest updates", "Rejected Application" (two cards) → "Rejected
+  Applications".
+- **Placeholder copy kept**: Day Care, Domiciliary and Ayush all reuse the
+  maternity description, and the quick links list four links twice, as drawn.
+- **Contrast**: white text on Primary/Blue `#3dabf5` (Chat now, Learn more) and
+  on the status labels is under WCAG AA (about 2.6:1). Kept as designed.
+- **Topography** behind active policy cards is rebuilt from its exported
+  layers with Figma's own transforms (container units and `hypot()`), since
+  the flattened export came with page background baked in.
 
 ## Stack
 
@@ -24,19 +80,27 @@ npm install
 npm run dev
 ```
 
-Then open http://localhost:3000.
-
-Other scripts: `npm run build`, `npm run start`, `npm run lint`.
+Then open http://localhost:3000. Other scripts: `npm run build`,
+`npm run start`, `npm run lint`.
 
 ## Layout
 
 ```
 app/
-  globals.css          Ditto design tokens (colours, shadow, type helpers)
-  layout.tsx           Font wiring and document metadata
-  page.tsx             The dashboard
+  globals.css                 Design tokens from the Figma variables
+  page.tsx                    Sign in
+  dashboard/page.tsx          The three tabs and the sidebar
+  dashboard/policies/[id]/    Policy view
 components/
-  site-header.tsx      Nav bar with the Ditto mark
+  site-header.tsx             Nav bar with notifications and account menu
+  login-form.tsx              Mobile / application number form
+  dashboard/                  Cards, tabs, timeline, empty state, sidebar
+  policy/                     Policy view cards and quick links
+  ui/                         Assets, buttons, logo tiles, account menu
+lib/
+  dashboard-data.ts           Everything the dashboard shows
+  policy-detail.ts            The policy view's content
+  routes.ts                   URL state for tab, view and customer
 public/
-  brand/               Ditto logo
+  brand/  dashboard/  login/  Assets exported from Figma
 ```

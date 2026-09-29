@@ -9,8 +9,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Your dashboard — Ditto",
-  description: "Your Ditto policies, renewals and claims in one place.",
+  title: "Ditto — Insurance made simple",
+  description:
+    "Sign in to Ditto to see your pending applications, active and inactive policies, and saved documents.",
 };
 
 export default function RootLayout({
