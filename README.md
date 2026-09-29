@@ -35,7 +35,8 @@ polished Apple style:
 - **Surfaces**: a white page with white 22px cards edged by a hairline and a
   soft shadow, facts in inset grey tiles, and spacing instead of divider lines.
 - **Controls**: segmented controls for the tabs and the grouped/timeline view,
-  pill buttons with one filled action per view, and tinted status capsules
+  buttons with the input field's 14px corners (`--radius-control`), one
+  filled action per view, and tinted status capsules
   with a dot.
 - **Materials**: a frosted, translucent nav bar and popovers that turn solid
   under *Reduce transparency*.
