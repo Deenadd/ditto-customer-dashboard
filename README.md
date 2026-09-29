@@ -38,16 +38,20 @@ polished Apple style:
   buttons with the input field's 14px corners (`--radius-control`), one
   filled action per view, and tinted status capsules
   with a dot.
-- **Materials**: a frosted, translucent nav bar and popovers that turn solid
-  under *Reduce transparency*.
+- **Materials**: frosted popovers, and a header that floats on a progressive
+  blur. Both turn solid under *Reduce transparency*.
 - **Motion**: the segmented thumb slides as soon as a segment is picked and
   can be redirected mid-slide. Document rows glide into place when reordered
   (FLIP), popovers grow from their trigger, and presses scale to 0.96. Every
   motion drops to a cross-fade or nothing under *Reduce motion*.
-- **Progressive blur** along the bottom of the dashboard and policy pages,
-  ported from Deena's portfolio (80px, 4px blur, masked; technique from
-  Skiper UI). Content softens into the page instead of being cut off by the
-  window edge.
+- **Progressive blur** at both edges of the dashboard and policy pages,
+  ported from Deena's portfolio (4px blur, masked; technique from Skiper
+  UI). At the bottom it's 80px, so content softens instead of being cut off.
+  At the top it's 150px behind the header (120px on phones) and fades in over
+  the first 80px of scroll, so the header sits on the plain page at rest and
+  nothing is smeared. It stays nearly solid through the header's height so
+  the icons remain legible, and it replaces the header's frosted bar and
+  hairline.
 - **Colour**: every text/background pair is measured and meets WCAG AA; the
   values are listed at the top of `app/globals.css`.
 

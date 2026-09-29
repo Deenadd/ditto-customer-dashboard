@@ -12,8 +12,9 @@ const statusCopy = {
 } as const;
 
 /**
- * Frosted navigation bar: content scrolls underneath it. The Ditto mark
- * leads home; notifications and the account menu sit on the right.
+ * Navigation bar with no fill of its own: it floats over the page's top
+ * progressive blur, which fades in once content scrolls beneath it. The
+ * Ditto mark leads home; notifications and the account menu sit right.
  */
 export function SiteHeader({ customerState = "default" }: { customerState?: Customer }) {
   const updates: Update[] =
@@ -31,7 +32,7 @@ export function SiteHeader({ customerState = "default" }: { customerState?: Cust
         );
 
   return (
-    <header className="material-bar sticky top-0 z-30 border-b border-black/[0.06]">
+    <header className="sticky top-0 z-30">
       <div className="mx-auto flex h-14 max-w-[1112px] items-center justify-between px-5 sm:h-16 xl:px-0">
         <Link
           href={dashboardHref({ customer: customerState })}
