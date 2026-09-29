@@ -5,11 +5,10 @@ import { ApplicationTimeline } from "@/components/dashboard/application-timeline
 import { DocumentStack } from "@/components/dashboard/document-stack";
 import { EmptyApplications } from "@/components/dashboard/empty-applications";
 import { PolicyPair } from "@/components/dashboard/policy-pair";
-import { PolicyTabs } from "@/components/dashboard/policy-tabs";
 import { RejectedCard } from "@/components/dashboard/rejected-card";
 import { WelcomeCard } from "@/components/dashboard/sidebar-cards";
-import { TimelineSwitch } from "@/components/dashboard/timeline-switch";
-import { SectionTitle, ShieldDivider } from "@/components/ui/card-bits";
+import { Count, SectionTitle } from "@/components/ui/card-bits";
+import { SegmentedLinks } from "@/components/ui/segmented";
 import {
   activePolicyCount,
   activePolicyGroups,
@@ -23,7 +22,12 @@ import {
   requirementRequests,
   savedDocuments,
 } from "@/lib/dashboard-data";
-import { policyHref, readDashboardState, type DashboardState } from "@/lib/routes";
+import {
+  dashboardHref,
+  policyHref,
+  readDashboardState,
+  type DashboardState,
+} from "@/lib/routes";
 
 export const metadata: Metadata = {
   title: "Your policies — Ditto",
@@ -36,41 +40,90 @@ export default async function DashboardPage({
 }) {
   const state = readDashboardState(await searchParams);
   const hasPending = state.customer === "default";
+  const counts = {
+    pending: hasPending ? applicationCount : 0,
+    active: activePolicyCount,
+    inactive: inactiveCount,
+  };
 
   return (
     <>
       <SiteHeader customerState={state.customer} />
       <main
         id="main"
-        className="mx-auto grid max-w-[1112px] grid-cols-1 gap-x-8 gap-y-6 px-6 pt-10 pb-16 [grid-template-areas:'welcome'_'main'_'docs'] lg:grid-cols-[minmax(0,750px)_330px] lg:grid-rows-[auto_1fr] lg:justify-between lg:[grid-template-areas:'main_welcome'_'main_docs'] xl:px-0"
+        className="mx-auto grid max-w-[1112px] grid-cols-1 gap-x-8 gap-y-6 px-4 pt-6 pb-20 [grid-template-areas:'welcome'_'main'_'docs'] sm:px-6 sm:pt-10 lg:grid-cols-[minmax(0,750px)_330px] lg:grid-rows-[auto_1fr] lg:justify-between lg:[grid-template-areas:'main_welcome'_'main_docs'] xl:px-0"
       >
-        <h1 className="sr-only">Your policies</h1>
+        <div className="min-w-0 [grid-area:main] max-lg:mt-4">
+          <h1 className="text-[32px] leading-[38px] font-bold tracking-[-0.03em] text-label">
+            Your policies
+          </h1>
 
-        <div className="min-w-0 [grid-area:main] max-lg:mt-2">
-          <div className="lg:mt-[3px]">
-            <PolicyTabs
-              state={state}
-              counts={{
-                pending: hasPending ? applicationCount : 0,
-                active: activePolicyCount,
-                inactive: inactiveCount,
-              }}
-              trailing={
-                state.tab === "pending" && hasPending ? (
-                  <TimelineSwitch checked={state.timeline} customer={state.customer} />
-                ) : undefined
-              }
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+            <SegmentedLinks
+              label="Policies"
+              value={state.tab}
+              segments={[
+                {
+                  value: "pending",
+                  href: dashboardHref({ tab: "pending", timeline: state.timeline, customer: state.customer }),
+                  label: (
+                    <>
+                      Pending <Count value={counts.pending} />
+                    </>
+                  ),
+                },
+                {
+                  value: "active",
+                  href: dashboardHref({ tab: "active", customer: state.customer }),
+                  label: (
+                    <>
+                      Active <Count value={counts.active} />
+                    </>
+                  ),
+                },
+                {
+                  value: "inactive",
+                  href: dashboardHref({ tab: "inactive", customer: state.customer }),
+                  label: (
+                    <>
+                      Inactive <Count value={counts.inactive} />
+                    </>
+                  ),
+                },
+              ]}
             />
+            {state.tab === "pending" && hasPending ? (
+              <SegmentedLinks
+                label="Show applications as"
+                size="small"
+                value={state.timeline ? "timeline" : "grouped"}
+                segments={[
+                  {
+                    value: "grouped",
+                    href: dashboardHref({ customer: state.customer }),
+                    label: "By status",
+                  },
+                  {
+                    value: "timeline",
+                    href: dashboardHref({ timeline: true, customer: state.customer }),
+                    label: "Timeline",
+                  },
+                ]}
+              />
+            ) : null}
           </div>
-          <TabPanel state={state} hasPending={hasPending} />
+
+          <div className="mt-8">
+            <TabPanel state={state} hasPending={hasPending} />
+          </div>
         </div>
 
         <div className="[grid-area:welcome]">
           <WelcomeCard
-            name={customer.name}
+            firstName={customer.firstName}
             memberSince={customer.memberSince}
             activePolicies={activePolicyCount}
-            requirementRequests={hasPending ? requirementRequests : undefined}
+            requirementRequests={hasPending ? requirementRequests : 0}
           />
         </div>
 
@@ -85,18 +138,13 @@ export default async function DashboardPage({
 function TabPanel({ state, hasPending }: { state: DashboardState; hasPending: boolean }) {
   if (state.tab === "active") {
     return (
-      <div className="mt-8">
+      <div className="flex flex-col gap-10">
         {activePolicyGroups.map((group, index) => (
           <section key={group.title} aria-labelledby={`active-${index}`}>
-            {index > 0 ? (
-              <div className="my-8">
-                <ShieldDivider />
-              </div>
-            ) : null}
             <SectionTitle id={`active-${index}`} count={group.items.length}>
               {group.title}
             </SectionTitle>
-            <ul className="mt-6 flex flex-col gap-8">
+            <ul className="mt-3 flex flex-col gap-6">
               {group.items.map((policy) => (
                 <li key={policy.id}>
                   <PolicyPair
@@ -114,12 +162,12 @@ function TabPanel({ state, hasPending }: { state: DashboardState; hasPending: bo
 
   if (state.tab === "inactive") {
     return (
-      <div className="mt-8">
+      <div className="flex flex-col gap-10">
         <section aria-labelledby="expired-title">
           <SectionTitle id="expired-title" count={expiredPolicies.length}>
-            Expired Policies
+            Expired policies
           </SectionTitle>
-          <ul className="mt-6 flex flex-col gap-8">
+          <ul className="mt-3 flex flex-col gap-6">
             {expiredPolicies.map((policy) => (
               <li key={policy.id}>
                 <PolicyPair policy={policy} muted />
@@ -127,14 +175,11 @@ function TabPanel({ state, hasPending }: { state: DashboardState; hasPending: bo
             ))}
           </ul>
         </section>
-        <div className="my-8">
-          <ShieldDivider />
-        </div>
         <section aria-labelledby="rejected-title">
           <SectionTitle id="rejected-title" count={rejectedApplications.length}>
-            Rejected Applications
+            Rejected applications
           </SectionTitle>
-          <ul className="mt-5 flex flex-col gap-5">
+          <ul className="mt-3 flex flex-col gap-4">
             {rejectedApplications.map((application) => (
               <li key={application.id}>
                 <RejectedCard application={application} />
@@ -150,26 +195,20 @@ function TabPanel({ state, hasPending }: { state: DashboardState; hasPending: bo
 
   if (state.timeline) {
     return (
-      <section aria-labelledby="timeline-title" className="mt-8">
-        <SectionTitle id="timeline-title">Timeline of your latest updates</SectionTitle>
-        <div className="mt-[35px]">
-          <ApplicationTimeline groups={applicationTimeline} />
-        </div>
+      <section aria-label="Applications by latest update">
+        <ApplicationTimeline groups={applicationTimeline} />
       </section>
     );
   }
 
   return (
-    <div className="mt-8">
+    <div className="flex flex-col gap-10">
       {applicationGroups.map((group, index) => (
         <section key={group.title} aria-labelledby={`pending-${index}`}>
-          {index > 0 ? (
-            <div className="my-8">
-              <ShieldDivider />
-            </div>
-          ) : null}
-          <SectionTitle id={`pending-${index}`}>{group.title}</SectionTitle>
-          <ul className={`${index > 0 ? "mt-5" : "mt-6"} flex flex-col gap-4`}>
+          <SectionTitle id={`pending-${index}`} count={group.items.length}>
+            {group.title}
+          </SectionTitle>
+          <ul className="mt-3 flex flex-col gap-4">
             {group.items.map((application) => (
               <li key={application.id}>
                 <ApplicationCard application={application} />

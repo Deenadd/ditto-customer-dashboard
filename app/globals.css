@@ -1,114 +1,107 @@
 @import "tailwindcss";
 
 /* ---------------------------------------------------------------------------
-   Design tokens.
-   Values mirror the Figma variables on the customer dashboard page
-   (file kalCtplJimHm1xtOJGC60d, page 5:5). Names follow the Figma paths.
+   Design tokens — Apple-style system on top of the Ditto Figma page
+   (file kalCtplJimHm1xtOJGC60d, page 5:5).
+
+   Components use the semantic tokens only. Every text pair below was measured
+   against the surface it renders on (WCAG 2 ratio):
+     label            #1d1d1f on surface 16.8, on page 15.5
+     label-secondary  #6e6e73 on surface 5.07, on fill 4.66
+     white on accent  #0071e3 4.70     accent-text #0066cc on surface 5.57
+     orange-text  on orange-tint 5.46   teal-text  on teal-tint 4.68
+     green-text   on green-tint  4.88   grey-text  on grey-tint 6.95
+     red-text     on red-tint    5.19
+   label-tertiary (#86868b, 3.62 on white) is for large or decorative text only.
    --------------------------------------------------------------------------- */
 @theme {
-  /* Grey scale (Grey 50 … Grey 900) */
-  --color-grey-50: #f7f9fa;
-  --color-grey-100: #f2f4f5;
-  --color-grey-200: #e8eaeb;
-  --color-grey-300: #d9ddde;
-  --color-grey-400: #bfc4c6;
-  --color-grey-500: #9ca3a5;
-  --color-grey-600: #737575;
-  --color-grey-700: #525454;
-  --color-grey-900: #1e1f20;
+  /* Surfaces */
+  --color-page: #f5f5f7;
+  --color-surface: #ffffff;
+  --color-fill: #f5f5f7;          /* inset tiles on a white card */
+  --color-fill-strong: #ececf0;   /* chips, monograms, segmented track */
+  --color-separator: #e8e8ed;
 
-  /* Text roles */
-  --color-ink: #1e1f20;            /* Grey 900 */
-  --color-ink-secondary: #525454;  /* Grey 700 */
-  --color-ink-tertiary: #737575;   /* Grey 600 */
-  --color-ink-label: #888888;      /* field labels above values */
-  --color-ink-title: #3a3b3c;      /* active policy card title */
+  /* Text */
+  --color-label: #1d1d1f;
+  --color-label-secondary: #6e6e73;
+  --color-label-tertiary: #86868b;
 
-  /* Surfaces and hairlines */
-  --color-card-border: #e4e7ec;
-  --color-avatar: #cee4f9;
+  /* Accent — one filled action per view */
+  --color-accent: #0071e3;
+  --color-accent-hover: #0066cc;
+  --color-accent-text: #0066cc;
+  --color-accent-tint: #e8f1fc;
+
+  /* Status: tinted capsule, dark text, vivid dot */
+  --color-orange-text: #a34800;
+  --color-orange-tint: #fff2e0;
+  --color-orange-dot: #ff9500;
+  --color-teal-text: #0a7a6e;
+  --color-teal-tint: #e6f6f3;
+  --color-teal-dot: #30b0a0;
+  --color-green-text: #1d7a3a;
+  --color-green-tint: #e9f7ee;
+  --color-green-dot: #34c759;
+  --color-grey-text: #515154;
+  --color-grey-tint: #f0f0f2;
+  --color-grey-dot: #aeaeb2;
+  --color-red-text: #c41e3a;
+  --color-red-tint: #fdeeee;
+
+  /* Brand artwork from the Figma file */
   --color-logo-tile: #d0eafe;
+  --color-avatar: #cee4f9;
 
-  /* Blue */
-  --color-primary: #3dabf5;        /* Primary/Blue */
-  --color-primary-strong: #0e9dff; /* primary.blue/blue.600 - active tab */
-  --color-falcon: #0087ff;         /* ditto.falcon-blue - section count */
-  --color-blue-400: #70befc;
-  --color-blue-100: #f0f8ff;
-  --color-blue-50: #f1f9ff;        /* "Add ons" chip */
-  --color-link: #1176f9;           /* login page link */
-
-  /* Status labels */
-  --color-status-pending: #d9942e; /* Yellow / 801 */
-  --color-status-pending-ink: #faf5ed; /* Yellow / 100 */
-  --color-status-verifying: #52b9ab;
-  --color-status-rejected: #9ca3a5; /* Grey 500 */
-  --color-danger: #f24c4c;         /* Red / 500 - delete icon */
-  --color-danger-text: #e04a4a;    /* Red / 600 - rejection reason */
-
-  /* Login page */
-  --color-login-ink: #121315;
-  --color-login-muted: #767676;
-  --color-field: #f4f5fa;
-  --color-field-border: #d8dbea;
-  --color-field-placeholder: #bdc0c9;
-
-  /* elevation/default.card */
+  /* Elevation: a hairline of shadow, then soft ambient light */
   --shadow-card:
-    0 2px 2px 0 rgb(30 37 75 / 0.01),
-    0 3px 16px 0 rgb(30 37 75 / 0.02);
-  /* Active policy cards (node 149:10050) */
-  --shadow-policy: 0 2.767px 2.214px 0 rgb(0 0 0 / 0.02);
-  /* The white panel inside an active policy card */
-  --shadow-panel:
-    0 2.767px 1.107px rgb(0 0 0 / 0.02),
-    0 2px 10px rgb(0 0 0 / 0.05);
-  /* dropshadow/level 2 - a document lifted in the stack */
-  --shadow-lifted:
-    0 79px 60px rgb(16 17 18 / 0.07),
-    0 18px 10px rgb(16 17 18 / 0.04),
-    0 5px 4px rgb(16 17 18 / 0.03);
-  /* Insurer logo tiles */
-  --shadow-logo:
-    0 6px 241px 0 rgb(0 0 0 / 0.07),
-    0 1.34px 53.831px 0 rgb(0 0 0 / 0.04),
-    0 0.399px 16.027px 0 rgb(0 0 0 / 0.03);
+    0 0 0 0.5px rgb(0 0 0 / 0.04),
+    0 1px 2px rgb(0 0 0 / 0.04),
+    0 8px 24px -12px rgb(0 0 0 / 0.08);
+  --shadow-raised:
+    0 0 0 0.5px rgb(0 0 0 / 0.05),
+    0 4px 12px rgb(0 0 0 / 0.06),
+    0 24px 48px -16px rgb(0 0 0 / 0.16);
+  --shadow-thumb:
+    0 0 0 0.5px rgb(0 0 0 / 0.04),
+    0 3px 8px rgb(0 0 0 / 0.12),
+    0 3px 1px rgb(0 0 0 / 0.04);
+  --shadow-logo: 0 1px 2px rgb(0 0 0 / 0.06);
 
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
-    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  /* System font first: SF Pro on Apple devices, Inter everywhere else. */
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-inter),
+    system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
 
-  /* The strong ease-out UI motion Ditto settles on. */
+  /* Strong ease-out: the settle of a critically damped spring. */
   --ease-strong: cubic-bezier(0.23, 1, 0.32, 1);
 
-  --animate-menu: menu-in 160ms cubic-bezier(0.23, 1, 0.32, 1) both;
+  --animate-pop: pop-in 200ms cubic-bezier(0.23, 1, 0.32, 1) both;
 }
 
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+    background-color: var(--color-page);
   }
 
   body {
-    background-color: #ffffff;
-    color: var(--color-ink);
+    background-color: var(--color-page);
+    color: var(--color-label);
     font-family: var(--font-sans);
+    font-size: 15px;
+    line-height: 1.47;
+    letter-spacing: -0.01em;
     font-optical-sizing: auto;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  /* Keep focus rings visible and on-brand for keyboard users only. */
+  /* Focus ring in the accent, for keyboard users only. */
   :focus-visible {
-    outline: 2px solid var(--color-primary-strong);
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
-    border-radius: 4px;
-  }
-}
-
-@layer utilities {
-  /* Figma sets "case" and "dlig" on tab and section labels. */
-  .ff-case {
-    font-feature-settings: "case" 1, "dlig" 1;
+    border-radius: 6px;
   }
 }
 
@@ -123,14 +116,29 @@
   }
 }
 
-/* Menus scale in from their trigger rather than from nothing. */
-@keyframes menu-in {
+/* Popovers grow out of their trigger rather than from nothing. */
+@keyframes pop-in {
   from {
     opacity: 0;
-    transform: translateY(-2px) scale(0.97);
+    transform: scale(0.96);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: scale(1);
+  }
+}
+
+/* Translucent chrome: frosted over content, solid when transparency is off. */
+.material-bar {
+  background-color: rgb(255 255 255 / 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .material-bar {
+    background-color: var(--color-surface);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 }

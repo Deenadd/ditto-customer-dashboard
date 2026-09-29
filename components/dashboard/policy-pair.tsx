@@ -1,14 +1,13 @@
 import Link from "next/link";
-import { Asset, Glow } from "@/components/ui/asset";
-import { FieldItem } from "@/components/ui/card-bits";
+import { Glow } from "@/components/ui/asset";
+import { FieldItem, StatusPill, cardClass } from "@/components/ui/card-bits";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
 import { Topography } from "@/components/dashboard/topography";
 import type { ActivePolicy, Member } from "@/lib/dashboard-data";
 
 /**
- * One policy as the pair of cards in node 149:9845: the policy on the left,
- * who it covers on the right. `muted` is the lapsed version from the inactive
- * tab (node 149:10420): grey mark, grey contours, grey dot, no shadow.
+ * One policy as two cards: the policy on the left, who it covers on the
+ * right. `muted` is the lapsed version: grey mark, grey contour lines.
  */
 export function PolicyPair({
   policy,
@@ -20,9 +19,9 @@ export function PolicyPair({
   muted?: boolean;
 }) {
   return (
-    <div className="grid gap-5 sm:grid-cols-2">
+    <div className="grid gap-4 sm:grid-cols-2">
       <PolicyCard policy={policy} href={href} muted={muted} />
-      <MembersCard policy={policy} muted={muted} />
+      <PeopleCard policy={policy} />
     </div>
   );
 }
@@ -38,34 +37,28 @@ function PolicyCard({
 }) {
   return (
     <article
-      className={`relative isolate overflow-hidden rounded-2xl border border-card-border bg-white p-[6px] pb-2 transition-[border-color,box-shadow] duration-150 ease-out ${
-        muted ? "" : "shadow-policy"
-      } ${
+      className={`group relative isolate flex flex-col overflow-hidden ${cardClass} p-5 transition-[box-shadow,transform] duration-200 ease-out ${
         href
-          ? "has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-primary-strong [@media(hover:hover)]:has-[a:hover]:border-grey-300 [@media(hover:hover)]:has-[a:hover]:shadow-card"
+          ? "has-[a:focus-visible]:outline-2 has-[a:focus-visible]:outline-offset-2 has-[a:focus-visible]:outline-accent has-[a:active]:scale-[0.99] [@media(hover:hover)]:has-[a:hover]:shadow-raised"
           : ""
       }`}
     >
-      <div className="absolute inset-0 -z-10">
+      <div aria-hidden className="absolute inset-0 -z-10">
         <Topography variant="policy" muted={muted} />
         <Glow
           src={muted ? "/dashboard/glow-card-inactive.svg" : "/dashboard/glow-card.svg"}
           style={{ left: 313, top: -107 }}
         />
-        <Asset
-          src={muted ? "/dashboard/dot-inactive.svg" : "/dashboard/dot-active.svg"}
-          className="absolute top-[11px] right-[11px] size-2"
-        />
       </div>
 
-      <div className="flex items-center gap-3 px-2 pt-2">
+      <div className="flex items-start gap-3.5">
         <InsurerLogo insurer={policy.insurer} muted={muted} />
-        <div className="min-w-0">
-          <h3 className="text-[16px] leading-[normal] font-semibold text-ink-title">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label">
             {href ? (
               <Link
                 href={href}
-                className="after:absolute after:inset-0 after:rounded-2xl focus-visible:outline-none"
+                className="after:absolute after:inset-0 after:rounded-[22px] focus-visible:outline-none"
               >
                 {policy.name}
               </Link>
@@ -73,46 +66,44 @@ function PolicyCard({
               policy.name
             )}
           </h3>
-          <p className="mt-1 text-[12px] leading-[normal] text-ink">{policy.kind}</p>
+          <p className="mt-0.5 text-[13px] leading-[18px] text-label-secondary">{policy.kind}</p>
         </div>
+        <StatusPill status={muted ? "expired" : "active"} />
       </div>
 
-      <dl className="mt-3 grid grid-cols-[179px_1fr] gap-y-[29px] rounded-xl border border-grey-200 bg-white px-[19px] pt-[23px] pb-[27px] shadow-panel max-[389px]:grid-cols-2">
-        <FieldItem gap="loose" field={{ label: "Policy number", value: policy.policyNumber }} />
-        <FieldItem gap="loose" field={{ label: "Sum Insured", value: policy.sumInsured }} />
-        <FieldItem gap="loose" field={{ label: "Coverage Type", value: policy.coverageType }} />
-        <FieldItem gap="loose" field={policy.term} />
+      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4 rounded-[14px] bg-fill/90 px-4 py-3.5 backdrop-blur-sm">
+        <FieldItem field={{ label: "Policy number", value: policy.policyNumber }} />
+        <FieldItem field={{ label: "Sum insured", value: policy.sumInsured }} />
+        <FieldItem field={{ label: "Coverage type", value: policy.coverageType }} />
+        <FieldItem field={policy.term} />
       </dl>
+
+      {href ? (
+        <p
+          aria-hidden
+          className="mt-auto flex items-center gap-1.5 pt-4 text-[14px] leading-5 font-medium text-accent-text"
+        >
+          View policy
+          <Chevron />
+        </p>
+      ) : null}
     </article>
   );
 }
 
-function MembersCard({ policy, muted }: { policy: ActivePolicy; muted: boolean }) {
+function PeopleCard({ policy }: { policy: ActivePolicy }) {
   const people = policy.people;
 
   return (
-    <article
-      aria-label={`People on ${policy.name}`}
-      className={`relative overflow-hidden rounded-2xl border border-card-border bg-white p-[6px] pb-0 ${
-        muted ? "" : "shadow-policy"
-      }`}
-    >
-      <Topography variant="members" muted={muted} />
-
-      <div className="relative min-h-[193px] rounded-xl border border-grey-200 bg-white px-[18px] pt-5 pb-[18px] shadow-panel">
-        {people.layout === "members" ? (
-          <PeopleGroup label="Member Details" members={people.members} />
-        ) : (
-          <div className="flex flex-col gap-6">
-            <PeopleGroup label="Member Detail" members={[people.member]} />
-            <PeopleGroup label="Nominee Detail" members={[people.nominee]} />
-          </div>
-        )}
-      </div>
-
-      <p className="relative px-5 pt-2 pb-3 text-[10px] leading-4 text-ink-label">
-        Your health card, download for your reference.
-      </p>
+    <article aria-label={`People on ${policy.name}`} className={`${cardClass} p-5`}>
+      {people.layout === "members" ? (
+        <PeopleGroup label="Members" members={people.members} />
+      ) : (
+        <div className="flex flex-col gap-5">
+          <PeopleGroup label="Life assured" members={[people.member]} />
+          <PeopleGroup label="Nominee" members={[people.nominee]} />
+        </div>
+      )}
     </article>
   );
 }
@@ -120,29 +111,61 @@ function MembersCard({ policy, muted }: { policy: ActivePolicy; muted: boolean }
 function PeopleGroup({ label, members }: { label: string; members: Member[] }) {
   return (
     <div>
-      <h4 className="text-[12px] leading-4 text-ink-label">{label}</h4>
-      <ul className="mt-3 flex flex-col gap-[15px]">
+      <h4 className="text-[12px] leading-4 font-semibold text-label-secondary">{label}</h4>
+      <ul className="mt-3 flex flex-col gap-3">
         {members.map((member) => (
-          <li key={member.name} className="flex items-center justify-between gap-3">
-            <span className="flex min-w-0 items-center gap-2">
-              <Asset
-                src={member.primary ? "/dashboard/member-primary.svg" : "/dashboard/member.svg"}
-                className="size-[18px] shrink-0"
-              />
-              <span className="truncate text-[14px] leading-4 font-medium tracking-[-0.5px] text-ink">
-                {member.name}
-              </span>
-            </span>
-            <span className="flex h-5 min-w-[104px] shrink-0 items-center justify-center gap-1.5 rounded-full bg-grey-100 px-2">
-              <Asset src="/dashboard/calendar-sm.svg" className="size-2.5" />
-              <span className="sr-only">Born </span>
-              <span className="text-[10px] leading-[normal] font-medium tracking-[0.5px] text-grey-700 uppercase tabular-nums">
-                {member.dob}
-              </span>
-            </span>
+          <li key={member.name} className="flex items-center gap-3">
+            <Monogram name={member.name} primary={member.primary} />
+            <div className="min-w-0">
+              <p className="truncate text-[15px] leading-5 font-medium text-label">{member.name}</p>
+              <p className="text-[12px] leading-4 text-label-secondary tabular-nums">
+                Born {member.dob}
+              </p>
+            </div>
           </li>
         ))}
       </ul>
     </div>
+  );
+}
+
+/** Contacts-style initials; the policyholder gets the accent tint. */
+export function Monogram({ name, primary }: { name: string; primary?: boolean }) {
+  const initials = name
+    .split(" ")
+    .map((part) => part[0])
+    .slice(0, 2)
+    .join("");
+  return (
+    <span
+      aria-hidden
+      className={`grid size-9 shrink-0 place-items-center rounded-full text-[13px] font-semibold tracking-[0.02em] ${
+        primary ? "bg-accent-tint text-accent-text" : "bg-fill-strong text-grey-text"
+      }`}
+    >
+      {initials}
+    </span>
+  );
+}
+
+/** SF-style chevron, nudged forward on hover of its group. */
+export function Chevron({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      aria-hidden
+      width="7"
+      height="12"
+      viewBox="0 0 7 12"
+      fill="none"
+      className={`shrink-0 transition-transform duration-200 ease-out [@media(hover:hover)]:group-hover:translate-x-0.5 ${className}`}
+    >
+      <path
+        d="M1.25 1.25 5.75 6l-4.5 4.75"
+        stroke="currentColor"
+        strokeWidth="1.75"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

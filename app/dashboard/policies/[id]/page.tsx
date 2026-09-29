@@ -5,10 +5,10 @@ import { SiteHeader } from "@/components/site-header";
 import {
   CoveredCard,
   NotCoveredCard,
+  PolicyHeader,
   PolicySummaryCard,
 } from "@/components/policy/policy-detail-cards";
 import { QuickLinksCard } from "@/components/policy/quick-links-card";
-import { Asset } from "@/components/ui/asset";
 import { covered, notCovered, policyDetail, quickLinks } from "@/lib/policy-detail";
 import { dashboardHref, readDashboardState } from "@/lib/routes";
 
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   title: `${policyDetail.name} — Ditto`,
 };
 
-/** Policy view, node 149:9188. Only the health policy is drawn. */
+/** Policy view. Only the health policy is drawn in the design. */
 export default async function PolicyPage({
   params,
   searchParams,
@@ -31,55 +31,42 @@ export default async function PolicyPage({
   return (
     <>
       <SiteHeader customerState={customer} />
-      <main id="main" className="mx-auto max-w-[1112px] px-6 pt-10 pb-16 xl:px-0">
-        <nav aria-label="Breadcrumb">
-          <ol className="flex flex-wrap items-center gap-2 text-[14px] leading-4 font-medium">
-            <li className="flex items-center gap-2">
-              <Link
-                href={dashboardHref({ customer })}
-                className="ff-case flex items-center gap-2 tracking-[-0.0238px] text-ink-tertiary transition-colors duration-150 [@media(hover:hover)]:hover:text-ink"
-              >
-                <Asset src="/dashboard/home.svg" className="size-3.5" />
-                Home
-              </Link>
-              <Chevron />
-            </li>
-            <li className="flex items-center gap-2">
-              <Link
-                href={dashboardHref({ tab: "active", customer })}
-                className="ff-case tracking-[-0.0238px] text-ink-tertiary transition-colors duration-150 [@media(hover:hover)]:hover:text-ink"
-              >
-                Active Policies
-              </Link>
-              <Chevron />
-            </li>
-            <li>
-              <span aria-current="page" className="tracking-[-0.5px] text-ink">
-                {policyDetail.id}
-              </span>
-            </li>
-          </ol>
-        </nav>
+      <main id="main" className="mx-auto max-w-[1112px] px-4 pt-5 pb-20 sm:px-6 sm:pt-8 xl:px-0">
+        <Link
+          href={dashboardHref({ tab: "active", customer })}
+          className="group -ml-2 inline-flex h-9 items-center gap-1 rounded-full pr-3 pl-2 text-[15px] leading-5 font-medium text-accent-text transition-colors duration-150 active:bg-accent-tint [@media(hover:hover)]:hover:bg-accent-tint"
+        >
+          <svg
+            aria-hidden
+            width="9"
+            height="15"
+            viewBox="0 0 9 15"
+            fill="none"
+            className="transition-transform duration-200 ease-out [@media(hover:hover)]:group-hover:-translate-x-0.5"
+          >
+            <path
+              d="M7.5 1.5 1.75 7.5l5.75 6"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          Active policies
+        </Link>
 
-        <div className="mt-[21px] grid gap-x-8 gap-y-5 lg:grid-cols-[minmax(0,750px)_330px] lg:justify-between">
-          <div className="flex min-w-0 flex-col gap-5">
+        <div className="mt-4 grid gap-x-8 gap-y-6 lg:grid-cols-[minmax(0,750px)_330px] lg:justify-between">
+          <div className="flex min-w-0 flex-col gap-6">
+            <PolicyHeader policy={policyDetail} />
             <PolicySummaryCard policy={policyDetail} />
             <CoveredCard items={covered} />
             <NotCoveredCard items={notCovered} />
           </div>
-          <aside aria-label="Support" className="self-start">
+          <aside aria-label="Support" className="self-start lg:sticky lg:top-24">
             <QuickLinksCard links={quickLinks} />
           </aside>
         </div>
       </main>
     </>
-  );
-}
-
-function Chevron() {
-  return (
-    <span aria-hidden className="grid size-3 place-items-center">
-      <Asset src="/dashboard/chevron.svg" className="size-3 -rotate-90" />
-    </span>
   );
 }

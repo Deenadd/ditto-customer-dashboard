@@ -24,44 +24,67 @@ State lives in the URL, so every screen has a link to share. The avatar menu
 switches between the customer with pending applications and the one with
 none, and logs out.
 
+## Design direction
+
+The screens follow the Figma page's structure and content, restyled in a
+polished Apple style:
+
+- **System type**: SF Pro on Apple devices, Inter elsewhere. There's a large
+  bold page title, 17px semibold headlines, and tracking that tightens as size
+  grows.
+- **Grouped surfaces**: white 22px cards on a `#f5f5f7` page, with facts in
+  inset grey tiles and spacing instead of divider lines.
+- **Controls**: segmented controls for the tabs and the grouped/timeline view,
+  pill buttons with one filled action per view, and tinted status capsules
+  with a dot.
+- **Materials**: a frosted, translucent nav bar and popovers that turn solid
+  under *Reduce transparency*.
+- **Motion**: the segmented thumb slides as soon as a segment is picked and
+  can be redirected mid-slide. Document rows glide into place when reordered
+  (FLIP), popovers grow from their trigger, and presses scale to 0.96. Every
+  motion drops to a cross-fade or nothing under *Reduce motion*.
+- **Colour**: every text/background pair is measured and meets WCAG AA; the
+  values are listed at the top of `app/globals.css`.
+
 ## What works
 
 - **Sign in** accepts any 10-digit mobile number, or an 11-digit application
-  number via the link under the button; anything else shows an inline error.
-- **Tabs** are links, with `aria-current` on the open one.
-- **Switch timeline view** is a real checkbox.
-- **Active policy card** (the health policy) opens the policy view; the
-  breadcrumb leads back.
-- **Document Stack**: hovering or focusing a row lifts it and shows delete and
-  a drag handle (always shown on touch screens). Rows reorder by drag and
-  drop, or with the arrow keys on the handle; both announce the new position.
-  Delete removes the row and moves focus to its neighbour.
-- **Quick support links** show the design's hover state.
+  number; anything else shows an inline error.
+- **Segmented controls** are links, so every view has its own URL.
+- **Notifications** (the bell) lists the latest application updates and marks
+  them read; each opens the timeline.
+- **Avatar menu** switches between the customer with pending applications and
+  the one with none, and logs out.
+- **Active health policy** opens the policy page; the back link returns.
+- **Saved documents**: hover or focus shows delete and a drag handle (always
+  shown on touch). Rows reorder by drag and drop or the arrow keys on the
+  handle, and both announce the new position. Delete moves focus to the next
+  row.
 
-Buttons with no destination in the design are real buttons that do nothing
-yet: notifications, Chat now, Learn more, Download and the quick support
-links.
+Buttons with no destination yet: Chat now, Talk to our team, Download policy
+and the support links.
 
-## Fidelity notes
+## Content changes from the Figma draft
 
-- **Counts**: the design shows 2 active policies but lists 3 (one health, two
-  term). The badge and welcome card show the real count, 3.
-- **Tab names**: the design calls the first tab "Pending Policies" on the
-  pending screens and "Pending Applications" elsewhere; it is "Pending
-  Applications" throughout, matching the empty state's copy. The empty state
-  also keeps the usual tab order.
-- **Copy fixes**: "drap & drop this" → "drag & drop these", "Sucide" →
-  "Suicide", "Domicillary" → "Domiciliary", "Whats Covered" → "What's
-  Covered", "Timeline showed based on the latest updates" → "Timeline of your
-  latest updates", "Rejected Application" (two cards) → "Rejected
-  Applications".
-- **Placeholder copy kept**: Day Care, Domiciliary and Ayush all reuse the
-  maternity description, and the quick links list four links twice, as drawn.
-- **Contrast**: white text on Primary/Blue `#3dabf5` (Chat now, Learn more) and
-  on the status labels is under WCAG AA (about 2.6:1). Kept as designed.
-- **Topography** behind active policy cards is rebuilt from its exported
-  layers with Figma's own transforms (container units and `hypot()`), since
-  the flattened export came with page background baked in.
+- Counts are real: 3 active policies (the draft said 2 but listed 3).
+- Tabs are "Pending", "Active", "Inactive", in the same order on every screen.
+- Group titles are shortened to "Needs your attention" and "With the
+  insurer". The verification status reads "With the insurer".
+- Every application has its own number (the draft reused one).
+- The expired policy shows when it expired, not a future "valid till" date.
+- Rejection reasons are rewritten in plain language, and the second card has
+  its own reason.
+- Cover descriptions replace the maternity text the draft reused for three
+  items. "Treatment at home" is covered when no hospital bed is available and
+  excluded by choice, which resolves the draft listing it as both covered and
+  not covered.
+- The quick links appear once each (the draft listed them twice).
+- Typos and casing: sentence case throughout; "drap", "Sucide" and
+  "Domicillary" are fixed.
+
+**Worth a check with the business**: the new cover descriptions, the
+exclusion wording and the rejection reasons are plausible placeholders, not
+policy wording.
 
 ## Stack
 

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
+import { popoverPanelClass } from "@/components/ui/popover";
 
 export type AccountOption = {
   value: string;
@@ -111,7 +112,7 @@ export function AccountMenu({
   }
 
   const itemClass =
-    "flex w-full items-start gap-2 rounded-lg py-2 pr-3 pl-2 text-left transition-colors duration-150 hover:bg-grey-100 focus-visible:bg-grey-100 focus-visible:outline-none";
+    "flex w-full items-start gap-2.5 rounded-[12px] py-2.5 pr-3 pl-2.5 text-left transition-colors duration-150 hover:bg-black/[0.04] focus-visible:bg-black/[0.05] focus-visible:outline-none active:bg-black/[0.06]";
 
   return (
     <div className="relative">
@@ -124,7 +125,7 @@ export function AccountMenu({
         aria-controls={open ? menuId : undefined}
         onClick={() => (open ? close({ refocus: false }) : openAt(selected))}
         onKeyDown={onTriggerKeyDown}
-        className="relative block size-8 overflow-hidden rounded-full bg-avatar transition-transform duration-150 ease-out before:absolute before:-inset-1 active:scale-[0.96]"
+        className="relative block size-8 overflow-hidden rounded-full bg-avatar ring-1 ring-black/[0.06] transition-transform duration-150 ease-out before:absolute before:-inset-1 active:scale-[0.92]"
       >
         <Image
           src="/dashboard/avatar.png"
@@ -144,9 +145,9 @@ export function AccountMenu({
           role="menu"
           aria-label="Account"
           onKeyDown={onMenuKeyDown}
-          className="absolute top-[calc(100%+8px)] right-0 z-40 w-[264px] max-w-[calc(100vw-32px)] origin-top-right rounded-xl border border-grey-200 bg-white p-1 shadow-[0_8px_28px_-6px_rgb(30_37_75_/_0.14),0_2px_6px_-2px_rgb(30_37_75_/_0.08)] motion-safe:animate-menu"
+          className={`${popoverPanelClass} w-[280px] p-1.5`}
         >
-          <p className="px-2 pt-2 pb-1 text-[12px] leading-4 text-ink-label">
+          <p className="px-2.5 pt-2 pb-1.5 text-[13px] leading-[18px] font-semibold text-label-secondary">
             Signed in as {name}
           </p>
           <div role="group" aria-label="Show the dashboard">
@@ -166,14 +167,14 @@ export function AccountMenu({
                   onPointerEnter={() => setActive(index)}
                   className={itemClass}
                 >
-                  <span className="mt-[3px] grid size-3.5 shrink-0 place-items-center text-primary-strong">
+                  <span className="mt-[3px] grid size-3.5 shrink-0 place-items-center text-accent">
                     {isSelected ? <CheckIcon /> : null}
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-[13px] leading-none font-medium text-ink">
+                    <span className="block text-[14px] leading-[18px] font-medium text-label">
                       {option.label}
                     </span>
-                    <span className="mt-1 block text-[12px] leading-[1.35] text-ink-secondary">
+                    <span className="mt-0.5 block text-[12px] leading-4 text-label-secondary">
                       {option.hint}
                     </span>
                   </span>
@@ -181,7 +182,7 @@ export function AccountMenu({
               );
             })}
           </div>
-          <div role="separator" className="mx-2 my-1 h-px bg-grey-200" />
+          <div role="separator" className="mx-2.5 my-1 h-px bg-black/[0.08]" />
           <button
             ref={(node) => {
               itemRefs.current[options.length] = node;
@@ -194,7 +195,7 @@ export function AccountMenu({
             className={itemClass}
           >
             <span className="size-3.5 shrink-0" />
-            <span className="text-[13px] leading-none font-medium text-ink">Log out</span>
+            <span className="text-[14px] leading-[18px] font-medium text-red-text">Log out</span>
           </button>
         </div>
       ) : null}

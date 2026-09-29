@@ -1,79 +1,83 @@
+import { Monogram } from "@/components/dashboard/policy-pair";
 import { Asset } from "@/components/ui/asset";
-import { AddOnList, ChipRule, FieldItem } from "@/components/ui/card-bits";
+import { PillButton } from "@/components/ui/buttons";
+import { AddOnChips, FieldItem, StatusPill, cardClass } from "@/components/ui/card-bits";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
 import type { CoverIcon, CoverItem, Exclusion } from "@/lib/policy-detail";
 import { policyDetail } from "@/lib/policy-detail";
 
-const card = "rounded-2xl border border-card-border bg-white shadow-card";
+const cardTitle = "text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label";
 
-/** The policy, its family and add-ons (node 149:9307). */
+/** Large-title header for the policy page: icon, name, status, download. */
+export function PolicyHeader({ policy }: { policy: typeof policyDetail }) {
+  return (
+    <header className="flex flex-wrap items-center gap-x-4 gap-y-4">
+      <InsurerLogo insurer={policy.insurer} size={56} />
+      <div className="min-w-0 flex-[1_1_240px]">
+        <h1 className="text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label">
+          {policy.name}
+        </h1>
+        <div className="mt-1.5 flex flex-wrap items-center gap-2">
+          <StatusPill status="active" />
+          <span className="text-[13px] leading-[18px] text-label-secondary">{policy.kind}</span>
+        </div>
+      </div>
+      <PillButton variant="tinted" size="medium" className="max-sm:ml-[72px]">
+        <svg aria-hidden width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path
+            d="M8 2v8.5m0 0L4.75 7.25M8 10.5l3.25-3.25M2.75 13.25h10.5"
+            stroke="currentColor"
+            strokeWidth="1.6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        Download policy
+      </PillButton>
+    </header>
+  );
+}
+
+/** The policy's facts, the family on it, and add-ons. */
 export function PolicySummaryCard({ policy }: { policy: typeof policyDetail }) {
   return (
-    <article aria-labelledby="policy-title" className={`${card} p-[6px] pb-6`}>
-      <header className="flex min-h-[81px] flex-wrap items-center gap-x-3 gap-y-3 rounded-[10px] bg-grey-50 py-3 pr-3 pl-3">
-        <InsurerLogo insurer={policy.insurer} size={56} />
-        <div className="min-w-0 flex-[1_1_200px]">
-          <h1
-            id="policy-title"
-            className="text-[16px] leading-[normal] font-semibold text-pretty text-ink"
-          >
-            {policy.name}
-          </h1>
-          <p className="mt-2 text-[12px] leading-[normal] text-ink-tertiary">{policy.kind}</p>
-        </div>
-        <button
-          type="button"
-          className="inline-flex h-8 shrink-0 items-center gap-1.5 self-start rounded-lg bg-white px-4 text-[14px] leading-5 font-medium text-primary transition-[transform,background-color] duration-150 ease-out active:scale-[0.96] max-sm:ml-[68px] sm:mt-1 [@media(hover:hover)]:hover:bg-blue-100"
-        >
-          <Asset src="/dashboard/download.svg" className="size-[18px]" />
-          Download
-          <span className="sr-only"> policy document</span>
-        </button>
-      </header>
+    <section aria-labelledby="summary-title" className={`@container ${cardClass} p-5`}>
+      <h2 id="summary-title" className={cardTitle}>
+        Summary
+      </h2>
+      <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-4 rounded-[14px] bg-fill px-4 py-4 @min-[600px]:grid-cols-4">
+        {policy.fields.map((field) => (
+          <FieldItem key={field.label} field={field} />
+        ))}
+      </dl>
 
-      <div className="@container px-[17px]">
-        <dl className="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 @min-[700px]:grid-cols-[203px_192px_185px_1fr] @min-[700px]:gap-x-0">
-          {policy.fields.map((field) => (
-            <FieldItem key={field.label} field={field} />
-          ))}
-        </dl>
+      <h3 className="mt-6 text-[12px] leading-4 font-semibold text-label-secondary">Covered people</h3>
+      <ul className="mt-2.5 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 @min-[600px]:grid-cols-4">
+        {policy.family.map((person) => (
+          <li key={person.name} className="flex items-center gap-3">
+            <Monogram name={person.name} primary={person.relation === "You"} />
+            <div className="min-w-0">
+              <p className="truncate text-[15px] leading-5 font-medium text-label">{person.name}</p>
+              <p className="text-[12px] leading-4 text-label-secondary tabular-nums">
+                {person.relation}
+                <span aria-hidden> · </span>
+                <span className="sr-only">, born </span>
+                {person.dob}
+              </p>
+            </div>
+          </li>
+        ))}
+      </ul>
 
-        <section className="mt-[31px]">
-          <div className="-ml-[9px]">
-            <ChipRule>Family details</ChipRule>
-          </div>
-          <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-5 @min-[700px]:grid-cols-[203px_192px_185px_1fr] @min-[700px]:gap-x-0">
-            {policy.family.map((person) => (
-              <li key={person.name}>
-                <p className="text-[14px] leading-4 font-medium tracking-[-0.5px] text-ink">
-                  {person.name}
-                </p>
-                <p className="mt-[9px] text-[12px] leading-[normal] text-ink-tertiary">
-                  <span className="font-semibold text-primary">{person.relation}</span>
-                  <span aria-hidden> · </span>
-                  <span className="sr-only">, born </span>
-                  {person.dob}
-                </p>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <section className="mt-[31px]">
-          <div className="-ml-[9px]">
-            <ChipRule>Add ons</ChipRule>
-          </div>
-          <div className="mt-6">
-            <AddOnList items={policy.addOns} />
-          </div>
-        </section>
+      <div className="mt-6">
+        <AddOnChips items={policy.addOns} />
       </div>
-    </article>
+    </section>
   );
 }
 
 /** A Figma icon frame: the group sits at an inset and its SVG bleeds out. */
-function CoverGlyph({ icon, size }: { icon: CoverIcon; size: 28 | 20 }) {
+function CoverGlyph({ icon, size }: { icon: CoverIcon; size: number }) {
   return (
     <span aria-hidden className="relative block shrink-0" style={{ width: size, height: size }}>
       <span className="absolute" style={{ inset: icon.group }}>
@@ -85,20 +89,22 @@ function CoverGlyph({ icon, size }: { icon: CoverIcon; size: 28 | 20 }) {
   );
 }
 
-/** "What's Covered" (node 149:9378): two columns of benefits. */
+/** What's covered: two columns of benefits, each on its own icon tile. */
 export function CoveredCard({ items }: { items: CoverItem[] }) {
   return (
-    <section aria-labelledby="covered-title" className={`${card} px-[19px] pt-[18px] pb-7`}>
-      <h2 id="covered-title" className="text-[16px] leading-[normal] font-semibold text-ink">
-        What&rsquo;s Covered
+    <section aria-labelledby="covered-title" className={`${cardClass} p-5`}>
+      <h2 id="covered-title" className={cardTitle}>
+        What&rsquo;s covered
       </h2>
-      <ul className="mt-[33px] grid gap-x-4 gap-y-10 px-2 sm:grid-cols-[381px_1fr] sm:gap-x-0">
+      <ul className="mt-4 grid gap-x-6 gap-y-5 sm:grid-cols-2">
         {items.map((item) => (
-          <li key={item.title} className="flex items-start gap-4">
-            <CoverGlyph icon={item.icon} size={28} />
-            <div className="min-w-0 max-w-[232px]">
-              <h3 className="text-[14px] leading-5 font-semibold text-ink">{item.title}</h3>
-              <p className="ff-case mt-[9px] text-[13px] leading-[18px] text-ink-secondary">
+          <li key={item.title} className="flex items-start gap-3.5">
+            <span className="grid size-11 shrink-0 place-items-center rounded-[12px] bg-accent-tint">
+              <CoverGlyph icon={item.icon} size={24} />
+            </span>
+            <div className="min-w-0 pt-0.5">
+              <h3 className="text-[15px] leading-5 font-semibold text-label">{item.title}</h3>
+              <p className="mt-0.5 text-[13px] leading-[18px] text-pretty text-label-secondary">
                 {item.description}
               </p>
             </div>
@@ -109,20 +115,21 @@ export function CoveredCard({ items }: { items: CoverItem[] }) {
   );
 }
 
-/** "What's Not Covered" (node 149:9470). */
+/** What's not covered. */
 export function NotCoveredCard({ items }: { items: Exclusion[] }) {
   return (
-    <section aria-labelledby="not-covered-title" className={`${card} px-[19px] pt-[18px] pb-6`}>
-      <h2 id="not-covered-title" className="text-[16px] leading-[normal] font-semibold text-ink">
-        What&rsquo;s Not Covered
+    <section aria-labelledby="not-covered-title" className={`${cardClass} p-5`}>
+      <h2 id="not-covered-title" className={cardTitle}>
+        What&rsquo;s not covered
       </h2>
-      <ul className="mt-[25px] flex flex-col gap-6">
-        {items.map((item) => (
-          <li key={item.label} className="flex items-start gap-2.5">
+      <ul className="mt-3 overflow-hidden rounded-[14px] bg-fill">
+        {items.map((item, index) => (
+          <li key={item.label} className="relative flex items-center gap-3 px-4 py-3">
+            {index > 0 ? (
+              <span aria-hidden className="absolute top-0 right-0 left-12 h-px bg-separator" />
+            ) : null}
             <CoverGlyph icon={item.icon} size={20} />
-            <span className="ff-case mt-px text-[13px] leading-[18px] text-ink-secondary">
-              {item.label}
-            </span>
+            <span className="text-[14px] leading-5 text-label">{item.label}</span>
           </li>
         ))}
       </ul>

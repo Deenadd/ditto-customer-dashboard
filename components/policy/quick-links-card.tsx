@@ -1,14 +1,10 @@
-import { Asset, type Sparkle } from "@/components/ui/asset";
-import {
-  HelpBlock,
-  SidebarCard,
-  SidebarIntro,
-  SidebarTitle,
-} from "@/components/dashboard/sidebar-cards";
+import { Chevron } from "@/components/dashboard/policy-pair";
+import { HelpBlock, SidebarCard } from "@/components/dashboard/sidebar-cards";
+import type { Sparkle } from "@/components/ui/asset";
 
 const shield = (name: string) => `/dashboard/links/${name}.svg`;
 
-/** The shield scatter on node 149:9201, where the welcome card has stars. */
+/** The shield scatter from node 149:9201, where the welcome card has stars. */
 const shields: Sparkle[] = [
   { src: shield("shield-3"), left: 187, top: 13, width: 6 },
   { src: shield("shield-vector"), left: 235, top: 19, width: 6.75, height: 8.173 },
@@ -27,59 +23,40 @@ const shields: Sparkle[] = [
   { src: shield("shield-8"), left: 280, top: 39, width: 9 },
 ];
 
-/**
- * "Check your, Quick Support links" (node 149:9201). The highlighted
- * "Guide to Reimbursement" row in the design is the hover state: blue
- * semibold text, the arrow on a raised white disc.
- */
+/** Support for this policy, as an inset list with disclosure chevrons. */
 export function QuickLinksCard({ links }: { links: string[] }) {
   return (
     <SidebarCard sparkles={shields} labelledBy="links-title">
-      <div className="px-[19px] pt-[30px] pb-[22px]">
-        <SidebarTitle id="links-title">
-          Check your,
-          <br />
-          Quick Support links
-        </SidebarTitle>
-        <SidebarIntro />
+      <div className="px-5 pt-6 pb-4">
+        <h2
+          id="links-title"
+          className="text-[22px] leading-7 font-bold tracking-[-0.02em] text-label"
+        >
+          Help with this policy
+        </h2>
+        <p className="mt-1.5 max-w-[240px] text-[15px] leading-[22px] text-label-secondary">
+          Guides for claims and the hospitals you can use.
+        </p>
 
-        <ul className="mt-[25px] flex flex-col gap-5">
+        <ul className="mt-4 -mx-2 overflow-hidden rounded-[14px] bg-fill/85 backdrop-blur-sm">
           {links.map((link, index) => (
-            <li key={index}>
+            <li key={link} className="relative">
+              {index > 0 ? (
+                <span aria-hidden className="absolute top-0 right-0 left-3.5 h-px bg-separator" />
+              ) : null}
               <button
                 type="button"
-                className="group -my-1 flex items-center gap-3 rounded-md py-1 pr-2 text-left"
+                className="group flex h-11 w-full items-center justify-between gap-3 px-3.5 text-left text-[15px] leading-5 text-label transition-colors duration-150 active:bg-black/[0.04] [@media(hover:hover)]:hover:bg-black/[0.03]"
               >
-                <span aria-hidden className="relative ml-px size-5 shrink-0">
-                  <Asset src="/dashboard/links/link-circle.svg" className="absolute inset-0 size-full" />
-                  <span className="absolute inset-[-12.5%_-15%_-17.5%_-15%] opacity-0 transition-opacity duration-150 ease-out group-hover:opacity-100 group-focus-visible:opacity-100">
-                    <Asset src="/dashboard/links/link-circle-hover.svg" className="size-full" />
-                  </span>
-                  <span className="absolute top-[3px] left-[3px] size-3.5 -rotate-45">
-                    <span className="absolute inset-[27.8%_22.76%_27.75%_23.34%]">
-                      <span className="absolute inset-[-12.05%_-9.94%]">
-                        <Asset
-                          src="/dashboard/links/link-arrow.svg"
-                          className="absolute inset-0 size-full transition-opacity duration-150 ease-out group-hover:opacity-0 group-focus-visible:opacity-0"
-                        />
-                        <Asset
-                          src="/dashboard/links/link-arrow-hover.svg"
-                          className="absolute inset-0 size-full opacity-0 transition-opacity duration-150 ease-out group-hover:opacity-100 group-focus-visible:opacity-100"
-                        />
-                      </span>
-                    </span>
-                  </span>
-                </span>
-                <span className="text-[14px] leading-5 text-ink-secondary transition-colors duration-150 ease-out group-hover:font-semibold group-hover:text-primary group-focus-visible:font-semibold group-focus-visible:text-primary">
-                  {link}
-                </span>
+                {link}
+                <Chevron className="text-label-tertiary" />
               </button>
             </li>
           ))}
         </ul>
       </div>
 
-      <HelpBlock title="Need help?" body="Talk to us for instant response" mascot="hotline" roomy />
+      <HelpBlock title="Need help?" body="Talk to us for an instant response." mascot="hotline" />
     </SidebarCard>
   );
 }

@@ -2,33 +2,31 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
+import { pillClass } from "@/components/ui/buttons";
 
 type Mode = "mobile" | "application";
 
 const copy: Record<
   Mode,
-  { label: string; placeholder: string; submit: string; switchTo: string; error: string }
+  { label: string; placeholder: string; switchTo: string; error: string }
 > = {
   mobile: {
     label: "Mobile number",
     placeholder: "Mobile number",
-    submit: "Continue with mobile number",
-    switchTo: "application number?",
-    error: "Enter your 10-digit mobile number",
+    switchTo: "Use your application number instead",
+    error: "Enter your 10-digit mobile number.",
   },
   application: {
     label: "Application number",
     placeholder: "Application number",
-    submit: "Continue with application number",
-    switchTo: "mobile number?",
-    error: "Enter the 11-digit application number from your proposal",
+    switchTo: "Use your mobile number instead",
+    error: "Enter the 11-digit number from your application.",
   },
 };
 
 /**
- * Sign-in (node 149:10705). There's no backend: any well-formed number opens
- * the dashboard. The link under the button swaps to signing in with an
- * application number instead.
+ * Sign in. There's no backend: any well-formed number opens the dashboard.
+ * The link under the button switches to an application number.
  */
 export function LoginForm() {
   const router = useRouter();
@@ -63,19 +61,21 @@ export function LoginForm() {
   }
 
   return (
-    <form noValidate onSubmit={onSubmit} className="mt-12 flex w-full max-w-[357px] flex-col items-center">
+    <form noValidate onSubmit={onSubmit} className="mt-10 flex w-full max-w-[360px] flex-col items-center">
       <label htmlFor="login-id" className="sr-only">
         {text.label}
       </label>
       <div
-        className={`flex h-11 w-full items-center rounded-xl border bg-field pl-3 transition-[border-color] duration-150 has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-primary-strong ${
-          invalid ? "border-danger-text" : "border-field-border"
+        className={`flex h-[52px] w-full items-center rounded-[14px] bg-surface pl-4 transition-shadow duration-150 ${
+          invalid
+            ? "shadow-[0_0_0_1.5px_var(--color-red-text)] has-[:focus-visible]:shadow-[0_0_0_2px_var(--color-red-text),0_0_0_6px_rgb(196_30_58_/_0.12)]"
+            : "shadow-[0_0_0_1px_rgb(0_0_0_/_0.1),0_1px_2px_rgb(0_0_0_/_0.04)] has-[:focus-visible]:shadow-[0_0_0_2px_var(--color-accent),0_0_0_6px_rgb(0_113_227_/_0.15)]"
         }`}
       >
         {mode === "mobile" ? (
           <>
-            <span className="text-[14px] leading-5 text-ink">+91</span>
-            <span aria-hidden className="mx-2.5 h-4 w-px bg-field-border" />
+            <span className="text-[17px] leading-6 text-label">+91</span>
+            <span aria-hidden className="mx-3 h-5 w-px bg-separator" />
           </>
         ) : null}
         <input
@@ -94,11 +94,11 @@ export function LoginForm() {
             setValue(event.target.value);
             if (invalid && isValid(event.target.value)) setInvalid(false);
           }}
-          className="h-full min-w-0 flex-1 rounded-r-xl bg-transparent pr-3 text-[16px] leading-5 text-ink placeholder:text-field-placeholder focus:outline-none sm:text-[14px]"
+          className="h-full min-w-0 flex-1 rounded-r-[14px] bg-transparent pr-4 text-[17px] leading-6 text-label tabular-nums placeholder:text-label-tertiary focus:outline-none"
         />
       </div>
       {invalid ? (
-        <p id="login-error" className="mt-2 self-start text-[13px] leading-[18px] text-danger-text">
+        <p id="login-error" className="mt-2 self-start px-1 text-[13px] leading-[18px] text-red-text">
           {text.error}
         </p>
       ) : null}
@@ -106,26 +106,18 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={submitting}
-        className="relative mt-5 flex h-11 w-full items-center justify-center rounded-xl border border-[#0772c8] px-[30px] text-[16px] leading-[normal] font-medium text-white shadow-[0_7.417px_9.889px_0_rgb(0_0_0_/_0.12),0_0.5px_1px_0_rgb(31_42_52_/_0.15),0_7px_9px_0_rgb(31_42_52_/_0.07)] transition-transform duration-150 ease-out active:scale-[0.96] disabled:cursor-progress"
-        style={{ background: "linear-gradient(to bottom, #1788e5 0%, #107ed8 234.62%)" }}
+        className={`${pillClass("filled", "large")} mt-4 w-full disabled:cursor-progress disabled:opacity-80`}
       >
-        {text.submit}
-        <span
-          aria-hidden
-          className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0_-2px_0_0_rgb(0_104_197_/_0.8)]"
-        />
+        {submitting ? "Signing in…" : "Continue"}
       </button>
 
-      <p className="mt-5 text-center text-[15px] leading-[1.5] text-login-ink">
-        Login using your{" "}
-        <button
-          type="button"
-          onClick={switchMode}
-          className="rounded text-link underline-offset-2 [@media(hover:hover)]:hover:underline"
-        >
-          {text.switchTo}
-        </button>
-      </p>
+      <button
+        type="button"
+        onClick={switchMode}
+        className="mt-5 rounded-full px-3 py-1.5 text-[15px] leading-5 text-accent-text transition-colors duration-150 active:bg-accent-tint [@media(hover:hover)]:hover:underline [@media(hover:hover)]:hover:underline-offset-4"
+      >
+        {text.switchTo}
+      </button>
     </form>
   );
 }

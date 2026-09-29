@@ -1,27 +1,31 @@
 import Image from "next/image";
 import type { CSSProperties, ReactNode } from "react";
-import { PrimaryButton } from "@/components/ui/buttons";
+import { PillButton } from "@/components/ui/buttons";
+import { cardClass } from "@/components/ui/card-bits";
 
 const tileShadow =
   "0 49.423px 14.121px 0 rgb(134 137 141 / 0), 0 32.478px 12.709px 0 rgb(134 137 141 / 0.01), 0 18.357px 11.297px 0 rgb(134 137 141 / 0.05), 0 8.473px 8.473px 0 rgb(134 137 141 / 0.09), 0 1.412px 4.236px 0 rgb(134 137 141 / 0.1)";
 
 /**
- * Nothing pending (node 149:10485): three insurer tiles fanned out, a line
- * saying so, and a way to ask for a new policy.
+ * Nothing pending: three insurer tiles fanned out, what this space is for,
+ * and one way forward.
  */
 export function EmptyApplications() {
   return (
-    <div className="flex flex-col items-center pt-16 pb-10 text-center lg:pt-[197px]">
+    <div
+      className={`${cardClass} flex flex-col items-center px-6 pt-14 pb-12 text-center`}
+    >
       <InsurerFan />
-      <h2 className="mt-8 text-[22px] leading-[normal] font-semibold tracking-[-1px] text-balance text-ink">
-        No pending applications, Need new policy?
+      <h2 className="mt-8 text-[22px] leading-7 font-semibold tracking-[-0.02em] text-balance text-label">
+        No pending applications
       </h2>
-      <p className="mt-3 max-w-[287px] text-[16px] leading-[1.45] text-pretty text-ink-secondary">
-        We have no current requests. Contact our team for an insurance policy.
+      <p className="mt-2 max-w-[360px] text-[15px] leading-[22px] text-balance text-label-secondary">
+        When you apply for a policy, you can follow it here. Looking for new
+        cover? Our team can help you choose.
       </p>
-      <PrimaryButton size="large" className="mt-6 w-[209px]" aria-label="Learn more about a new policy">
-        Learn more
-      </PrimaryButton>
+      <PillButton size="large" className="mt-7">
+        Talk to our team
+      </PillButton>
     </div>
   );
 }
