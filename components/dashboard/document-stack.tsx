@@ -2,7 +2,7 @@
 
 import { useLayoutEffect, useRef, useState } from "react";
 import { Asset } from "@/components/ui/asset";
-import { cardClass } from "@/components/ui/card-bits";
+import { Count, cardClass } from "@/components/ui/card-bits";
 import type { SavedDocument } from "@/lib/dashboard-data";
 
 const EXIT_MS = 180;
@@ -106,17 +106,20 @@ export function DocumentStack({ initial }: { initial: SavedDocument[] }) {
 
   return (
     <section aria-labelledby="documents-title" className={`${cardClass} pb-2`}>
+      {/* Header says what this is; how to reorder lives in the footer, where
+          it reads as a note about the list rather than a second subtitle. */}
       <div className="px-5 pt-5">
         <h2
           id="documents-title"
           ref={headingRef}
           tabIndex={-1}
-          className="text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label"
+          className="flex items-baseline gap-2 text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label"
         >
           Saved documents
+          {docs.length ? <Count value={docs.length} /> : null}
         </h2>
         <p className="mt-0.5 text-[13px] leading-[18px] text-label-secondary">
-          Reuse them in any application. Drag to reorder.
+          Ready to reuse in any application.
         </p>
       </div>
 
@@ -209,6 +212,16 @@ export function DocumentStack({ initial }: { initial: SavedDocument[] }) {
           })}
         </ul>
       )}
+
+      {docs.length > 1 ? (
+        <p
+          aria-hidden
+          className="mx-5 mt-2 mb-2 flex items-center gap-2 border-t border-separator pt-3 text-[12px] leading-4 text-label-secondary [@media(hover:none)]:hidden"
+        >
+          <Asset src="/dashboard/drag.svg" className="h-[11.43px] w-2 opacity-70" />
+          Drag a document to change the order.
+        </p>
+      ) : null}
 
       <p id="documents-move-hint" className="sr-only">
         Use the up and down arrow keys to change the order.
