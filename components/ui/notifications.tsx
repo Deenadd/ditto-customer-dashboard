@@ -55,7 +55,7 @@ export function Notifications({ updates, href }: { updates: Update[]; href: stri
         {unread ? (
           <span
             aria-hidden
-            className="absolute top-2 right-2 size-2.5 rounded-full bg-[#ff3b30] ring-2 ring-white"
+            className="absolute top-2 right-2 size-2.5 rounded-full bg-danger ring-2 ring-[var(--surface)]"
           />
         ) : null}
       </button>
@@ -68,7 +68,7 @@ export function Notifications({ updates, href }: { updates: Update[]; href: stri
           aria-label="Notifications"
           className={`${popoverPanelClass} w-[360px] p-2`}
         >
-          <p className="px-3 pt-2 pb-1 text-[13px] leading-[18px] font-semibold text-label-secondary">
+          <p className="px-3 pt-2 pb-1 text-xs font-medium text-label-secondary">
             Latest updates
           </p>
           <ul>
@@ -77,19 +77,19 @@ export function Notifications({ updates, href }: { updates: Update[]; href: stri
                 <Link
                   href={href}
                   onClick={() => setOpen(false)}
-                  className="flex gap-3 rounded-[12px] p-3 transition-colors duration-150 active:bg-black/[0.05] [@media(hover:hover)]:hover:bg-black/[0.035]"
+                  className="flex gap-3 rounded-control p-3 transition-colors duration-150 ease-[var(--ease-standard)] hover:bg-fill focus-visible:bg-fill active:bg-fill"
                 >
                   <InsurerLogo insurer={update.insurer} size={40} />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-baseline justify-between gap-2">
-                      <span className="truncate text-[14px] leading-5 font-semibold text-label">
+                      <span className="truncate text-sm font-medium text-label">
                         {update.title}
                       </span>
-                      <span className="shrink-0 text-[12px] leading-4 text-label-secondary">
+                      <span className="shrink-0 text-xs text-label-secondary">
                         {update.when}
                       </span>
                     </span>
-                    <span className="mt-0.5 block text-[13px] leading-[18px] text-label-secondary">
+                    <span className="mt-0.5 block text-xs text-label-secondary">
                       {update.body}
                     </span>
                   </span>

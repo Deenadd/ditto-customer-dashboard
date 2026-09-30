@@ -1,7 +1,7 @@
 /**
  * Everything the dashboard shows, copied from the Figma page (file
  * kalCtplJimHm1xtOJGC60d, page 5:5). There is no backend: one customer, Peter
- * Parker, in two states — with pending applications, and with none.
+ * Parker, in two states: with pending applications, and with none.
  */
 
 export type Insurer = "maxlife" | "care";

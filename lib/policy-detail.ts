@@ -111,11 +111,3 @@ export const notCovered: Exclusion[] = [
     icon: icon("ex-experimental", "4.47% 12.5% 3.13% 12.49%", "-4.06% -5%"),
   },
 ];
-
-/** Support for this policy. Figma listed these four twice; once is enough. */
-export const quickLinks = [
-  "Guide to cashless claims",
-  "Guide to reimbursement",
-  "Network hospitals",
-  "Frequently asked questions",
-];

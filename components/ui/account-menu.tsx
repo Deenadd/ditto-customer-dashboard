@@ -13,8 +13,8 @@ export type AccountOption = {
 };
 
 /**
- * The avatar opens this menu. The prototype has one customer in two states —
- * with pending applications and with none (the empty-state screen) — and the
+ * The avatar opens this menu. The prototype has one customer in two states:
+ * with pending applications, and with none (the empty-state screen). The
  * menu switches between them, then offers Log out.
  *
  * Built on the renewal flow's version menu: ARIA menu pattern, commits on
@@ -112,7 +112,7 @@ export function AccountMenu({
   }
 
   const itemClass =
-    "flex w-full items-start gap-2.5 rounded-[12px] py-2.5 pr-3 pl-2.5 text-left transition-colors duration-150 hover:bg-black/[0.04] focus-visible:bg-black/[0.05] focus-visible:outline-none active:bg-black/[0.06]";
+    "flex w-full items-start gap-2.5 rounded-control py-2.5 pr-3 pl-2.5 text-left transition-colors duration-150 ease-[var(--ease-standard)] hover:bg-fill focus-visible:bg-fill active:bg-fill";
 
   return (
     <div className="relative">
@@ -145,9 +145,9 @@ export function AccountMenu({
           role="menu"
           aria-label="Account"
           onKeyDown={onMenuKeyDown}
-          className={`${popoverPanelClass} w-[280px] p-1.5`}
+          className={`${popoverPanelClass} w-[280px] p-2`}
         >
-          <p className="px-2.5 pt-2 pb-1.5 text-[13px] leading-[18px] font-semibold text-label-secondary">
+          <p className="px-2.5 pt-2 pb-1.5 text-xs font-medium text-label-secondary">
             Signed in as {name}
           </p>
           <div role="group" aria-label="Show the dashboard">
@@ -171,10 +171,10 @@ export function AccountMenu({
                     {isSelected ? <CheckIcon /> : null}
                   </span>
                   <span className="min-w-0">
-                    <span className="block text-[14px] leading-[18px] font-medium text-label">
+                    <span className="block text-sm font-medium text-label">
                       {option.label}
                     </span>
-                    <span className="mt-0.5 block text-[12px] leading-4 text-label-secondary">
+                    <span className="mt-0.5 block text-xs text-label-secondary">
                       {option.hint}
                     </span>
                   </span>
@@ -195,7 +195,7 @@ export function AccountMenu({
             className={itemClass}
           >
             <span className="size-3.5 shrink-0" />
-            <span className="text-[14px] leading-[18px] font-medium text-red-text">Log out</span>
+            <span className="text-sm font-medium text-danger">Log out</span>
           </button>
         </div>
       ) : null}

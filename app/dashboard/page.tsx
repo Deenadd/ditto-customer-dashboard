@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
+import { ClaimsSupport } from "@/components/claims/claims-support";
 import { ApplicationCard } from "@/components/dashboard/application-card";
 import { ApplicationTimeline } from "@/components/dashboard/application-timeline";
-import { DocumentStack } from "@/components/dashboard/document-stack";
 import { EmptyApplications } from "@/components/dashboard/empty-applications";
 import { PolicyPair } from "@/components/dashboard/policy-pair";
 import { RejectedCard } from "@/components/dashboard/rejected-card";
 import { WelcomeCard } from "@/components/dashboard/sidebar-cards";
 import { Count, SectionTitle } from "@/components/ui/card-bits";
-import { SegmentedLinks } from "@/components/ui/segmented";
+import { RouteSegmentedControl } from "@/components/ui/segmented";
 import {
   activePolicyCount,
   activePolicyGroups,
@@ -20,7 +20,6 @@ import {
   inactiveCount,
   rejectedApplications,
   requirementRequests,
-  savedDocuments,
 } from "@/lib/dashboard-data";
 import {
   dashboardHref,
@@ -30,7 +29,7 @@ import {
 } from "@/lib/routes";
 
 export const metadata: Metadata = {
-  title: "Your policies — Ditto",
+  title: "Your policies: Ditto",
 };
 
 export default async function DashboardPage({
@@ -51,62 +50,48 @@ export default async function DashboardPage({
       <SiteHeader customerState={state.customer} />
       <main
         id="main"
-        className="mx-auto grid max-w-[1112px] grid-cols-1 gap-x-8 gap-y-6 px-4 pt-6 pb-20 [grid-template-areas:'welcome'_'main'_'docs'] sm:px-6 sm:pt-10 lg:grid-cols-[minmax(0,750px)_330px] lg:grid-rows-[auto_1fr] lg:justify-between lg:[grid-template-areas:'main_welcome'_'main_docs'] xl:px-0"
+        className="mx-auto grid max-w-[1112px] grid-cols-1 gap-x-8 gap-y-6 px-4 pt-6 pb-20 [grid-template-areas:'welcome'_'main'_'claims'] sm:px-6 sm:pt-10 lg:grid-cols-[minmax(0,750px)_330px] lg:grid-rows-[auto_1fr] lg:justify-between lg:[grid-template-areas:'main_welcome'_'main_claims'] xl:px-0"
       >
         <div className="min-w-0 [grid-area:main] max-lg:mt-4">
-          <h1 className="text-[32px] leading-[38px] font-bold tracking-[-0.03em] text-label">
+          <h1 className="font-display text-3xl font-medium tracking-[-0.03em] text-label">
             Your policies
           </h1>
 
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-            <SegmentedLinks
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+            <RouteSegmentedControl
               label="Policies"
               value={state.tab}
               segments={[
                 {
                   value: "pending",
+                  label: "Pending",
+                  accessory: <Count value={counts.pending} />,
                   href: dashboardHref({ tab: "pending", timeline: state.timeline, customer: state.customer }),
-                  label: (
-                    <>
-                      Pending <Count value={counts.pending} />
-                    </>
-                  ),
                 },
                 {
                   value: "active",
+                  label: "Active",
+                  accessory: <Count value={counts.active} />,
                   href: dashboardHref({ tab: "active", customer: state.customer }),
-                  label: (
-                    <>
-                      Active <Count value={counts.active} />
-                    </>
-                  ),
                 },
                 {
                   value: "inactive",
+                  label: "Inactive",
+                  accessory: <Count value={counts.inactive} />,
                   href: dashboardHref({ tab: "inactive", customer: state.customer }),
-                  label: (
-                    <>
-                      Inactive <Count value={counts.inactive} />
-                    </>
-                  ),
                 },
               ]}
             />
             {state.tab === "pending" && hasPending ? (
-              <SegmentedLinks
+              <RouteSegmentedControl
                 label="Show applications as"
-                size="small"
                 value={state.timeline ? "timeline" : "grouped"}
                 segments={[
-                  {
-                    value: "grouped",
-                    href: dashboardHref({ customer: state.customer }),
-                    label: "By status",
-                  },
+                  { value: "grouped", label: "By status", href: dashboardHref({ customer: state.customer }) },
                   {
                     value: "timeline",
-                    href: dashboardHref({ timeline: true, customer: state.customer }),
                     label: "Timeline",
+                    href: dashboardHref({ timeline: true, customer: state.customer }),
                   },
                 ]}
               />
@@ -127,8 +112,8 @@ export default async function DashboardPage({
           />
         </div>
 
-        <div className="self-start [grid-area:docs]">
-          <DocumentStack initial={savedDocuments} />
+        <div className="self-start [grid-area:claims]">
+          <ClaimsSupport />
         </div>
       </main>
     </>
@@ -144,7 +129,7 @@ function TabPanel({ state, hasPending }: { state: DashboardState; hasPending: bo
             <SectionTitle id={`active-${index}`} count={group.items.length}>
               {group.title}
             </SectionTitle>
-            <ul className="mt-3 flex flex-col gap-6">
+            <ul className="mt-4 flex flex-col gap-6">
               {group.items.map((policy) => (
                 <li key={policy.id}>
                   <PolicyPair
@@ -167,7 +152,7 @@ function TabPanel({ state, hasPending }: { state: DashboardState; hasPending: bo
           <SectionTitle id="expired-title" count={expiredPolicies.length}>
             Expired policies
           </SectionTitle>
-          <ul className="mt-3 flex flex-col gap-6">
+          <ul className="mt-4 flex flex-col gap-6">
             {expiredPolicies.map((policy) => (
               <li key={policy.id}>
                 <PolicyPair policy={policy} muted />
@@ -179,7 +164,7 @@ function TabPanel({ state, hasPending }: { state: DashboardState; hasPending: bo
           <SectionTitle id="rejected-title" count={rejectedApplications.length}>
             Rejected applications
           </SectionTitle>
-          <ul className="mt-3 flex flex-col gap-4">
+          <ul className="mt-4 flex flex-col gap-4">
             {rejectedApplications.map((application) => (
               <li key={application.id}>
                 <RejectedCard application={application} />
@@ -208,7 +193,7 @@ function TabPanel({ state, hasPending }: { state: DashboardState; hasPending: bo
           <SectionTitle id={`pending-${index}`} count={group.items.length}>
             {group.title}
           </SectionTitle>
-          <ul className="mt-3 flex flex-col gap-4">
+          <ul className="mt-4 flex flex-col gap-4">
             {group.items.map((application) => (
               <li key={application.id}>
                 <ApplicationCard application={application} />

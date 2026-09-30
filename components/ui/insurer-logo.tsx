@@ -7,8 +7,8 @@ const names: Record<Insurer, string> = {
 };
 
 /**
- * The insurer's mark as an app-icon tile: squircle-ish corners at a quarter
- * of the size, and a hairline ring instead of a white border. Max Life ships
+ * The insurer's mark in its real brand colours (Arc: third-party logos keep
+ * their colours), on a tile with a hairline ring. Max Life ships
  * as a sprite, so only its flame shows, cropped the way Figma crops it.
  * `muted` is the greyed Care mark for lapsed and rejected cover.
  */
@@ -27,8 +27,8 @@ export function InsurerLogo({
     <div
       role="img"
       aria-label={names[insurer]}
-      className={`relative shrink-0 overflow-hidden shadow-logo after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:ring-1 after:ring-black/[0.06] after:ring-inset ${radius} ${
-        insurer === "maxlife" ? "bg-[#fce0c8]" : muted ? "bg-grey-tint" : "bg-[#fbdf00]"
+      className={`relative shrink-0 overflow-hidden after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:ring-1 after:ring-black/[0.06] after:ring-inset ${radius} ${
+        insurer === "maxlife" ? "bg-[#fce0c8]" : muted ? "bg-fill" : "bg-[#fbdf00]"
       }`}
       style={{ width: size, height: size }}
     >

@@ -1,52 +1,36 @@
 import type { ReactNode } from "react";
+import { Badge, type BadgeTone } from "@/registry/components/badge/badge";
 import type { ApplicationStatus, Field } from "@/lib/dashboard-data";
 
-/** White card on the grey page: the one surface everything sits on. */
-export const cardClass = "rounded-[22px] bg-surface shadow-card";
+/** Arc card: rests on a 1px border, no shadow, 34px corners. */
+export const cardClass = "rounded-surface border border-separator bg-surface";
 
 export type Status = ApplicationStatus | "rejected" | "active" | "expired";
 
-const statusStyles: Record<Status, { label: string; tone: string; dot: string }> = {
-  "pending-uploads": {
-    label: "Pending uploads",
-    tone: "bg-orange-tint text-orange-text",
-    dot: "bg-orange-dot",
-  },
-  "missing-details": {
-    label: "Missing details",
-    tone: "bg-orange-tint text-orange-text",
-    dot: "bg-orange-dot",
-  },
-  verification: {
-    label: "With the insurer",
-    tone: "bg-teal-tint text-teal-text",
-    dot: "bg-teal-dot",
-  },
-  active: { label: "Active", tone: "bg-green-tint text-green-text", dot: "bg-green-dot" },
-  expired: { label: "Expired", tone: "bg-grey-tint text-grey-text", dot: "bg-grey-dot" },
-  rejected: { label: "Rejected", tone: "bg-grey-tint text-grey-text", dot: "bg-grey-dot" },
+/* Status colours mean status: warning when something needs you, info while
+   it's with the insurer, success for cover in force, danger for a refusal. */
+const statusBadges: Record<Status, { label: string; tone: BadgeTone }> = {
+  "pending-uploads": { label: "Pending uploads", tone: "warning" },
+  "missing-details": { label: "Missing details", tone: "warning" },
+  verification: { label: "With the insurer", tone: "info" },
+  active: { label: "Active", tone: "success" },
+  expired: { label: "Expired", tone: "neutral" },
+  rejected: { label: "Rejected", tone: "danger" },
 };
 
-/**
- * Status capsule: tinted fill, dark text, a vivid dot. The text carries the
- * meaning, so it reads without colour.
- */
-export function StatusPill({ status }: { status: Status }) {
-  const style = statusStyles[status];
+export function StatusBadge({ status }: { status: Status }) {
+  const badge = statusBadges[status];
   return (
-    <span
-      className={`inline-flex h-6 shrink-0 items-center gap-1.5 rounded-full pr-2.5 pl-2 text-[12px] leading-none font-semibold whitespace-nowrap ${style.tone}`}
-    >
-      <span aria-hidden className={`size-1.5 rounded-full ${style.dot}`} />
-      {style.label}
-    </span>
+    <Badge tone={badge.tone} size="sm" className="shrink-0">
+      {badge.label}
+    </Badge>
   );
 }
 
 /** Count after a segment or section title: quiet, tabular. */
 export function Count({ value }: { value: number }) {
   return (
-    <span className="text-label-secondary tabular-nums">
+    <span className="font-normal text-label-tertiary tabular-nums">
       <span className="sr-only">, </span>
       {value}
     </span>
@@ -57,25 +41,25 @@ export function Count({ value }: { value: number }) {
 export function FieldItem({ field }: { field: Field }) {
   return (
     <div className="min-w-0">
-      <dt className="text-[12px] leading-4 text-label-secondary">{field.label}</dt>
-      <dd className="mt-1 text-[15px] leading-5 font-medium tracking-[-0.01em] text-label tabular-nums">
-        {field.value}
-      </dd>
+      <dt className="text-xs text-label-secondary">{field.label}</dt>
+      <dd className="mt-1 text-sm font-medium text-label tabular-nums">{field.value}</dd>
     </div>
   );
 }
 
-/** Add-ons as capsules. */
-export function AddOnChips({ items, label = "Add-ons" }: { items: string[]; label?: string }) {
+/** Add-ons as one quiet line: a list, not a row of pills. */
+export function AddOnList({ items, label = "Add-ons" }: { items: string[]; label?: string }) {
   return (
-    <div>
-      <h4 className="text-[12px] leading-4 font-semibold text-label-secondary">{label}</h4>
-      <ul className="mt-2 flex flex-wrap gap-1.5">
-        {items.map((item) => (
-          <li
-            key={item}
-            className="flex h-7 items-center rounded-full bg-fill px-3 text-[13px] leading-none text-label"
-          >
+    <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1 text-sm">
+      <h4 className="text-xs text-label-secondary">{label}</h4>
+      <ul className="flex flex-wrap gap-x-2 gap-y-1 text-label">
+        {items.map((item, index) => (
+          <li key={item} className="flex items-baseline gap-2">
+            {index > 0 ? (
+              <span aria-hidden className="text-label-tertiary">
+                ·
+              </span>
+            ) : null}
             {item}
           </li>
         ))}
@@ -84,7 +68,7 @@ export function AddOnChips({ items, label = "Add-ons" }: { items: string[]; labe
   );
 }
 
-/** Section heading on the grey page, with an optional count. */
+/** Section heading on the page, with an optional count. */
 export function SectionTitle({
   children,
   count,
@@ -95,10 +79,7 @@ export function SectionTitle({
   id?: string;
 }) {
   return (
-    <h2
-      id={id}
-      className="flex items-baseline gap-2 text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label"
-    >
+    <h2 id={id} className="flex items-baseline gap-2 text-lg font-medium text-label">
       {children}
       {count !== undefined ? <Count value={count} /> : null}
     </h2>
@@ -108,7 +89,7 @@ export function SectionTitle({
 /** Kind and application number, as one quiet line. */
 export function MetaLine({ parts }: { parts: string[] }) {
   return (
-    <p className="mt-0.5 text-[13px] leading-[18px] text-label-secondary">
+    <p className="mt-0.5 text-sm text-label-secondary">
       {parts.map((part, index) => (
         <span key={part}>
           {index > 0 ? (

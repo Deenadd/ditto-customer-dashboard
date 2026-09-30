@@ -1,210 +1,268 @@
 "use client";
 
+import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { OtpField } from "@/components/otp-field";
-import { buttonClass } from "@/components/ui/buttons";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { CircleAlert } from "lucide-react";
+import { Button } from "@/registry/components/button/button";
+import { OtpInput } from "@/registry/components/otp-input/otp-input";
+import { motionTokens } from "@/lib/motion-tokens";
+import { SignInGradient, type GlowTone } from "@/components/login/sign-in-gradient";
 
-type Mode = "mobile" | "application";
+type Mode = "mobile" | "policy";
 
 const CODE_LENGTH = 4;
 const RESEND_SECONDS = 30;
+/** No SMS is sent in this prototype; this is the code that signs you in. */
+const DEMO_CODE = "2168";
+/** The mobile number on file for a policy, for this prototype. */
+const POLICY_MOBILE = "9876543210";
 
-const copy: Record<Mode, { label: string; switchTo: string; error: string }> = {
+const modeCopy: Record<Mode, { label: string; placeholder: string; switchTo: string; error: string }> = {
   mobile: {
     label: "Mobile number",
-    switchTo: "Use your application number instead",
+    placeholder: "Mobile number",
+    switchTo: "Use your policy number instead",
     error: "Enter your 10-digit mobile number.",
   },
-  application: {
-    label: "Application number",
+  policy: {
+    label: "Policy number",
+    placeholder: "Policy number",
     switchTo: "Use your mobile number instead",
-    error: "Enter the 11-digit number from your application.",
+    error: "Enter your policy number, as it appears on your policy document.",
   },
 };
 
-const digitsOf = (raw: string) => raw.replace(/[\s#-]/g, "");
+const isValid = (mode: Mode, raw: string) =>
+  mode === "mobile"
+    ? /^\d{10}$/.test(raw.replace(/\s/g, ""))
+    : /^[A-Za-z0-9-]{8,20}$/.test(raw.trim());
 
 /** "9876543210" → "+91 98765 43210" */
 const formatMobile = (digits: string) => `+91 ${digits.slice(0, 5)} ${digits.slice(5)}`;
 
 /**
- * Sign in, in two steps. A mobile number gets a one-time code by SMS, and
- * the code is checked on the next step; an application number signs in
- * directly. There's no backend: any well-formed number and any full code
- * open the dashboard.
+ * Sign in, in two steps, over the glow from the reference. The glow rests at
+ * the bottom while you enter a number, travels to the top for the code, and
+ * turns red for a wrong code or green for the right one before the dashboard
+ * opens.
  */
 export function SignInFlow() {
   const [step, setStep] = useState<"number" | "code">("number");
-  /* Null until the first step change, so nothing slides in on page load. */
-  const [direction, setDirection] = useState<"forward" | "back" | null>(null);
-  const [mobile, setMobile] = useState("");
-
-  return (
-    <div
-      key={step}
-      className={`flex w-full flex-col items-center ${
-        direction === null
-          ? ""
-          : `motion-safe:animate-step-in ${direction === "back" ? "[--step-from:-16px]" : "[--step-from:16px]"}`
-      }`}
-    >
-      {step === "number" ? (
-        <NumberStep
-          initialMobile={mobile}
-          onCodeSent={(digits) => {
-            setMobile(digits);
-            setDirection("forward");
-            setStep("code");
-          }}
-        />
-      ) : (
-        <CodeStep
-          mobile={mobile}
-          onChangeNumber={() => {
-            setDirection("back");
-            setStep("number");
-          }}
-        />
-      )}
-    </div>
-  );
-}
-
-function NumberStep({
-  initialMobile,
-  onCodeSent,
-}: {
-  initialMobile: string;
-  onCodeSent: (digits: string) => void;
-}) {
-  const router = useRouter();
   const [mode, setMode] = useState<Mode>("mobile");
-  const [value, setValue] = useState(initialMobile);
-  const [invalid, setInvalid] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const text = copy[mode];
+  const [value, setValue] = useState("");
+  const [tone, setTone] = useState<GlowTone>("blue");
+  const reduced = useReducedMotion();
 
-  /* Coming back from the code step, put the cursor back in the number. */
-  useEffect(() => {
-    if (initialMobile) inputRef.current?.focus();
-  }, [initialMobile]);
-
-  function isValid(raw: string) {
-    const digits = digitsOf(raw);
-    return mode === "mobile" ? /^\d{10}$/.test(digits) : /^\d{11}$/.test(digits);
-  }
-
-  function onSubmit(event: React.FormEvent) {
-    event.preventDefault();
-    if (!isValid(value)) {
-      setInvalid(true);
-      inputRef.current?.focus();
-      return;
-    }
-    if (mode === "mobile") {
-      onCodeSent(digitsOf(value));
-      return;
-    }
-    setSubmitting(true);
-    router.push("/dashboard");
-  }
-
-  function switchMode() {
-    setMode((current) => (current === "mobile" ? "application" : "mobile"));
-    setValue("");
-    setInvalid(false);
-    inputRef.current?.focus();
-  }
+  const stepMotion = reduced
+    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
+    : {
+        initial: { opacity: 0, y: 12, filter: `blur(${motionTokens.blur.soft}px)` },
+        animate: { opacity: 1, y: 0, filter: "blur(0px)" },
+        exit: {
+          opacity: 0,
+          y: -8,
+          filter: `blur(${motionTokens.blur.soft}px)`,
+          transition: {
+            duration: motionTokens.duration.exit,
+            ease: [...motionTokens.ease.exit] as [number, number, number, number],
+          },
+        },
+      };
 
   return (
     <>
-      <h1 className="mt-8 max-w-[440px] text-center text-[40px] leading-[44px] font-bold tracking-[-0.035em] text-balance text-label max-sm:text-[32px] max-sm:leading-9">
-        Insurance, made simple.
-      </h1>
-      <p className="mt-3 max-w-[340px] text-center text-[17px] leading-6 text-pretty text-label-secondary">
-        Sign in to see your policies, applications and saved documents.
-      </p>
+      <SignInGradient position={step === "number" ? "bottom" : "top"} tone={tone} />
+      <AnimatePresence mode="wait" initial={false}>
+        <motion.div
+          key={step}
+          {...stepMotion}
+          transition={reduced ? { duration: 0.16 } : { ...motionTokens.spring.smooth, delay: 0.12 }}
+          className="flex min-h-dvh w-full flex-col items-center"
+        >
+          {step === "number" ? (
+            <NumberStep
+              mode={mode}
+              value={value}
+              onModeChange={setMode}
+              onValueChange={setValue}
+              onContinue={() => {
+                setTone("blue");
+                setStep("code");
+              }}
+            />
+          ) : (
+            <CodeStep
+              destination={
+                mode === "mobile"
+                  ? { lead: "", number: formatMobile(value.replace(/\s/g, "")) }
+                  : { lead: "the mobile number on this policy, ending ", number: POLICY_MOBILE.slice(-4) }
+              }
+              onToneChange={setTone}
+              onChangeNumber={() => {
+                setTone("blue");
+                setStep("number");
+              }}
+            />
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </>
+  );
+}
+
+function Logo({ inverted = false }: { inverted?: boolean }) {
+  return (
+    <Image
+      src="/brand/ditto-logo.png"
+      alt="Ditto"
+      width={663}
+      height={307}
+      priority
+      className={`h-10 w-[86px] object-contain ${inverted ? "brightness-0 invert" : ""}`}
+    />
+  );
+}
+
+/* Controls that sit on the glow draw their focus ring in the foreground
+   colour, which holds contrast over both the cyan and the deep blue. */
+const onGlow = { "--focus-ring": "var(--foreground)" } as CSSProperties;
+
+function NumberStep({
+  mode,
+  value,
+  onModeChange,
+  onValueChange,
+  onContinue,
+}: {
+  mode: Mode;
+  value: string;
+  onModeChange: (mode: Mode) => void;
+  onValueChange: (value: string) => void;
+  onContinue: () => void;
+}) {
+  const [invalid, setInvalid] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const copy = modeCopy[mode];
+
+  return (
+    <>
+      <header className="flex flex-col items-center px-6 pt-[max(56px,12dvh)] text-center">
+        <Logo />
+        <h1 className="mt-8 max-w-[420px] font-display text-3xl font-medium tracking-[-0.03em] text-balance text-label">
+          Insurance, made simple
+        </h1>
+        <p className="mt-3 max-w-[320px] text-base text-pretty text-label-secondary">
+          Sign in to see your policies, applications and claims.
+        </p>
+      </header>
 
       <form
         noValidate
-        onSubmit={onSubmit}
-        className="mt-10 flex w-full max-w-[360px] flex-col items-center"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (!isValid(mode, value)) {
+            setInvalid(true);
+            inputRef.current?.focus();
+            return;
+          }
+          onContinue();
+        }}
+        style={onGlow}
+        className="mt-auto flex w-full max-w-[400px] flex-col gap-3 px-6 pt-12 pb-[max(40px,6dvh)]"
       >
         <label htmlFor="login-id" className="sr-only">
-          {text.label}
+          {copy.label}
         </label>
-        <div
-          className={`flex h-[52px] w-full items-center rounded-control bg-surface pl-4 transition-shadow duration-150 ${
-            invalid
-              ? "shadow-[0_0_0_1.5px_var(--color-red-text)] has-[:focus-visible]:shadow-[0_0_0_2px_var(--color-red-text),0_0_0_6px_rgb(196_30_58_/_0.12)]"
-              : "shadow-[0_0_0_1px_rgb(0_0_0_/_0.1),0_1px_2px_rgb(0_0_0_/_0.04)] has-[:focus-visible]:shadow-[0_0_0_2px_var(--color-accent),0_0_0_6px_rgb(0_113_227_/_0.15)]"
-          }`}
-        >
+        <div className="flex h-[52px] items-center rounded-control bg-surface pl-4 shadow-resting has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus-ring)]">
           {mode === "mobile" ? (
             <>
-              <span className="text-[17px] leading-6 text-label">+91</span>
+              <span className="text-base text-label">+91</span>
               <span aria-hidden className="mx-3 h-5 w-px bg-separator" />
             </>
           ) : null}
           <input
             ref={inputRef}
             id="login-id"
-            name={mode === "mobile" ? "mobile" : "application-number"}
+            name={mode === "mobile" ? "mobile" : "policy-number"}
             type={mode === "mobile" ? "tel" : "text"}
-            inputMode="numeric"
+            inputMode={mode === "mobile" ? "numeric" : "text"}
             autoComplete={mode === "mobile" ? "tel-national" : "off"}
-            maxLength={mode === "mobile" ? 10 : 12}
-            placeholder={text.label}
+            autoCapitalize={mode === "policy" ? "characters" : undefined}
+            maxLength={mode === "mobile" ? 11 : 20}
+            placeholder={copy.placeholder}
             value={value}
             aria-invalid={invalid || undefined}
             aria-describedby={invalid ? "login-error" : undefined}
             onChange={(event) => {
-              setValue(event.target.value);
-              if (invalid && isValid(event.target.value)) setInvalid(false);
+              onValueChange(event.target.value);
+              if (invalid && isValid(mode, event.target.value)) setInvalid(false);
             }}
-            className="h-full min-w-0 flex-1 rounded-r-control bg-transparent pr-4 text-[17px] leading-6 text-label tabular-nums placeholder:text-label-tertiary focus:outline-none"
+            className="h-full min-w-0 flex-1 rounded-r-control bg-transparent pr-4 text-base text-label tabular-nums placeholder:text-label-tertiary focus:outline-none"
           />
         </div>
-        {invalid ? (
-          <p id="login-error" className="mt-2 self-start px-1 text-[13px] leading-[18px] text-red-text">
-            {text.error}
-          </p>
-        ) : null}
 
-        <button
-          type="submit"
-          disabled={submitting}
-          className={`${buttonClass("filled", "large")} mt-4 w-full disabled:cursor-progress disabled:opacity-80`}
-        >
-          {submitting ? "Signing in…" : "Continue"}
-        </button>
+        <AnimatePresence initial={false}>
+          {invalid ? (
+            <motion.p
+              id="login-error"
+              role="alert"
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, transition: { duration: motionTokens.duration.exit } }}
+              transition={motionTokens.spring.smooth}
+              className="flex items-start gap-2 rounded-control bg-surface px-3.5 py-2.5 text-sm text-danger shadow-resting"
+            >
+              <CircleAlert size={16} strokeWidth={1.75} aria-hidden className="mt-0.5 shrink-0" />
+              {copy.error}
+            </motion.p>
+          ) : null}
+        </AnimatePresence>
 
+        <Button type="submit" variant="secondary" size="lg" className="w-full">
+          Continue
+        </Button>
         <button
           type="button"
-          onClick={switchMode}
-          className="mt-5 rounded-control px-3 py-1.5 text-[15px] leading-5 text-accent-text transition-colors duration-150 active:bg-accent-tint [@media(hover:hover)]:hover:underline [@media(hover:hover)]:hover:underline-offset-4"
+          onClick={() => {
+            onModeChange(mode === "mobile" ? "policy" : "mobile");
+            onValueChange("");
+            setInvalid(false);
+            inputRef.current?.focus();
+          }}
+          className="h-[50px] w-full rounded-control border border-white/25 bg-[rgb(0_32_110_/_0.16)] text-sm font-medium text-white backdrop-blur-md transition-[background-color,transform] duration-150 ease-[var(--ease-standard)] active:scale-[0.97] [@media(hover:hover)]:hover:bg-[rgb(0_32_110_/_0.24)]"
         >
-          {text.switchTo}
+          {copy.switchTo}
         </button>
       </form>
     </>
   );
 }
 
-function CodeStep({ mobile, onChangeNumber }: { mobile: string; onChangeNumber: () => void }) {
+/** Where the code went: an optional lead-in, then the number, kept on one line. */
+type Destination = { lead: string; number: string };
+
+function CodeStep({
+  destination,
+  onToneChange,
+  onChangeNumber,
+}: {
+  destination: Destination;
+  onToneChange: (tone: GlowTone) => void;
+  onChangeNumber: () => void;
+}) {
   const router = useRouter();
   const [code, setCode] = useState("");
-  const [invalid, setInvalid] = useState(false);
-  const [verifying, setVerifying] = useState(false);
+  const [error, setError] = useState<string>();
+  const [state, setState] = useState<"idle" | "checking" | "verified">("idle");
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
   const [status, setStatus] = useState("");
-  const codeRef = useRef<HTMLInputElement>(null);
-  const shakeRef = useRef<HTMLDivElement>(null);
+  const timers = useRef<number[]>([]);
 
   useEffect(() => {
-    codeRef.current?.focus();
+    const pending = timers.current;
+    return () => pending.forEach(window.clearTimeout);
   }, []);
 
   useEffect(() => {
@@ -213,116 +271,121 @@ function CodeStep({ mobile, onChangeNumber }: { mobile: string; onChangeNumber: 
     return () => window.clearTimeout(timer);
   }, [secondsLeft]);
 
+  const later = (fn: () => void, ms: number) => {
+    timers.current.push(window.setTimeout(fn, ms));
+  };
+
+  function focusFirstDigit() {
+    document
+      .querySelector<HTMLInputElement>(`input[aria-label="Verification code, digit 1 of ${CODE_LENGTH}"]`)
+      ?.focus();
+  }
+
   function verify(value: string) {
+    if (state !== "idle") return;
     if (value.length < CODE_LENGTH) {
-      setInvalid(true);
-      codeRef.current?.focus();
-      if (!window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-        shakeRef.current?.animate(
-          [
-            { transform: "translateX(0)" },
-            { transform: "translateX(-8px)" },
-            { transform: "translateX(6px)" },
-            { transform: "translateX(-4px)" },
-            { transform: "translateX(2px)" },
-            { transform: "translateX(0)" },
-          ],
-          { duration: 360, easing: "cubic-bezier(0.23, 1, 0.32, 1)" },
-        );
-      }
+      setError(`Enter all ${CODE_LENGTH} digits of the code.`);
       return;
     }
-    setVerifying(true);
-    setStatus("Code verified. Signing you in.");
-    router.push("/dashboard");
+    setError(undefined);
+    setState("checking");
+    /* A short pause stands in for the server checking the code. */
+    later(() => {
+      if (value === DEMO_CODE) {
+        setState("verified");
+        setStatus("Code verified. Opening your dashboard.");
+        onToneChange("green");
+        later(() => router.push("/dashboard"), 900);
+      } else {
+        setState("idle");
+        setError("That code isn't right. Check the SMS and enter it again.");
+        onToneChange("red");
+        later(() => {
+          setCode("");
+          focusFirstDigit();
+        }, 700);
+      }
+    }, 450);
   }
-
-  function resend() {
-    setCode("");
-    setInvalid(false);
-    setSecondsLeft(RESEND_SECONDS);
-    setStatus(`We sent a new code to ${formatMobile(mobile)}.`);
-    codeRef.current?.focus();
-  }
-
-  const clock = `0:${String(secondsLeft).padStart(2, "0")}`;
 
   return (
     <>
-      <h1 className="mt-8 text-center text-[32px] leading-9 font-bold tracking-[-0.03em] text-balance text-label">
-        Verify your number
-      </h1>
-      <p
-        id="otp-hint"
-        className="mt-3 max-w-[340px] text-center text-[17px] leading-6 text-pretty text-label-secondary"
-      >
-        Enter the {CODE_LENGTH}-digit code we sent by SMS to{" "}
-        <span className="font-medium whitespace-nowrap text-label tabular-nums">
-          {formatMobile(mobile)}
-        </span>
-        .
-      </p>
-      <button
-        type="button"
-        onClick={onChangeNumber}
-        className="mt-1 rounded-control px-3 py-1.5 text-[15px] leading-5 text-accent-text transition-colors duration-150 active:bg-accent-tint [@media(hover:hover)]:hover:underline [@media(hover:hover)]:hover:underline-offset-4"
-      >
-        Change number
-      </button>
+      {/* The top of the screen belongs to the glow; the logo turns white on it. */}
+      <header className="flex h-[36dvh] min-h-[180px] w-full flex-col items-center px-6 pt-[max(40px,8dvh)]">
+        <Logo inverted />
+      </header>
 
-      <form
-        noValidate
-        onSubmit={(event) => {
-          event.preventDefault();
-          verify(code);
-        }}
-        className="mt-7 flex w-full max-w-[360px] flex-col items-center"
-      >
-        <div ref={shakeRef}>
-          <OtpField
-            ref={codeRef}
+      <div className="flex w-full max-w-[400px] flex-col items-center px-6 pb-12 text-center">
+        <h1 className="font-display text-3xl font-medium tracking-[-0.03em] text-balance text-label">
+          Verify your number
+        </h1>
+        <p className="mt-3 max-w-[340px] text-base text-pretty text-label-secondary">
+          Enter the {CODE_LENGTH}-digit code we sent by SMS to{" "}
+          {destination.lead}
+          <span className="whitespace-nowrap text-label tabular-nums">{destination.number}</span>.
+        </p>
+        <Button variant="ghost" size="sm" onClick={onChangeNumber} className="mt-2">
+          Change number
+        </Button>
+
+        <form
+          noValidate
+          onSubmit={(event) => {
+            event.preventDefault();
+            verify(code);
+          }}
+          className="mt-6 flex w-full flex-col items-center gap-6"
+        >
+          <OtpInput
             length={CODE_LENGTH}
+            label="Verification code"
+            description={`This prototype sends no SMS. Use ${DEMO_CODE}.`}
+            error={error}
             value={code}
-            invalid={invalid}
-            disabled={verifying}
-            describedBy={invalid ? "otp-hint otp-error" : "otp-hint"}
+            autoFocus
+            disabled={state !== "idle"}
             onChange={(next) => {
               setCode(next);
-              if (invalid) setInvalid(false);
-              /* A full code verifies itself, as it does on iPhone. */
-              if (next.length === CODE_LENGTH) verify(next);
+              if (error) {
+                setError(undefined);
+                onToneChange("blue");
+              }
+              if (next.length === CODE_LENGTH && state === "idle") verify(next);
             }}
           />
-        </div>
-        {invalid ? (
-          <p id="otp-error" className="mt-3 text-[13px] leading-[18px] text-red-text">
-            Enter all {CODE_LENGTH} digits of the code.
-          </p>
-        ) : null}
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            className="w-full"
+            loading={state === "checking"}
+          >
+            {state === "verified" ? "Verified" : "Verify code"}
+          </Button>
+        </form>
 
-        <button
-          type="submit"
-          disabled={verifying}
-          className={`${buttonClass("filled", "large")} mt-6 w-full disabled:cursor-progress disabled:opacity-80`}
-        >
-          {verifying ? "Verifying…" : "Verify"}
-        </button>
-
-        <p className="mt-5 text-center text-[15px] leading-5 text-label-secondary">
+        <p className="mt-5 text-sm text-label-secondary">
           Didn&rsquo;t get a code?{" "}
           {secondsLeft > 0 ? (
-            <span className="tabular-nums">Resend in {clock}</span>
+            <span className="tabular-nums">Resend in 0:{String(secondsLeft).padStart(2, "0")}</span>
           ) : (
             <button
               type="button"
-              onClick={resend}
-              className="rounded-control px-1 text-accent-text [@media(hover:hover)]:hover:underline [@media(hover:hover)]:hover:underline-offset-4"
+              onClick={() => {
+                setCode("");
+                setError(undefined);
+                onToneChange("blue");
+                setSecondsLeft(RESEND_SECONDS);
+                setStatus(`We sent a new code to ${destination.lead}${destination.number}.`);
+                focusFirstDigit();
+              }}
+              className="rounded-control px-1 font-medium text-accent [@media(hover:hover)]:hover:underline [@media(hover:hover)]:hover:underline-offset-4"
             >
               Resend code
             </button>
           )}
         </p>
-      </form>
+      </div>
 
       <p role="status" className="sr-only">
         {status}
