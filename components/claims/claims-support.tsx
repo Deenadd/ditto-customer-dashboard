@@ -2,18 +2,18 @@
 
 import { useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { Activity, FilePlus2, Files, ShieldCheck, type LucideIcon } from "lucide-react";
 import { ClaimsConversation } from "@/components/claims/claims-conversation";
 import { Chevron } from "@/components/dashboard/policy-pair";
 import { cardClass } from "@/components/ui/card-bits";
 import { FrostedSideSheet } from "@/components/ui/frosted-side-sheet/frosted-side-sheet";
+import { IconClaim, IconCovered, IconDocuments, IconTrack, type Icon } from "@/components/ui/icons";
 import { topics, type TopicId } from "@/lib/claims-flow";
 
-const icons: Record<TopicId, LucideIcon> = {
-  "make-claim": FilePlus2,
-  documents: Files,
-  covered: ShieldCheck,
-  track: Activity,
+const icons: Record<TopicId, Icon> = {
+  "make-claim": IconClaim,
+  documents: IconDocuments,
+  covered: IconCovered,
+  track: IconTrack,
 };
 
 /**
@@ -70,7 +70,7 @@ export function ClaimsSupport() {
                 className="group flex h-16 w-full items-center gap-3 rounded-[14px] px-3 text-left transition-colors duration-150 ease-out hover:bg-fill active:bg-fill aria-expanded:bg-fill"
               >
                 <span className="grid size-11 shrink-0 place-items-center rounded-[11px] bg-surface text-accent shadow-[0_0_0_0.5px_rgb(0_0_0_/_0.08),0_1px_2px_rgb(0_0_0_/_0.06)]">
-                  <Icon size={20} strokeWidth={1.75} aria-hidden />
+                  <Icon />
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[15px] leading-5 font-medium text-label">{item.label}</span>

@@ -164,6 +164,21 @@
   }
 }
 
+/* Ditto's typing dots: each rises and brightens in turn. Reduced motion
+   stops them on the last frame, three steady dots. */
+@keyframes typing-dot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.4;
+    transform: none;
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+}
+
 /* The one-time-code caret. Ends visible, so reduced motion leaves it on. */
 @keyframes caret {
   0%,

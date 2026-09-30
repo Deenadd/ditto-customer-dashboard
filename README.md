@@ -107,14 +107,21 @@ returns to the row that opened it; Escape or a click outside closes it.
   short guided conversation. While it's open, the other rows dim to 40%. The
   same card is on the policy page, in place of the quick links. Guidance lives
   in `lib/claims-flow.ts`.
+  - Ditto types for a moment before each reply; your answers show as blue
+    bubbles. Policy answers are rows with the insurer's logo.
+  - Claim steps are a numbered timeline. The documents are a checklist you
+    tick off, with a count and a bar; photo ID starts ticked, as it's on file.
+  - Talk to a claims expert books a callback (now, later today or tomorrow
+    morning) and ends on a confirmation. No call is placed.
+  - Every answer can be undone with Back; Start over asks the first question
+    again. Each ending offers a next step, such as Check something else.
 - **Notifications** (the bell) lists the latest application updates and marks
   them read; each opens the timeline.
 - **Avatar menu** switches between the customer with pending applications and
   the one with none, and logs out.
 - **Active health policy** opens the policy page; the back link returns.
 
-Buttons with no destination yet: Chat now, Talk to our team, Download policy,
-and Talk to a claims expert (which says so in the conversation).
+Buttons with no destination yet: Chat now, Talk to our team and Download policy.
 
 ## Content changes from the Figma draft
 
@@ -147,7 +154,7 @@ documents) are plausible placeholders, not policy wording.
 | Styling | Tailwind CSS v4 with design tokens in `app/globals.css` |
 | Font | Inter via `next/font/google` (SF Pro first on Apple devices) |
 | Motion | `motion` (Motion for React) for the side sheet and sign-in |
-| Icons | `lucide-react` for the claims topics and sheet |
+| Icons | `components/ui/icons.tsx`, drawn with `lucide-react` for now. Central Icons is the intended set; its packages need a licence key (`CENTRAL_LICENSE_KEY`) on install, locally and on Vercel, and then only this file changes |
 | Hosting | Vercel |
 
 ## Running locally
@@ -175,6 +182,7 @@ components/
   ui/frosted-side-sheet/      The reusable sheet and its config
   dashboard/  policy/         Cards, timeline, empty state, policy view
   ui/                         Buttons, menus, logo tiles, segmented control
+  ui/icons.tsx                Every interface icon, in one place
 lib/
   claims-flow.ts              The claims conversation
   dashboard-data.ts           Everything the dashboard shows

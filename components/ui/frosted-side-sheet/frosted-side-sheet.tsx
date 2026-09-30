@@ -19,7 +19,6 @@ import {
   type Transition,
   type Variants,
 } from "motion/react";
-import { X } from "lucide-react";
 import {
   buildItemTransition,
   buildSheetTransition,
@@ -27,6 +26,7 @@ import {
   resolveSideSheetConfig,
   type SideSheetConfig,
 } from "./config";
+import { IconClose } from "@/components/ui/icons";
 
 const noSubscribe = () => () => {};
 
@@ -223,7 +223,7 @@ export function FrostedSideSheet({
                 aria-label={`Close ${title.toLowerCase()}`}
                 className="grid size-11 shrink-0 place-items-center rounded-full text-label-secondary transition-[background-color,transform] duration-150 ease-out hover:bg-black/[0.05] hover:text-label active:scale-[0.92]"
               >
-                <X size={20} strokeWidth={1.75} aria-hidden />
+                <IconClose />
               </button>
             </header>
 
