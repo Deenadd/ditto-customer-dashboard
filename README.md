@@ -66,6 +66,24 @@ the glow up to hang from the top for the code step. A wrong code turns it red,
 the right one green, then the dashboard opens. Values are in
 `components/login/glow-ramps.ts`.
 
+### Glow controls
+
+On the sign-in page, **Shift+Option+C** (Shift+Alt+C) opens a tuning panel for
+the glow:
+
+- **Preview:** force it to the top or bottom, and blue, red or green.
+- **Size:** radius, width cap, where the soft edge starts, and intensity.
+- **Positions:** offset, horizontal position and scale for the bottom and top
+  rest positions.
+- **Animation:** move duration, easing presets or a custom curve with a
+  preview, and colour-change speed.
+
+Changes apply live and are remembered in that browser. **Copy config** copies
+the JSON; paste it into `defaultGlowConfig` in
+`components/login/glow-config.ts` to make it the default for everyone.
+Escape or the shortcut closes the panel, and the glow goes back to following
+the flow.
+
 ## Frosted side sheet
 
 `components/ui/frosted-side-sheet/` is the side sheet from DD-Kitchen

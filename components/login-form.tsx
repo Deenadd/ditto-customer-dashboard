@@ -6,6 +6,8 @@ import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { OtpField } from "@/components/otp-field";
 import { Button } from "@/components/ui/buttons";
+import { useGlowConfig } from "@/components/login/glow-config";
+import { GlowControls, type GlowPreview } from "@/components/login/glow-controls";
 import { SignInGradient, type GlowTone } from "@/components/login/sign-in-gradient";
 
 type Mode = "mobile" | "policy";
@@ -56,6 +58,21 @@ export function SignInFlow() {
   const [value, setValue] = useState("");
   const [tone, setTone] = useState<GlowTone>("blue");
   const reduced = useReducedMotion();
+  const glow = useGlowConfig();
+  const [controlsOpen, setControlsOpen] = useState(false);
+  const [preview, setPreview] = useState<GlowPreview>({ position: "auto", tone: "auto" });
+
+  /* Shift+Option+C (Shift+Alt+C) reveals the glow controls. The key code is
+     used because Option changes the typed character on a Mac. */
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.altKey && event.shiftKey && event.code === "KeyC")) return;
+      event.preventDefault();
+      setControlsOpen((open) => !open);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
 
   /* The content swaps in place, so this is a crossfade, not a slide. */
   const swap = reduced
@@ -68,7 +85,22 @@ export function SignInFlow() {
 
   return (
     <>
-      <SignInGradient position={step === "number" ? "bottom" : "top"} tone={tone} />
+      <SignInGradient
+        config={glow}
+        position={preview.position === "auto" ? (step === "number" ? "bottom" : "top") : preview.position}
+        tone={preview.tone === "auto" ? tone : preview.tone}
+      />
+      <GlowControls
+        open={controlsOpen}
+        onClose={() => {
+          /* Hand the glow back to the flow when the panel closes. */
+          setControlsOpen(false);
+          setPreview({ position: "auto", tone: "auto" });
+        }}
+        config={glow}
+        preview={preview}
+        onPreviewChange={setPreview}
+      />
 
       <div className="flex w-full flex-col items-center px-6 pt-[max(56px,12dvh)] pb-12">
         <Image
