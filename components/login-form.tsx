@@ -2,12 +2,10 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { CircleAlert } from "lucide-react";
-import { Button } from "@/registry/components/button/button";
-import { OtpInput } from "@/registry/components/otp-input/otp-input";
-import { motionTokens } from "@/lib/motion-tokens";
+import { OtpField } from "@/components/otp-field";
+import { Button } from "@/components/ui/buttons";
 import { SignInGradient, type GlowTone } from "@/components/login/sign-in-gradient";
 
 type Mode = "mobile" | "policy";
@@ -19,16 +17,14 @@ const DEMO_CODE = "2168";
 /** The mobile number on file for a policy, for this prototype. */
 const POLICY_MOBILE = "9876543210";
 
-const modeCopy: Record<Mode, { label: string; placeholder: string; switchTo: string; error: string }> = {
+const modeCopy: Record<Mode, { label: string; switchTo: string; error: string }> = {
   mobile: {
     label: "Mobile number",
-    placeholder: "Mobile number",
     switchTo: "Use your policy number instead",
     error: "Enter your 10-digit mobile number.",
   },
   policy: {
     label: "Policy number",
-    placeholder: "Policy number",
     switchTo: "Use your mobile number instead",
     error: "Enter your policy number, as it appears on your policy document.",
   },
@@ -42,11 +38,17 @@ const isValid = (mode: Mode, raw: string) =>
 /** "9876543210" → "+91 98765 43210" */
 const formatMobile = (digits: string) => `+91 ${digits.slice(0, 5)} ${digits.slice(5)}`;
 
+/** Where the code went: an optional lead-in, then the number, kept on one line. */
+type Destination = { lead: string; number: string };
+
+const ease = [0.23, 1, 0.32, 1] as const;
+
 /**
- * Sign in, in two steps, over the glow from the reference. The glow rests at
- * the bottom while you enter a number, travels to the top for the code, and
- * turns red for a wrong code or green for the right one before the dashboard
- * opens.
+ * Sign in, in two steps. The logo, heading, subtitle and input row sit in
+ * the same place on both steps; only the words change, and the glow moves.
+ * It rises from the bottom while you enter a number, travels to the top for
+ * the code, and turns red for a wrong code or green for the right one before
+ * the dashboard opens.
  */
 export function SignInFlow() {
   const [step, setStep] = useState<"number" | "code">("number");
@@ -55,79 +57,100 @@ export function SignInFlow() {
   const [tone, setTone] = useState<GlowTone>("blue");
   const reduced = useReducedMotion();
 
-  const stepMotion = reduced
+  /* The content swaps in place, so this is a crossfade, not a slide. */
+  const swap = reduced
     ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
     : {
-        initial: { opacity: 0, y: 12, filter: `blur(${motionTokens.blur.soft}px)` },
-        animate: { opacity: 1, y: 0, filter: "blur(0px)" },
-        exit: {
-          opacity: 0,
-          y: -8,
-          filter: `blur(${motionTokens.blur.soft}px)`,
-          transition: {
-            duration: motionTokens.duration.exit,
-            ease: [...motionTokens.ease.exit] as [number, number, number, number],
-          },
-        },
+        initial: { opacity: 0, filter: "blur(4px)" },
+        animate: { opacity: 1, filter: "blur(0px)" },
+        exit: { opacity: 0, filter: "blur(4px)", transition: { duration: 0.14, ease } },
       };
 
   return (
     <>
       <SignInGradient position={step === "number" ? "bottom" : "top"} tone={tone} />
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={step}
-          {...stepMotion}
-          transition={reduced ? { duration: 0.16 } : { ...motionTokens.spring.smooth, delay: 0.12 }}
-          className="flex min-h-dvh w-full flex-col items-center"
-        >
-          {step === "number" ? (
-            <NumberStep
-              mode={mode}
-              value={value}
-              onModeChange={setMode}
-              onValueChange={setValue}
-              onContinue={() => {
-                setTone("blue");
-                setStep("code");
-              }}
-            />
-          ) : (
-            <CodeStep
-              destination={
-                mode === "mobile"
-                  ? { lead: "", number: formatMobile(value.replace(/\s/g, "")) }
-                  : { lead: "the mobile number on this policy, ending ", number: POLICY_MOBILE.slice(-4) }
-              }
-              onToneChange={setTone}
-              onChangeNumber={() => {
-                setTone("blue");
-                setStep("number");
-              }}
-            />
-          )}
-        </motion.div>
-      </AnimatePresence>
+
+      <div className="flex w-full flex-col items-center px-6 pt-[max(56px,12dvh)] pb-12">
+        <Image
+          src="/brand/ditto-logo.png"
+          alt="Ditto"
+          width={663}
+          height={307}
+          priority
+          className="h-[46px] w-[99px] object-contain"
+        />
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={step}
+            {...swap}
+            transition={{ duration: reduced ? 0.12 : 0.24, ease }}
+            className="flex w-full flex-col items-center"
+          >
+            {step === "number" ? (
+              <NumberStep
+                mode={mode}
+                value={value}
+                onModeChange={setMode}
+                onValueChange={setValue}
+                onContinue={() => {
+                  setTone("blue");
+                  setStep("code");
+                }}
+              />
+            ) : (
+              <CodeStep
+                destination={
+                  mode === "mobile"
+                    ? { lead: "", number: formatMobile(value.replace(/\s/g, "")) }
+                    : { lead: "the mobile number on this policy, ending ", number: POLICY_MOBILE.slice(-4) }
+                }
+                onToneChange={setTone}
+                onChangeNumber={() => {
+                  setTone("blue");
+                  setStep("number");
+                }}
+              />
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </>
   );
 }
 
-function Logo({ inverted = false }: { inverted?: boolean }) {
+/* Shared by both steps, so the heading, subtitle and input row line up:
+   the subtitle always reserves two lines. */
+function Heading({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <Image
-      src="/brand/ditto-logo.png"
-      alt="Ditto"
-      width={663}
-      height={307}
-      priority
-      className={`h-10 w-[86px] object-contain ${inverted ? "brightness-0 invert" : ""}`}
-    />
+    <>
+      <h1 className="mt-8 max-w-[440px] text-center text-[40px] leading-[44px] font-bold tracking-[-0.035em] text-balance text-label max-sm:text-[32px] max-sm:leading-9">
+        {title}
+      </h1>
+      <p className="mt-3 min-h-12 max-w-[340px] text-center text-[17px] leading-6 text-pretty text-label-secondary">
+        {children}
+      </p>
+    </>
   );
 }
 
-/* Controls that sit on the glow draw their focus ring in the foreground
-   colour, which holds contrast over both the cyan and the deep blue. */
-const onGlow = { "--focus-ring": "var(--foreground)" } as CSSProperties;
+const formClass = "mt-10 flex w-full max-w-[360px] flex-col";
+
+function ErrorLine({ id, children }: { id: string; children: ReactNode }) {
+  return (
+    <p
+      id={id}
+      role="alert"
+      className="mt-2.5 flex items-start justify-center gap-1.5 text-center text-[13px] leading-[18px] text-red-text"
+    >
+      <svg aria-hidden width="16" height="16" viewBox="0 0 16 16" className="mt-px shrink-0">
+        <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" strokeWidth="1.4" />
+        <path d="M8 4.5v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <circle cx="8" cy="11.2" r=".9" fill="currentColor" />
+      </svg>
+      {children}
+    </p>
+  );
+}
 
 function NumberStep({
   mode,
@@ -148,15 +171,9 @@ function NumberStep({
 
   return (
     <>
-      <header className="flex flex-col items-center px-6 pt-[max(56px,12dvh)] text-center">
-        <Logo />
-        <h1 className="mt-8 max-w-[420px] font-display text-3xl font-medium tracking-[-0.03em] text-balance text-label">
-          Insurance, made simple
-        </h1>
-        <p className="mt-3 max-w-[320px] text-base text-pretty text-label-secondary">
-          Sign in to see your policies, applications and claims.
-        </p>
-      </header>
+      <Heading title="Insurance, made simple.">
+        Sign in to see your policies, applications and claims.
+      </Heading>
 
       <form
         noValidate
@@ -169,16 +186,21 @@ function NumberStep({
           }
           onContinue();
         }}
-        style={onGlow}
-        className="mt-auto flex w-full max-w-[400px] flex-col gap-3 px-6 pt-12 pb-[max(40px,6dvh)]"
+        className={formClass}
       >
         <label htmlFor="login-id" className="sr-only">
           {copy.label}
         </label>
-        <div className="flex h-[52px] items-center rounded-control bg-surface pl-4 shadow-resting has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-[var(--focus-ring)]">
+        <div
+          className={`flex h-[52px] w-full items-center rounded-control bg-surface pl-4 transition-shadow duration-150 ${
+            invalid
+              ? "shadow-[0_0_0_1.5px_var(--color-red-text)] has-[:focus-visible]:shadow-[0_0_0_2px_var(--color-red-text),0_0_0_6px_rgb(196_30_58_/_0.12)]"
+              : "shadow-[0_0_0_1px_rgb(0_0_0_/_0.1),0_1px_2px_rgb(0_0_0_/_0.04)] has-[:focus-visible]:shadow-[0_0_0_2px_var(--color-accent),0_0_0_6px_rgb(0_113_227_/_0.15)]"
+          }`}
+        >
           {mode === "mobile" ? (
             <>
-              <span className="text-base text-label">+91</span>
+              <span className="text-[17px] leading-6 text-label">+91</span>
               <span aria-hidden className="mx-3 h-5 w-px bg-separator" />
             </>
           ) : null}
@@ -191,7 +213,7 @@ function NumberStep({
             autoComplete={mode === "mobile" ? "tel-national" : "off"}
             autoCapitalize={mode === "policy" ? "characters" : undefined}
             maxLength={mode === "mobile" ? 11 : 20}
-            placeholder={copy.placeholder}
+            placeholder={copy.label}
             value={value}
             aria-invalid={invalid || undefined}
             aria-describedby={invalid ? "login-error" : undefined}
@@ -199,49 +221,31 @@ function NumberStep({
               onValueChange(event.target.value);
               if (invalid && isValid(mode, event.target.value)) setInvalid(false);
             }}
-            className="h-full min-w-0 flex-1 rounded-r-control bg-transparent pr-4 text-base text-label tabular-nums placeholder:text-label-tertiary focus:outline-none"
+            className="h-full min-w-0 flex-1 rounded-r-control bg-transparent pr-4 text-[17px] leading-6 text-label tabular-nums placeholder:text-label-tertiary focus:outline-none"
           />
         </div>
+        {invalid ? <ErrorLine id="login-error">{copy.error}</ErrorLine> : null}
 
-        <AnimatePresence initial={false}>
-          {invalid ? (
-            <motion.p
-              id="login-error"
-              role="alert"
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, transition: { duration: motionTokens.duration.exit } }}
-              transition={motionTokens.spring.smooth}
-              className="flex items-start gap-2 rounded-control bg-surface px-3.5 py-2.5 text-sm text-danger shadow-resting"
-            >
-              <CircleAlert size={16} strokeWidth={1.75} aria-hidden className="mt-0.5 shrink-0" />
-              {copy.error}
-            </motion.p>
-          ) : null}
-        </AnimatePresence>
-
-        <Button type="submit" variant="secondary" size="lg" className="w-full">
+        <Button type="submit" size="large" className="mt-4 w-full">
           Continue
         </Button>
-        <button
-          type="button"
+        <Button
+          variant="plain"
+          size="large"
+          className="mt-2 w-full"
           onClick={() => {
             onModeChange(mode === "mobile" ? "policy" : "mobile");
             onValueChange("");
             setInvalid(false);
             inputRef.current?.focus();
           }}
-          className="h-[50px] w-full rounded-control border border-white/25 bg-[rgb(0_32_110_/_0.16)] text-sm font-medium text-white backdrop-blur-md transition-[background-color,transform] duration-150 ease-[var(--ease-standard)] active:scale-[0.97] [@media(hover:hover)]:hover:bg-[rgb(0_32_110_/_0.24)]"
         >
           {copy.switchTo}
-        </button>
+        </Button>
       </form>
     </>
   );
 }
-
-/** Where the code went: an optional lead-in, then the number, kept on one line. */
-type Destination = { lead: string; number: string };
 
 function CodeStep({
   destination,
@@ -258,9 +262,11 @@ function CodeStep({
   const [state, setState] = useState<"idle" | "checking" | "verified">("idle");
   const [secondsLeft, setSecondsLeft] = useState(RESEND_SECONDS);
   const [status, setStatus] = useState("");
+  const codeRef = useRef<HTMLInputElement>(null);
   const timers = useRef<number[]>([]);
 
   useEffect(() => {
+    codeRef.current?.focus();
     const pending = timers.current;
     return () => pending.forEach(window.clearTimeout);
   }, []);
@@ -275,16 +281,11 @@ function CodeStep({
     timers.current.push(window.setTimeout(fn, ms));
   };
 
-  function focusFirstDigit() {
-    document
-      .querySelector<HTMLInputElement>(`input[aria-label="Verification code, digit 1 of ${CODE_LENGTH}"]`)
-      ?.focus();
-  }
-
   function verify(value: string) {
     if (state !== "idle") return;
     if (value.length < CODE_LENGTH) {
       setError(`Enter all ${CODE_LENGTH} digits of the code.`);
+      codeRef.current?.focus();
       return;
     }
     setError(undefined);
@@ -302,7 +303,7 @@ function CodeStep({
         onToneChange("red");
         later(() => {
           setCode("");
-          focusFirstDigit();
+          codeRef.current?.focus();
         }, 700);
       }
     }, 450);
@@ -310,61 +311,51 @@ function CodeStep({
 
   return (
     <>
-      {/* The top of the screen belongs to the glow; the logo turns white on it. */}
-      <header className="flex h-[36dvh] min-h-[180px] w-full flex-col items-center px-6 pt-[max(40px,8dvh)]">
-        <Logo inverted />
-      </header>
+      <Heading title="Verify your number">
+        Enter the {CODE_LENGTH}-digit code we sent by SMS to {destination.lead}
+        <span className="whitespace-nowrap text-label tabular-nums">{destination.number}</span>.
+      </Heading>
 
-      <div className="flex w-full max-w-[400px] flex-col items-center px-6 pb-12 text-center">
-        <h1 className="font-display text-3xl font-medium tracking-[-0.03em] text-balance text-label">
-          Verify your number
-        </h1>
-        <p className="mt-3 max-w-[340px] text-base text-pretty text-label-secondary">
-          Enter the {CODE_LENGTH}-digit code we sent by SMS to{" "}
-          {destination.lead}
-          <span className="whitespace-nowrap text-label tabular-nums">{destination.number}</span>.
-        </p>
-        <Button variant="ghost" size="sm" onClick={onChangeNumber} className="mt-2">
+      <form
+        noValidate
+        onSubmit={(event) => {
+          event.preventDefault();
+          verify(code);
+        }}
+        className={formClass}
+      >
+        <OtpField
+          ref={codeRef}
+          length={CODE_LENGTH}
+          value={code}
+          invalid={Boolean(error)}
+          disabled={state !== "idle"}
+          describedBy={error ? "otp-error" : "otp-hint"}
+          onChange={(next) => {
+            setCode(next);
+            if (error) {
+              setError(undefined);
+              onToneChange("blue");
+            }
+            if (next.length === CODE_LENGTH) verify(next);
+          }}
+        />
+        {error ? (
+          <ErrorLine id="otp-error">{error}</ErrorLine>
+        ) : (
+          <p id="otp-hint" className="mt-2.5 text-center text-[13px] leading-[18px] text-label-secondary">
+            This prototype sends no SMS. Use {DEMO_CODE}.
+          </p>
+        )}
+
+        <Button type="submit" size="large" className="mt-4 w-full" aria-busy={state === "checking"}>
+          {state === "checking" ? "Checking…" : state === "verified" ? "Verified" : "Verify code"}
+        </Button>
+        <Button variant="plain" size="large" className="mt-2 w-full" onClick={onChangeNumber}>
           Change number
         </Button>
 
-        <form
-          noValidate
-          onSubmit={(event) => {
-            event.preventDefault();
-            verify(code);
-          }}
-          className="mt-6 flex w-full flex-col items-center gap-6"
-        >
-          <OtpInput
-            length={CODE_LENGTH}
-            label="Verification code"
-            description={`This prototype sends no SMS. Use ${DEMO_CODE}.`}
-            error={error}
-            value={code}
-            autoFocus
-            disabled={state !== "idle"}
-            onChange={(next) => {
-              setCode(next);
-              if (error) {
-                setError(undefined);
-                onToneChange("blue");
-              }
-              if (next.length === CODE_LENGTH && state === "idle") verify(next);
-            }}
-          />
-          <Button
-            type="submit"
-            variant="primary"
-            size="lg"
-            className="w-full"
-            loading={state === "checking"}
-          >
-            {state === "verified" ? "Verified" : "Verify code"}
-          </Button>
-        </form>
-
-        <p className="mt-5 text-sm text-label-secondary">
+        <p className="mt-4 text-center text-[15px] leading-5 text-label-secondary">
           Didn&rsquo;t get a code?{" "}
           {secondsLeft > 0 ? (
             <span className="tabular-nums">Resend in 0:{String(secondsLeft).padStart(2, "0")}</span>
@@ -377,15 +368,15 @@ function CodeStep({
                 onToneChange("blue");
                 setSecondsLeft(RESEND_SECONDS);
                 setStatus(`We sent a new code to ${destination.lead}${destination.number}.`);
-                focusFirstDigit();
+                codeRef.current?.focus();
               }}
-              className="rounded-control px-1 font-medium text-accent [@media(hover:hover)]:hover:underline [@media(hover:hover)]:hover:underline-offset-4"
+              className="rounded-control px-1 text-accent-text [@media(hover:hover)]:hover:underline [@media(hover:hover)]:hover:underline-offset-4"
             >
               Resend code
             </button>
           )}
         </p>
-      </div>
+      </form>
 
       <p role="status" className="sr-only">
         {status}

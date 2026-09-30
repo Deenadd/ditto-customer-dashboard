@@ -2,8 +2,10 @@
 
 import { useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
-import { Activity, ChevronRight, FilePlus2, Files, ShieldCheck, type LucideIcon } from "lucide-react";
+import { Activity, FilePlus2, Files, ShieldCheck, type LucideIcon } from "lucide-react";
 import { ClaimsConversation } from "@/components/claims/claims-conversation";
+import { Chevron } from "@/components/dashboard/policy-pair";
+import { cardClass } from "@/components/ui/card-bits";
 import { FrostedSideSheet } from "@/components/ui/frosted-side-sheet/frosted-side-sheet";
 import { topics, type TopicId } from "@/lib/claims-flow";
 
@@ -21,24 +23,29 @@ const icons: Record<TopicId, LucideIcon> = {
  */
 export function ClaimsSupport() {
   const [openTopic, setOpenTopic] = useState<TopicId | null>(null);
+  /* The last topic stays rendered while the sheet slides out. */
+  const [shownTopic, setShownTopic] = useState<TopicId | null>(null);
   /* A new session remounts the conversation, even for the same topic. */
   const [session, setSession] = useState(0);
   const triggerRef = useRef<HTMLButtonElement | null>(null);
-  /* The last topic stays rendered while the sheet slides out. */
-  const [shownTopic, setShownTopic] = useState<TopicId | null>(null);
   const reduced = useReducedMotion();
   const topic = topics.find((item) => item.id === shownTopic);
 
   return (
-    <section aria-labelledby="claims-title" className="rounded-surface border border-separator bg-surface p-2">
-      <div className="px-3 pt-3 pb-2">
-        <h2 id="claims-title" className="text-lg font-medium text-label">
+    <section aria-labelledby="claims-title" className={`${cardClass} pb-2`}>
+      <div className="px-5 pt-5">
+        <h2
+          id="claims-title"
+          className="text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label"
+        >
           Claims support
         </h2>
-        <p className="mt-0.5 text-sm text-pretty text-label-secondary">Answers to common questions, one step at a time.</p>
+        <p className="mt-0.5 text-[13px] leading-[18px] text-pretty text-label-secondary">
+          Answers to common questions, one step at a time.
+        </p>
       </div>
 
-      <ul className="flex flex-col">
+      <ul className="mt-3 flex flex-col gap-0.5 px-2">
         {topics.map((item) => {
           const Icon = icons[item.id];
           const dimmed = openTopic !== null && openTopic !== item.id;
@@ -60,19 +67,16 @@ export function ClaimsSupport() {
                   setShownTopic(item.id);
                   setSession((value) => value + 1);
                 }}
-                className="group flex min-h-14 w-full items-center gap-3 rounded-panel px-3 py-2.5 text-left transition-colors duration-150 ease-[var(--ease-standard)] hover:bg-fill active:bg-fill aria-expanded:bg-fill"
+                className="group flex h-16 w-full items-center gap-3 rounded-[14px] px-3 text-left transition-colors duration-150 ease-out hover:bg-fill active:bg-fill aria-expanded:bg-fill"
               >
-                <Icon size={20} strokeWidth={1.75} aria-hidden className="shrink-0 text-label-secondary" />
-                <span className="min-w-0 flex-1">
-                  <span className="block text-sm font-medium text-label">{item.label}</span>
-                  <span className="block text-xs text-label-secondary">{item.hint}</span>
+                <span className="grid size-11 shrink-0 place-items-center rounded-[11px] bg-surface text-accent shadow-[0_0_0_0.5px_rgb(0_0_0_/_0.08),0_1px_2px_rgb(0_0_0_/_0.06)]">
+                  <Icon size={20} strokeWidth={1.75} aria-hidden />
                 </span>
-                <ChevronRight
-                  size={16}
-                  strokeWidth={1.75}
-                  aria-hidden
-                  className="shrink-0 text-label-tertiary transition-transform duration-200 ease-[var(--ease-standard)] [@media(hover:hover)]:group-hover:translate-x-0.5"
-                />
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[15px] leading-5 font-medium text-label">{item.label}</span>
+                  <span className="block truncate text-[13px] leading-[18px] text-label-secondary">{item.hint}</span>
+                </span>
+                <Chevron className="text-label-tertiary" />
               </button>
             </motion.li>
           );

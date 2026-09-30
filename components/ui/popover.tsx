@@ -43,6 +43,6 @@ export function useDismiss({
   }, [open, panelRef, triggerRef]);
 }
 
-/** Arc floating layer shared by the header menus; grows from the top-right. */
+/** Frosted panel shared by the header popovers; grows from the top-right. */
 export const popoverPanelClass =
-  "absolute top-[calc(100%+8px)] right-0 z-40 max-w-[calc(100vw-32px)] origin-top-right rounded-panel border border-separator bg-surface shadow-floating motion-safe:animate-pop";
+  "material-bar absolute top-[calc(100%+10px)] right-0 z-40 max-w-[calc(100vw-32px)] origin-top-right rounded-[18px] shadow-raised motion-safe:animate-pop";

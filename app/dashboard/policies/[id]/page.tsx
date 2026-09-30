@@ -13,7 +13,7 @@ import { covered, notCovered, policyDetail } from "@/lib/policy-detail";
 import { dashboardHref, readDashboardState } from "@/lib/routes";
 
 export const metadata: Metadata = {
-  title: `${policyDetail.name}: Ditto`,
+  title: `${policyDetail.name} — Ditto`,
 };
 
 /** Policy view. Only the health policy is drawn in the design. */
@@ -34,7 +34,7 @@ export default async function PolicyPage({
       <main id="main" className="mx-auto max-w-[1112px] px-4 pt-5 pb-20 sm:px-6 sm:pt-8 xl:px-0">
         <Link
           href={dashboardHref({ tab: "active", customer })}
-          className="group -ml-2 inline-flex min-h-11 items-center gap-1 rounded-control pr-3 pl-2 text-sm font-medium text-accent transition-colors duration-150 ease-[var(--ease-standard)] hover:bg-fill active:bg-fill"
+          className="group -ml-2 inline-flex h-9 items-center gap-1 rounded-control pr-3 pl-2 text-[15px] leading-5 font-medium text-accent-text transition-colors duration-150 active:bg-accent-tint [@media(hover:hover)]:hover:bg-accent-tint"
         >
           <svg
             aria-hidden
@@ -62,7 +62,7 @@ export default async function PolicyPage({
             <CoveredCard items={covered} />
             <NotCoveredCard items={notCovered} />
           </div>
-          <aside aria-label="Claims support" className="self-start lg:sticky lg:top-24">
+          <aside aria-label="Support" className="self-start lg:sticky lg:top-24">
             <ClaimsSupport />
           </aside>
         </div>

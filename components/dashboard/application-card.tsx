@@ -1,10 +1,10 @@
-import { AddOnList, FieldItem, MetaLine, StatusBadge, cardClass } from "@/components/ui/card-bits";
+import { AddOnChips, FieldItem, MetaLine, StatusPill, cardClass } from "@/components/ui/card-bits";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
 import type { Application } from "@/lib/dashboard-data";
 
 /**
- * A pending application: insurer, name and status on top, the four facts
- * under a hairline, then the add-ons.
+ * A pending application: insurer, name and status on top, the four facts in
+ * an inset tile, then the add-ons as capsules.
  */
 export function ApplicationCard({ application }: { application: Application }) {
   return (
@@ -12,22 +12,24 @@ export function ApplicationCard({ application }: { application: Application }) {
       <header className="flex flex-wrap items-start gap-x-3.5 gap-y-2">
         <InsurerLogo insurer={application.insurer} />
         <div className="min-w-0 flex-[1_1_220px]">
-          <h3 className="text-base font-medium text-pretty text-label">{application.name}</h3>
+          <h3 className="text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-pretty text-label">
+            {application.name}
+          </h3>
           <MetaLine parts={[application.kind, `Application ${application.applicationNo}`]} />
         </div>
         <div className="@max-[479px]:ml-[58px]">
-          <StatusBadge status={application.status} />
+          <StatusPill status={application.status} />
         </div>
       </header>
 
-      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4 border-t border-separator-subtle pt-4 @min-[600px]:grid-cols-4">
+      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4 rounded-[14px] bg-fill px-4 py-3.5 @min-[600px]:grid-cols-4">
         {application.fields.map((field) => (
           <FieldItem key={field.label} field={field} />
         ))}
       </dl>
 
-      <div className="mt-4 border-t border-separator-subtle pt-4">
-        <AddOnList items={application.addOns} />
+      <div className="mt-4">
+        <AddOnChips items={application.addOns} />
       </div>
     </article>
   );

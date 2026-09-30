@@ -212,7 +212,7 @@ export function FrostedSideSheet({
           >
             <header className="flex items-center justify-between gap-3 py-3 pr-3 pl-5">
               <div className="flex min-w-0 items-center gap-2">
-                <h2 id={titleId} className="truncate text-base font-medium text-label">
+                <h2 id={titleId} className="truncate text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label">
                   {title}
                 </h2>
                 {headerAccessory}
@@ -221,7 +221,7 @@ export function FrostedSideSheet({
                 type="button"
                 onClick={onClose}
                 aria-label={`Close ${title.toLowerCase()}`}
-                className="grid size-11 shrink-0 place-items-center rounded-control text-label-secondary transition-colors duration-150 ease-[var(--ease-standard)] hover:bg-black/[0.05] hover:text-label active:bg-black/[0.08]"
+                className="grid size-11 shrink-0 place-items-center rounded-full text-label-secondary transition-[background-color,transform] duration-150 ease-out hover:bg-black/[0.05] hover:text-label active:scale-[0.92]"
               >
                 <X size={20} strokeWidth={1.75} aria-hidden />
               </button>

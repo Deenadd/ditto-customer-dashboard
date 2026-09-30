@@ -2,9 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Check } from "lucide-react";
-import { Avatar } from "@/registry/components/avatar/avatar";
-import { Button } from "@/registry/components/button/button";
-import { ScrollArea } from "@/registry/components/scroll-area/scroll-area";
+import { Monogram } from "@/components/dashboard/policy-pair";
+import { Button } from "@/components/ui/buttons";
 import { SheetItem, SheetReveal, useSheetReveal } from "@/components/ui/frosted-side-sheet/frosted-side-sheet";
 import { defaultSideSheetConfig } from "@/components/ui/frosted-side-sheet/config";
 import {
@@ -92,11 +91,12 @@ export function ClaimsConversation({ start }: { start: string }) {
 
   return (
     <>
-      <ScrollArea
-        label="Conversation"
-        className="min-h-0 flex-1"
-        viewportRef={viewport}
-        viewportClassName="px-5 pt-4 pb-6"
+      <div
+        ref={viewport}
+        tabIndex={0}
+        role="region"
+        aria-label="Conversation"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pt-4 pb-6 focus-visible:outline-offset-[-2px]"
       >
         <SheetReveal className="flex flex-col gap-5">
           <div role="log" aria-live="polite" aria-label="Claims conversation" className="flex flex-col gap-5">
@@ -107,18 +107,18 @@ export function ClaimsConversation({ start }: { start: string }) {
             ))}
           </div>
         </SheetReveal>
-      </ScrollArea>
+      </div>
 
       <div className="border-t border-black/[0.06] px-5 pt-4 pb-5">
         <SheetItem key={`choices-${current}-${entries.length}`} delay={choicesDelay}>
           <div ref={choicesRef} role="group" aria-label="Your answer" className="flex flex-wrap gap-2">
             {choices.map((choice) => (
-              <Button key={choice.label} variant="secondary" size="sm" onClick={() => choose(choice)}>
+              <Button key={choice.label} variant="tinted" size="small" onClick={() => choose(choice)}>
                 {choice.label}
               </Button>
             ))}
             {answered ? (
-              <Button variant="ghost" size="sm" onClick={() => reply("Start over", stepEntries(start), start)}>
+              <Button variant="plain" size="small" onClick={() => reply("Start over", stepEntries(start), start)}>
                 Start over
               </Button>
             ) : null}
@@ -143,7 +143,7 @@ function EntryView({ entry }: { entry: Entry }) {
   if (entry.kind === "you") {
     return (
       <div className="flex justify-end">
-        <p className="max-w-[85%] rounded-control bg-accent-tint px-3.5 py-2 text-sm text-accent-strong">
+        <p className="max-w-[85%] rounded-[18px] bg-accent-tint px-3.5 py-2 text-[15px] leading-5 text-accent-text">
           <span className="sr-only">You: </span>
           {entry.text}
         </p>
@@ -156,13 +156,13 @@ function EntryView({ entry }: { entry: Entry }) {
     return (
       <section
         aria-label={outcome.title}
-        className="ml-9 rounded-panel border border-separator bg-surface px-4 py-4"
+        className="ml-12 rounded-[14px] bg-surface px-4 py-4 shadow-[0_0_0_0.5px_rgb(0_0_0_/_0.06),0_1px_3px_rgb(0_0_0_/_0.06)]"
       >
-        <h3 className="text-sm font-medium text-label">{outcome.title}</h3>
+        <h3 className="text-[15px] leading-5 font-semibold text-label">{outcome.title}</h3>
         {outcome.steps ? (
           <ol className="mt-3 flex flex-col gap-2.5">
             {outcome.steps.map((text, index) => (
-              <li key={text} className="flex gap-2.5 text-sm text-label">
+              <li key={text} className="flex gap-2.5 text-[14px] leading-5 text-label">
                 <span className="w-4 shrink-0 text-label-secondary tabular-nums">{index + 1}.</span>
                 <span className="text-pretty">{text}</span>
               </li>
@@ -172,15 +172,15 @@ function EntryView({ entry }: { entry: Entry }) {
         {outcome.documents ? (
           <ul className="mt-3 flex flex-col gap-2">
             {outcome.documents.map((text) => (
-              <li key={text} className="flex items-start gap-2.5 text-sm text-label">
-                <Check size={16} strokeWidth={1.75} aria-hidden className="mt-0.5 shrink-0 text-label-secondary" />
+              <li key={text} className="flex items-start gap-2.5 text-[14px] leading-5 text-label">
+                <Check size={16} strokeWidth={2} aria-hidden className="mt-0.5 shrink-0 text-green-text" />
                 {text}
               </li>
             ))}
           </ul>
         ) : null}
         {outcome.note ? (
-          <p className="mt-3 text-xs text-label-secondary">{outcome.note}</p>
+          <p className="mt-3 text-[12px] leading-4 text-label-secondary">{outcome.note}</p>
         ) : null}
       </section>
     );
@@ -188,16 +188,12 @@ function EntryView({ entry }: { entry: Entry }) {
 
   return (
     <div className="flex items-start gap-3">
-      {entry.first ? (
-        <Avatar name="Ditto" size="sm" />
-      ) : (
-        <span aria-hidden className="w-7 shrink-0" />
-      )}
+      {entry.first ? <Monogram name="Ditto" primary /> : <span aria-hidden className="w-9 shrink-0" />}
       <div className="min-w-0 flex-1">
         {entry.first ? (
-          <p className="mb-1 text-xs font-medium text-label-secondary">Ditto</p>
+          <p className="mb-0.5 text-[12px] leading-4 font-semibold text-label-secondary">Ditto</p>
         ) : null}
-        <p className="text-sm text-pretty text-label">{entry.text}</p>
+        <p className="text-[15px] leading-[22px] text-pretty text-label">{entry.text}</p>
       </div>
     </div>
   );

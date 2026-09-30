@@ -7,7 +7,7 @@ import { useEffect, useRef } from "react";
  * (deena-portfolio, ProgressiveBlurTool). Content scrolling past either edge
  * softens into the page instead of being cut by the window or the header.
  *
- * Technique adapted from Skiper UI: Skiper 41 "ProgressiveBlur" by
+ * Technique adapted from Skiper UI — Skiper 41 "ProgressiveBlur" by
  * @gurvinder-singh02 (https://gxuri.me), inspired by devouringdetails.com;
  * free for personal and commercial use with attribution to Skiper UI.
  * One layer per edge: a gradient into the page colour, blurred through
