@@ -140,7 +140,7 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
                 <button
                   type="button"
                   onClick={copy}
-                  className="-my-1 h-7 rounded-[8px] px-2 text-[13px] leading-none font-medium text-accent-text transition-colors hover:bg-accent-tint"
+                  className="-my-1 h-7 rounded-[8px] px-2 text-[13px] leading-none font-medium text-accent-text transition-opacity active:opacity-50 [@media(hover:hover)]:hover:opacity-70"
                 >
                   {copied ? "Copied" : "Copy"}
                 </button>
@@ -234,7 +234,7 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
         <p className="text-[13px] leading-[18px] text-label-secondary">Didn&apos;t mean to make this claim?</p>
         <Button
           variant="plain"
-          className="text-red-text [@media(hover:hover)]:hover:bg-red-tint"
+          className="text-red-text"
           onClick={() => dialogRef.current?.showModal()}
         >
           Delete claim

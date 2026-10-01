@@ -168,7 +168,7 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
           <button
             type="button"
             onClick={() => go(step - 1)}
-            className="group -ml-2 inline-flex h-9 items-center gap-1 rounded-control pr-3 pl-2 text-[15px] leading-5 font-medium text-accent-text transition-colors duration-150 active:bg-accent-tint [@media(hover:hover)]:hover:bg-accent-tint"
+            className="group -ml-2 inline-flex h-9 items-center gap-1 rounded-control pr-3 pl-2 text-[15px] leading-5 font-medium text-accent-text transition-opacity duration-150 active:opacity-50 [@media(hover:hover)]:hover:opacity-70"
           >
             <svg aria-hidden width="9" height="15" viewBox="0 0 9 15" fill="none" className="transition-transform duration-200 ease-out [@media(hover:hover)]:group-hover:-translate-x-0.5">
               <path d="M7.5 1.5 1.75 7.5l5.75 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
@@ -258,7 +258,7 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
 
 function TypeStep({ onCashless }: { onCashless: () => void }) {
   return (
-    <ul className="overflow-hidden rounded-[16px] bg-surface shadow-card">
+    <ul className="overflow-hidden rounded-[16px] bg-surface shadow-soft">
       <li>
         <button
           type="button"
@@ -467,7 +467,7 @@ function Disclosure({
 }) {
   const id = useId();
   return (
-    <section className={`rounded-[18px] bg-surface transition-shadow duration-200 ${open ? "shadow-raised" : "shadow-card"}`}>
+    <section className={`rounded-[18px] bg-surface transition-shadow duration-200 ${open ? "shadow-card" : "shadow-soft"}`}>
       <h2>
         <button
           type="button"
@@ -668,7 +668,7 @@ function HospitalStep({ draft, set }: StepProps) {
       <button
         type="button"
         onClick={() => dialogRef.current?.showModal()}
-        className="group mt-4 flex w-full items-center gap-3 rounded-[14px] px-3 py-3 text-left transition-colors duration-150 active:bg-accent-tint [@media(hover:hover)]:hover:bg-accent-tint"
+        className="group mt-4 flex w-full items-center gap-3 rounded-[14px] px-3 py-3 text-left transition-opacity duration-150 active:opacity-50 [@media(hover:hover)]:hover:opacity-70"
       >
         <span className="min-w-0 flex-1">
           <span className="block text-[15px] leading-5 font-medium text-accent-text">Can&apos;t find your hospital?</span>

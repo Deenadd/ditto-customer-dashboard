@@ -30,7 +30,7 @@ export function ChoiceGroup({
       <legend className={showLabel ? "mb-3 text-[15px] leading-5 font-medium text-label" : "sr-only"}>{label}</legend>
       <div
         className={`choice-group overflow-hidden rounded-[16px] bg-surface ${
-          nested ? "shadow-[0_0_0_1px_rgb(0_0_0_/_0.08)]" : "shadow-card"
+          nested ? "shadow-[0_0_0_1px_rgb(0_0_0_/_0.08)]" : "shadow-soft"
         }`}
         style={{ "--sep-inset": `${inset}px` } as CSSProperties}
       >
