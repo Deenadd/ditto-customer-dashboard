@@ -191,24 +191,10 @@
 }
 
 /* Progressive blur along the viewport edges (see components/ui/progressive-blur). */
-.progressive-blur-top {
-  /* Nearly solid through the header's height so its icons stay legible over
-     busy content, then the progressive part dissolves below it. */
-  background: linear-gradient(
-    to bottom,
-    var(--color-page) 0%,
-    color-mix(in srgb, var(--color-page) 92%, transparent) 42%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(to bottom, #000 50%, transparent);
-  -webkit-mask-image: linear-gradient(to bottom, #000 50%, transparent);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
+
 
 
 @media (prefers-reduced-transparency: reduce) {
-  .progressive-blur-top,
   .progressive-blur-layer {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
