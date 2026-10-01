@@ -39,12 +39,17 @@ export default async function PolicyPage({
           <div className="flex min-w-0 flex-col gap-6">
             <PolicyHeader policy={policyDetail} />
             <PolicySummaryCard policy={policyDetail} />
-            <PolicyClaimsCard policyId={policyDetail.id} customer={customer} />
             <CoveredCard items={covered} />
             <NotCoveredCard items={notCovered} />
           </div>
-          <aside aria-label="Support" className="self-start lg:sticky lg:top-24">
+          {/* Two cards are taller than a short window, so the column only
+              sticks when there's room for all of it. */}
+          <aside
+            aria-label="Claims and support"
+            className="flex flex-col gap-6 self-start lg:top-24 lg:[@media(min-height:820px)]:sticky"
+          >
             <ClaimsSupport />
+            <PolicyClaimsCard policyId={policyDetail.id} customer={customer} />
           </aside>
         </div>
       </main>

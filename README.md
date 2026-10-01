@@ -135,7 +135,7 @@ Buttons with no destination yet: Chat now, Talk to our team and Download policy.
 
 ## Claims
 
-The health policy page has a **Claims** card with **Start a claim**, the
+The health policy page has a **Claims** card under Claims support, with **Start a claim**, the
 page's one filled action, and the open claims once there are any.
 
 - **Make a claim:** Cashless, or Reimbursement (marked Coming soon).
