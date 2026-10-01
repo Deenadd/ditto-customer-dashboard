@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { ApplicationCard } from "@/components/dashboard/application-card";
 import { ApplicationTimeline } from "@/components/dashboard/application-timeline";
+import { CardControls } from "@/components/dashboard/card-controls";
 import { ClaimsSupport } from "@/components/claims/claims-support";
 import { EmptyApplications } from "@/components/dashboard/empty-applications";
 import { PolicyPair } from "@/components/dashboard/policy-pair";
@@ -130,6 +131,7 @@ export default async function DashboardPage({
           <ClaimsSupport />
         </div>
       </main>
+      <CardControls />
     </>
   );
 }

@@ -1,19 +1,33 @@
+"use client";
+
 import Link from "next/link";
 import type { CSSProperties } from "react";
-import { Asset, Glow } from "@/components/ui/asset";
+import { useCardConfig, type CardPalette, type CardTone } from "@/components/dashboard/card-config";
+import { Asset } from "@/components/ui/asset";
+import { GlareFace, GlareGroup } from "@/components/ui/glare";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
 import type { ActivePolicy, Member } from "@/lib/dashboard-data";
+import { meshLayers } from "@/lib/mesh";
 
-/* The frame's radial gradient, as Figma draws it (node 152:12882):
-   #069BFE at the heart, #17CCF9 at 68%, #1FA0F7 at the rim. */
-const frame: CSSProperties = {
-  backgroundImage:
-    "url(\"data:image/svg+xml;utf8,<svg viewBox='0 0 365 237' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><rect x='0' y='0' height='100%' width='100%' fill='url(%23grad)'/><defs><radialGradient id='grad' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(18.7 -8.3 12.783 28.8 187 83)'><stop stop-color='rgba(6,155,254,1)' offset='0'/><stop stop-color='rgba(23,204,249,1)' offset='0.68277'/><stop stop-color='rgba(31,160,247,1)' offset='1'/></radialGradient></defs></svg>\")",
-  backgroundSize: "100% 100%",
-};
+const svgColor = (hex: string) => hex.replace("#", "%23");
+
+/**
+ * The frame: Figma's radial gradient (node 152:12882) with the palette's
+ * colours, centre and reach, and any mesh points laid over it.
+ */
+export function frameBackground(palette: CardPalette): CSSProperties {
+  const k = palette.spread;
+  const cx = (palette.focusX / 100) * 365;
+  const cy = (palette.focusY / 100) * 237;
+  const radial = `url("data:image/svg+xml;utf8,<svg viewBox='0 0 365 237' xmlns='http://www.w3.org/2000/svg' preserveAspectRatio='none'><rect width='100%' height='100%' fill='url(%23g)'/><defs><radialGradient id='g' gradientUnits='userSpaceOnUse' cx='0' cy='0' r='10' gradientTransform='matrix(${18.7 * k} ${-8.3 * k} ${12.783 * k} ${28.8 * k} ${cx} ${cy})'><stop stop-color='${svgColor(palette.center)}' offset='0'/><stop stop-color='${svgColor(palette.mid)}' offset='${palette.midAt / 100}'/><stop stop-color='${svgColor(palette.edge)}' offset='1'/></radialGradient></defs></svg>")`;
+  return {
+    backgroundImage: [...meshLayers(palette.mesh), radial].join(", "),
+    backgroundSize: "100% 100%",
+  };
+}
 
 const face =
-  "relative isolate flex flex-col overflow-hidden rounded-[16px] shadow-card transition-[transform,box-shadow] duration-200 ease-out group-has-[a:active]:scale-[0.99] [@media(hover:hover)]:group-has-[a:hover]:shadow-raised";
+  "relative isolate flex h-full flex-col overflow-hidden rounded-[16px] shadow-card transition-shadow duration-200 ease-out [@media(hover:hover)]:group-has-[a:hover]:shadow-raised";
 
 /* White inset card: 12px corners inside the 16px frame and its 8px margin. */
 const inset =
@@ -29,38 +43,46 @@ function Bevel() {
   );
 }
 
+const art = (name: string) => `/dashboard/health-card/${name}`;
+
+/** Paints `color` through an artwork's shape, so one drawing serves every tone. */
+function tinted(src: string, color: string): CSSProperties {
+  const mask = `url(${src})`;
+  return { backgroundColor: color, maskImage: mask, WebkitMaskImage: mask, maskSize: "100% 100%", WebkitMaskSize: "100% 100%" };
+}
+
 /**
  * One wave line from the Figma frame. Figma rotates and skews each line
- * inside a sized box; the box and the line keep its proportions with
- * container units, so the waves scale with the card.
+ * inside a sized box; container units keep its proportions, so the waves
+ * scale with the card.
  */
-function Wave({ box, src, opacity, bleed }: { box: string; src: string; opacity?: string; bleed?: string }) {
+function Wave({ box, src, color, opacity, bleed }: { box: string; src: string; color: string; opacity?: string; bleed?: string }) {
   return (
     <div className={`absolute flex items-center justify-center ${box}`} style={{ containerType: "size" }}>
       <div className="h-[hypot(-76.75cqw,24.69cqh)] w-[hypot(23.25cqw,75.31cqh)] flex-none rotate-[74.22deg] skew-x-[3.58deg]">
         <div className={`relative size-full ${opacity ?? ""}`}>
-          {bleed ? (
-            <div className="absolute" style={{ inset: bleed }}>
-              <Asset src={src} className="size-full" />
-            </div>
-          ) : (
-            <Asset src={src} className="absolute inset-0 size-full" />
-          )}
+          <div className="absolute" style={{ inset: bleed ?? 0, ...tinted(src, color) }} />
         </div>
       </div>
     </div>
   );
 }
 
-const art = (name: string) => `/dashboard/health-card/${name}`;
+const captions: Record<CardTone, string> = {
+  blue: "Your health card, for your reference.",
+  green: "Your policy card, for your reference.",
+};
 
 /**
- * The health policy as a health card, after node 152:12881: the policy on the
- * front, its members on the back, each a white card set in the blue frame.
- * The whole pair opens the policy.
+ * A policy as a card, after node 152:12881: the policy on the front, its
+ * people on the back, each a white card set in a gradient frame (blue for
+ * health, green for term). Each face tilts and catches a glare on hover, and
+ * the whole pair opens the policy when it has a page.
  */
-export function HealthCardPair({ policy, href }: { policy: ActivePolicy; href?: string }) {
-  const members = policy.people.layout === "members" ? policy.people.members : [policy.people.member, policy.people.nominee];
+export function PolicyCardPair({ policy, href, tone }: { policy: ActivePolicy; href?: string; tone: CardTone }) {
+  const config = useCardConfig();
+  const palette = config[tone];
+  const frame = frameBackground(palette);
   const fields = [
     { label: "Policy number", value: policy.policyNumber },
     { label: "Sum insured", value: policy.sumInsured },
@@ -69,61 +91,65 @@ export function HealthCardPair({ policy, href }: { policy: ActivePolicy; href?: 
   ];
 
   return (
-    <div className="group relative grid gap-4 sm:grid-cols-2">
-      <article aria-label={policy.name} className={`${face} min-h-[237px]`} style={frame}>
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-          <Wave box="inset-[-99.16%_-48.22%_29.98%_47.67%]" src={art("front-shade-a.png")} opacity="opacity-15" />
-          <Wave box="inset-[-99.16%_-48.22%_29.98%_47.67%]" src={art("front-shade-b.png")} opacity="opacity-15" />
-          <Wave box="inset-[-61.86%_-23.7%_69.9%_69.06%]" src={art("front-wave-1.svg")} bleed="-36.99% -35.18%" />
-          <Wave box="inset-[-79.39%_-36.59%_49.57%_59.39%]" src={art("front-wave-2.svg")} />
-          <Wave box="inset-[-61.86%_-23.7%_69.9%_69.06%]" src={art("front-wave-3.svg")} />
-          <Glow src={art("corner-glow.svg")} style={{ left: "86%", top: -106 }} />
-        </div>
-
-        <div className="flex items-center gap-3 px-4 pt-4">
-          <span className="shrink-0 rounded-[12px] border-2 border-white shadow-[0px_6px_24px_0px_rgba(0,0,0,0.07)]">
-            <InsurerLogo insurer={policy.insurer} size={40} />
-          </span>
-          <div className="min-w-0 text-white">
-            <h3 className="truncate text-[16px] leading-5 font-semibold tracking-[-0.01em]">{policy.name}</h3>
-            <p className="mt-0.5 text-[12px] leading-4 font-medium">{policy.kind}</p>
-          </div>
-        </div>
-
-        <dl className={`${inset} mx-2 mt-3 mb-2 grid flex-1 grid-cols-2 content-center gap-x-4 gap-y-7 px-5 py-6`}>
-          {fields.map((field) => (
-            <div key={field.label} className="min-w-0">
-              <dt className="text-[12px] leading-4 text-label-secondary">{field.label}</dt>
-              <dd className="mt-2 text-[14px] leading-4 font-semibold text-label tabular-nums">{field.value}</dd>
+    <GlareGroup settings={config} className="group relative grid gap-4 sm:grid-cols-2">
+      <GlareFace>
+        <article aria-label={policy.name} className={`${face} min-h-[237px]`} style={frame}>
+          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+            <Wave box="inset-[-99.16%_-48.22%_29.98%_47.67%]" src={art("front-shade-a.png")} color={palette.shade} opacity="opacity-15" />
+            <Wave box="inset-[-99.16%_-48.22%_29.98%_47.67%]" src={art("front-shade-b.png")} color={palette.shade} opacity="opacity-15" />
+            <Wave box="inset-[-61.86%_-23.7%_69.9%_69.06%]" src={art("front-wave-1.svg")} color={palette.wave} bleed="-36.99% -35.18%" />
+            <Wave box="inset-[-79.39%_-36.59%_49.57%_59.39%]" src={art("front-wave-2.svg")} color={palette.wave} />
+            <Wave box="inset-[-61.86%_-23.7%_69.9%_69.06%]" src={art("front-wave-3.svg")} color={palette.wave} />
+            <div className="absolute top-[-106px] left-[86%] size-[156px]">
+              <div className="absolute inset-[-64.1%]" style={tinted(art("corner-glow.svg"), palette.glow)} />
             </div>
-          ))}
-        </dl>
-        <Bevel />
-      </article>
+          </div>
 
-      <article aria-label={`Members on ${policy.name}`} className={face} style={frame}>
-        <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-          <Wave box="inset-[29.11%_-48.22%_-98.29%_47.67%]" src={art("back-shade.png")} opacity="opacity-20" />
-          <Wave box="inset-[48.88%_-36.59%_-78.7%_59.39%]" src={art("back-wave-1.svg")} />
-          <Wave box="inset-[83.36%_-13.63%_-41.42%_79.13%]" src={art("back-wave-2.svg")} />
-          <Wave box="inset-[66.41%_-23.7%_-58.37%_69.06%]" src={art("back-wave-3.svg")} />
-        </div>
+          <div className="flex items-center gap-3 px-4 pt-4">
+            <span className="shrink-0 rounded-[12px] border-2 border-white shadow-[0px_6px_24px_0px_rgba(0,0,0,0.07)]">
+              <InsurerLogo insurer={policy.insurer} size={40} />
+            </span>
+            <div className="min-w-0 text-white">
+              <h3 className="truncate text-[16px] leading-5 font-semibold tracking-[-0.01em]">{policy.name}</h3>
+              <p className="mt-0.5 text-[12px] leading-4 font-medium">{policy.kind}</p>
+            </div>
+          </div>
 
-        <div className={`${inset} m-2 mb-0 flex-1 px-5 pt-5 pb-5`}>
-          <h4 className="text-[12px] leading-4 text-label-secondary">
-            {policy.people.layout === "members" ? "Member details" : "Life assured and nominee"}
-          </h4>
-          <ul className="mt-3 flex flex-col gap-[15px]">
-            {members.map((member) => (
-              <MemberRow key={member.name} member={member} />
+          <dl className={`${inset} mx-2 mt-3 mb-2 grid flex-1 grid-cols-2 content-center gap-x-4 gap-y-7 px-5 py-6`}>
+            {fields.map((field) => (
+              <div key={field.label} className="min-w-0">
+                <dt className="text-[12px] leading-4 text-label-secondary">{field.label}</dt>
+                <dd className="mt-2 text-[14px] leading-4 font-semibold text-label tabular-nums">{field.value}</dd>
+              </div>
             ))}
-          </ul>
-        </div>
-        <p className="px-4 py-2.5 text-center text-[12px] leading-4 font-medium text-white">
-          Your health card, for your reference.
-        </p>
-        <Bevel />
-      </article>
+          </dl>
+          <Bevel />
+        </article>
+      </GlareFace>
+
+      <GlareFace>
+        <article aria-label={`People on ${policy.name}`} className={face} style={frame}>
+          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+            <Wave box="inset-[29.11%_-48.22%_-98.29%_47.67%]" src={art("back-shade.png")} color={palette.shade} opacity="opacity-20" />
+            <Wave box="inset-[48.88%_-36.59%_-78.7%_59.39%]" src={art("back-wave-1.svg")} color={palette.wave} />
+            <Wave box="inset-[83.36%_-13.63%_-41.42%_79.13%]" src={art("back-wave-2.svg")} color={palette.wave} />
+            <Wave box="inset-[66.41%_-23.7%_-58.37%_69.06%]" src={art("back-wave-3.svg")} color={palette.wave} />
+          </div>
+
+          <div className={`${inset} m-2 mb-0 flex flex-1 flex-col gap-5 px-5 pt-5 pb-5`}>
+            {policy.people.layout === "members" ? (
+              <PeopleGroup label="Member details" members={policy.people.members} />
+            ) : (
+              <>
+                <PeopleGroup label="Life assured" members={[policy.people.member]} />
+                <PeopleGroup label="Nominee" members={[policy.people.nominee]} />
+              </>
+            )}
+          </div>
+          <p className="px-4 py-2.5 text-center text-[12px] leading-4 font-medium text-white">{captions[tone]}</p>
+          <Bevel />
+        </article>
+      </GlareFace>
 
       {href ? (
         <Link
@@ -132,6 +158,19 @@ export function HealthCardPair({ policy, href }: { policy: ActivePolicy; href?: 
           className="absolute inset-0 z-10 rounded-[16px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
         />
       ) : null}
+    </GlareGroup>
+  );
+}
+
+function PeopleGroup({ label, members }: { label: string; members: Member[] }) {
+  return (
+    <div>
+      <h4 className="text-[12px] leading-4 text-label-secondary">{label}</h4>
+      <ul className="mt-3 flex flex-col gap-[15px]">
+        {members.map((member) => (
+          <MemberRow key={member.name} member={member} />
+        ))}
+      </ul>
     </div>
   );
 }

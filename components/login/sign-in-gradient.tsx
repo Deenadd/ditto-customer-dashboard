@@ -1,5 +1,6 @@
 import type { CSSProperties } from "react";
 import type { GlowConfig } from "./glow-config";
+import { meshLayers } from "@/lib/mesh";
 import { inTone, type GlowStop, type GlowTone } from "./glow-ramps";
 
 const tones: GlowTone[] = ["blue", "red", "green"];
@@ -19,6 +20,8 @@ const sorted = (stops: GlowStop[]) => [...stops].sort((a, b) => a.at - b.at);
  * melts into the band without a grey seam. The wash's lower edge fades
  * through a mask that bows down in the middle by `curve`.
  *
+ * Mesh points from the panel layer over the dome and band.
+ *
  * Every number and colour comes from GlowConfig, which the glow panel edits.
  */
 function layers(tone: GlowTone, config: GlowConfig) {
@@ -29,7 +32,13 @@ function layers(tone: GlowTone, config: GlowConfig) {
     .map((stop) => `${stop.color} ${stop.at}%`)
     .join(", ")}, rgb(${hexToRgb(rim)} / 0) 100%)`;
   const band = `linear-gradient(to bottom, ${base.map((stop) => `${stop.color} ${stop.at}%`).join(", ")})`;
-  return `${dome}, ${band}`;
+  /* Mesh points sit over the dome and band, in the same tone. */
+  return [...meshLayers(config.mesh ?? [], (hex) => inTone(hex, tone)), dome, band].join(", ");
+}
+
+/** The blue wash's layers as one background, for the panel's mesh pad. */
+export function SignInGradientPreview(config: GlowConfig) {
+  return layers("blue", config);
 }
 
 /** Ellipse width for the lower fade: 0 is near flat (400%), 1 bows deeply (60%). */

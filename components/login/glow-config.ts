@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import type { MeshPoint } from "@/lib/mesh";
 import { referenceBase, referenceCore, type GlowStop } from "./glow-ramps";
 
 /**
@@ -25,6 +26,8 @@ export type GlowConfig = {
   core: GlowStop[];
   /** The band's colours, top down; `at` is % of the wash's height. */
   base: GlowStop[];
+  /** Extra colour points over the dome and band, for a mesh gradient. */
+  mesh: MeshPoint[];
   /** Overall strength of the wash, 0 to 1. */
   intensity: number;
   /** Blue, red and green crossfade over this long (ms). */
@@ -42,6 +45,7 @@ export const defaultGlowConfig: GlowConfig = {
   domeY: 0,
   core: referenceCore,
   base: referenceBase,
+  mesh: [],
   intensity: 0.4,
   toneDuration: 1950,
 };

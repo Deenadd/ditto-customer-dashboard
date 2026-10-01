@@ -3,7 +3,7 @@ import { Glow } from "@/components/ui/asset";
 import { FieldItem, StatusPill, cardClass } from "@/components/ui/card-bits";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
 import { Topography } from "@/components/dashboard/topography";
-import { HealthCardPair } from "@/components/dashboard/health-card";
+import { PolicyCardPair } from "@/components/dashboard/health-card";
 import type { ActivePolicy, Member } from "@/lib/dashboard-data";
 
 /**
@@ -19,8 +19,8 @@ export function PolicyPair({
   href?: string;
   muted?: boolean;
 }) {
-  /* An active health policy is drawn as its health card. */
-  if (!muted && policy.kind === "Health insurance") return <HealthCardPair policy={policy} href={href} />;
+  /* An active policy is drawn as its card: blue for health, green for term. */
+  if (!muted) return <PolicyCardPair policy={policy} href={href} tone={policy.kind === "Health insurance" ? "blue" : "green"} />;
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <PolicyCard policy={policy} href={href} muted={muted} />
