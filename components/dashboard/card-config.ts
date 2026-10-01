@@ -47,17 +47,18 @@ export type CardConfig = {
   settle: number;
 };
 
-/* Blue is the Figma frame. Green keeps each colour's OKLCH lightness and
-   chroma and moves the hue (147 + (259 − h) × 0.35), as the sign-in glow does. */
+/* Tuned in the card panel on 1 Oct 2026. Blue is the health card. Green
+   (term) keeps its own colours, made from the Figma blues by moving the hue
+   in OKLCH (147 + (259 − h) × 0.35), and shares blue's shape: where the ring
+   sits, the gradient's centre and its reach. */
+const shape = { midAt: 30, focusX: 100, focusY: 11, spread: 1.1 };
+
 export const defaultCardConfig: CardConfig = {
   blue: {
-    center: "#069bfe",
+    center: "#0e87d8",
     mid: "#17ccf9",
-    edge: "#1fa0f7",
-    midAt: 68,
-    focusX: 51,
-    focusY: 35,
-    spread: 1,
+    edge: "#1c8dd9",
+    ...shape,
     wave: "#ccecff",
     shade: "#c0e0e0",
     glow: "#70befc",
@@ -67,26 +68,24 @@ export const defaultCardConfig: CardConfig = {
     center: "#09b458",
     mid: "#56d499",
     edge: "#2db563",
-    midAt: 68,
-    focusX: 51,
-    focusY: 35,
-    spread: 1,
+    ...shape,
     wave: "#d1f0db",
     shade: "#c4e0d5",
     glow: "#78cc91",
     mesh: [],
   },
-  tilt: 0.4,
-  perspective: 600,
-  lift: 1,
-  glare: 0.6,
-  foil: 0.25,
-  settle: 300,
+  tilt: 0.15,
+  perspective: 350,
+  lift: 1.055,
+  glare: 0.2,
+  foil: 0.15,
+  settle: 600,
 };
 
 /* The glow config's store pattern: one shared config, remembered in this
    browser, defaults on the server. */
-const KEY = "ditto.card-config.v1";
+/* v2: new defaults, so settings saved against v1 don't hide them. */
+const KEY = "ditto.card-config.v2";
 const listeners = new Set<() => void>();
 let current: CardConfig | null = null;
 
