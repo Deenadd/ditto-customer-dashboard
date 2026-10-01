@@ -18,18 +18,22 @@ type Params = Record<string, string | string[] | undefined>;
 const first = (value: string | string[] | undefined) =>
   Array.isArray(value) ? value[0] : value;
 
+/* Active opens by default. A timeline link without a tab means Pending,
+   the only tab with a timeline. */
 export function readDashboardState(params: Params): DashboardState {
   const tab = first(params.tab);
+  const timeline = first(params.view) === "timeline";
   return {
-    tab: tab === "active" || tab === "inactive" ? tab : "pending",
-    timeline: first(params.view) === "timeline",
+    tab: tab === "active" || tab === "pending" || tab === "inactive" ? tab : timeline ? "pending" : "active",
+    timeline,
     customer: first(params.customer) === "new" ? "new" : "default",
   };
 }
 
 export function dashboardHref(state: Partial<DashboardState> = {}) {
   const query = new URLSearchParams();
-  if (state.tab && state.tab !== "pending") query.set("tab", state.tab);
+  const tab = state.tab ?? (state.timeline ? "pending" : "active");
+  if (tab !== "active") query.set("tab", tab);
   if (state.timeline) query.set("view", "timeline");
   if (state.customer === "new") query.set("customer", "new");
   const search = query.toString();

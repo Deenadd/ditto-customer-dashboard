@@ -63,20 +63,20 @@ export default async function DashboardPage({
               value={state.tab}
               segments={[
                 {
-                  value: "pending",
-                  href: dashboardHref({ tab: "pending", timeline: state.timeline, customer: state.customer }),
-                  label: (
-                    <>
-                      Pending <Count value={counts.pending} />
-                    </>
-                  ),
-                },
-                {
                   value: "active",
                   href: dashboardHref({ tab: "active", customer: state.customer }),
                   label: (
                     <>
                       Active <Count value={counts.active} />
+                    </>
+                  ),
+                },
+                {
+                  value: "pending",
+                  href: dashboardHref({ tab: "pending", timeline: state.timeline, customer: state.customer }),
+                  label: (
+                    <>
+                      Pending <Count value={counts.pending} />
                     </>
                   ),
                 },
@@ -99,7 +99,7 @@ export default async function DashboardPage({
                 segments={[
                   {
                     value: "grouped",
-                    href: dashboardHref({ customer: state.customer }),
+                    href: dashboardHref({ tab: "pending", customer: state.customer }),
                     label: "By status",
                   },
                   {

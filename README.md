@@ -111,7 +111,13 @@ returns to the row that opened it; Escape or a click outside closes it.
   prototype sends no SMS: **2168** signs in; any other code turns the wash red,
   explains, and clears the boxes. A full code verifies itself. There's a
   30-second resend timer and Change number.
-- **Segmented controls** are links, so every view has its own URL.
+- **Segmented controls** are links, so every view has its own URL. The
+  policy tabs run Active, Pending, Inactive, and Active opens by default.
+- **The health policy is a health card** (Figma node 152:12881): the policy on
+  the front and its members on the back, each a white card in a blue radial
+  frame with wave lines. The whole card opens the policy page, so there's no
+  View policy link. White text on the frame measures 2.1 to 2.8:1, below
+  4.5:1; it's the design's palette, so it's left as drawn.
 - **Claims support** replaces saved documents: four topics (make a claim,
   documents, what's covered, track a claim) each open the frosted sheet with a
   short guided conversation. While it's open, the other rows dim to 40%. The
