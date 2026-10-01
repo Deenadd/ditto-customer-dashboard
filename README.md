@@ -133,6 +133,37 @@ returns to the row that opened it; Escape or a click outside closes it.
 
 Buttons with no destination yet: Chat now, Talk to our team and Download policy.
 
+## Claims
+
+The health policy page has a **Claims** card with **Start a claim**, the
+page's one filled action, and the open claims once there are any.
+
+- **Make a claim:** Cashless, or Reimbursement (marked Coming soon).
+- **Four steps**, with progress and Continue in a bar at the bottom. Each step
+  checks its answers on Continue and says what's missing beside the question;
+  focus moves to each new step's heading.
+  1. **Patient:** anyone on the policy, with relation and age.
+  2. **Treatment:** category (hospitalisation or day care), the treatment's
+     name, and the stage you're at. Each question folds away once answered; the
+     stages depend on the category. Already discharged warns that cashless
+     usually isn't possible then.
+  3. **Dates:** whether you know the admission date, and the date. It must
+     fall in the policy year (20 Aug 2026 to 19 Aug 2027), be today or later
+     for a planned stay, and today or earlier once admitted.
+  4. **Hospital:** search by name, area, city or PIN. Each hospital says
+     whether it's in Care Health's network; picking one that isn't explains
+     what that means. **Can't find your hospital?** lets you enter one or say
+     you haven't chosen yet.
+- **Your cashless claim:** status, a reference to copy, what happens next,
+  what to show at the hospital, the claim's details, and Delete claim (with a
+  confirmation that focuses Cancel).
+- **Claims:** Active and Past, with an empty state. After a delete it says
+  which claim went.
+
+There's no backend, so claims are kept in the browser they were made in. The
+hospitals are a made-up sample list. The policy's Valid till is now
+19 Aug 2027, so the flow has a current policy year to work in.
+
 ## Content changes from the Figma draft
 
 - Counts are real: 3 active policies (the draft said 2 but listed 3).
@@ -185,6 +216,7 @@ app/
   page.tsx                    Sign in
   dashboard/page.tsx          The three tabs, welcome and claims support
   dashboard/policies/[id]/    Policy view
+  …/[id]/claims/              Claims list; new/ is the flow, [claimId]/ a claim
 components/
   login-form.tsx              Number step and code step
   login/                      The sign-in wash and its colour ramps
@@ -195,6 +227,7 @@ components/
   ui/icons.tsx                Every interface icon, in one place
 lib/
   claims-flow.ts              The claims conversation
+  claims.ts                   Claims, the hospital list and the claim store
   dashboard-data.ts           Everything the dashboard shows
   policy-detail.ts            The policy view's content
   routes.ts                   URL state for tab, view and customer

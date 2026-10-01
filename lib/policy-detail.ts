@@ -35,7 +35,7 @@ export const policyDetail = {
     { label: "Status", value: "Policy issued" },
     { label: "Premium", value: "₹14,998 a year" },
     { label: "Booked on", value: "24 Sep 2021" },
-    { label: "Valid till", value: "19 Aug 2025" },
+    { label: "Valid till", value: "19 Aug 2027" },
   ],
   family: [
     { name: "Pavithra Luthra", relation: "You", dob: "14 Jul 1995" },

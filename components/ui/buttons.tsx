@@ -1,12 +1,14 @@
 import type { ButtonHTMLAttributes } from "react";
 
-type Variant = "filled" | "tinted" | "plain";
+type Variant = "filled" | "tinted" | "plain" | "destructive";
 type Size = "small" | "medium" | "large";
 
 const variants: Record<Variant, string> = {
   filled: "bg-accent text-white [@media(hover:hover)]:hover:bg-accent-hover",
   tinted: "bg-accent-tint text-accent-text [@media(hover:hover)]:hover:bg-[#dcebfb]",
   plain: "text-accent-text [@media(hover:hover)]:hover:bg-accent-tint",
+  /* For the one irreversible action in a confirmation; white on #c41e3a is 5.6:1. */
+  destructive: "bg-red-text text-white [@media(hover:hover)]:hover:bg-[#a8182f]",
 };
 
 const sizes: Record<Size, string> = {

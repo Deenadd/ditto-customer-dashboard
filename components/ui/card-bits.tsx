@@ -4,7 +4,7 @@ import type { ApplicationStatus, Field } from "@/lib/dashboard-data";
 /** White card on the grey page: the one surface everything sits on. */
 export const cardClass = "rounded-[22px] bg-surface shadow-card";
 
-export type Status = ApplicationStatus | "rejected" | "active" | "expired";
+export type Status = ApplicationStatus | "rejected" | "active" | "expired" | "received";
 
 const statusStyles: Record<Status, { label: string; tone: string; dot: string }> = {
   "pending-uploads": {
@@ -25,6 +25,7 @@ const statusStyles: Record<Status, { label: string; tone: string; dot: string }>
   active: { label: "Active", tone: "bg-green-tint text-green-text", dot: "bg-green-dot" },
   expired: { label: "Expired", tone: "bg-grey-tint text-grey-text", dot: "bg-grey-dot" },
   rejected: { label: "Rejected", tone: "bg-grey-tint text-grey-text", dot: "bg-grey-dot" },
+  received: { label: "Request received", tone: "bg-teal-tint text-teal-text", dot: "bg-teal-dot" },
 };
 
 /**
