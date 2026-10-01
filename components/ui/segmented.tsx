@@ -63,7 +63,12 @@ export function SegmentedLinks({
   const small = size === "small";
 
   return (
-    <nav aria-label={label} className="max-w-full overflow-x-auto overscroll-x-contain">
+    /* The scroller clips on both axes, so it gets room for the thumb's shadow,
+       taken back with a matching negative margin so the layout doesn't move. */
+    <nav
+      aria-label={label}
+      className="-m-3 max-w-[calc(100%+24px)] overflow-x-auto overscroll-x-contain p-3"
+    >
       <ul
         className={`inline-flex rounded-control bg-fill-strong p-[3px] ${small ? "h-8" : "h-9"}`}
       >

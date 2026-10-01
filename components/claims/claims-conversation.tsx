@@ -111,7 +111,7 @@ export function ClaimsConversation({ start }: { start: string }) {
         tabIndex={0}
         role="region"
         aria-label="Conversation"
-        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pt-4 pb-6 focus-visible:outline-offset-[-2px]"
+        className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pt-4 pb-6 [mask-image:linear-gradient(to_bottom,black_calc(100%-24px),transparent)] focus-visible:outline-offset-[-2px]"
       >
         <SheetReveal className="flex flex-col gap-5">
           <div role="log" aria-live="polite" aria-label="Claims conversation" className="flex flex-col gap-5">
@@ -138,7 +138,7 @@ export function ClaimsConversation({ start }: { start: string }) {
         ref={footerRef}
         tabIndex={-1}
         aria-busy={typing}
-        className="border-t border-black/[0.06] px-5 pt-4 pb-5 focus:outline-none"
+        className="px-5 pt-3 pb-5 focus:outline-none"
       >
         {typing ? (
           <p className="flex h-8 items-center text-[13px] leading-[18px] text-label-tertiary">Ditto is replying…</p>
