@@ -190,6 +190,18 @@
   }
 }
 
+/* Hairlines between the rows of a choice group, inset to line up with the
+   text (--sep-inset), as in an iOS inset grouped list. */
+.choice-group > .choice-row + .choice-row::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: var(--sep-inset, 16px);
+  height: 1px;
+  background: var(--color-separator);
+}
+
 /* Progressive blur along the viewport edges (see components/ui/progressive-blur). */
 
 

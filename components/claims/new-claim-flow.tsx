@@ -3,8 +3,9 @@
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ChoiceCard, Note } from "@/components/claims/claim-bits";
-import { Chevron, Monogram } from "@/components/dashboard/policy-pair";
+import { ChoiceCard, ChoiceGroup, ClaimingOn, Note } from "@/components/claims/claim-bits";
+import { Chevron } from "@/components/dashboard/policy-pair";
+import { Asset } from "@/components/ui/asset";
 import { BackLink } from "@/components/ui/back-link";
 import { Button } from "@/components/ui/buttons";
 import { IconClaim, IconDocuments } from "@/components/ui/icons";
@@ -178,10 +179,11 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
 
         <AnimatePresence mode="wait" initial={false}>
           <motion.div key={step} {...swap} transition={{ duration: reduced ? 0.12 : 0.2, ease }} className="mt-4">
+            <ClaimingOn name={policyDetail.name} />
             <h1
               ref={focusHeading}
               tabIndex={-1}
-              className="text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label focus:outline-none"
+              className="mt-5 text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label focus:outline-none"
             >
               {step === 0
                 ? "Make a claim"
@@ -190,7 +192,7 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
                   : meta.title}
             </h1>
             <p className="mt-1.5 text-[15px] leading-5 text-pretty text-label-secondary">
-              {step === 0 ? `On ${policyDetail.name}.` : meta.subtitle}
+              {step === 0 ? "Choose how you'd like to claim." : meta.subtitle}
             </p>
 
             <div className="mt-6">
@@ -256,18 +258,18 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
 
 function TypeStep({ onCashless }: { onCashless: () => void }) {
   return (
-    <ul className="flex flex-col gap-3">
+    <ul className="overflow-hidden rounded-[16px] bg-surface shadow-card">
       <li>
         <button
           type="button"
           onClick={onCashless}
-          className="group flex min-h-[76px] w-full items-center gap-3.5 rounded-[18px] bg-surface px-4 py-3.5 text-left shadow-card transition-[box-shadow,transform] duration-150 ease-out active:scale-[0.99] [@media(hover:hover)]:hover:shadow-raised"
+          className="group flex min-h-[72px] w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors duration-150 ease-out active:bg-fill [@media(hover:hover)]:hover:bg-fill/70"
         >
-          <span className="grid size-11 shrink-0 place-items-center rounded-[11px] bg-accent-tint text-accent">
+          <span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-accent-tint text-accent">
             <IconClaim />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label">Cashless</span>
+            <span className="block text-[16px] leading-5 font-semibold tracking-[-0.01em] text-label">Cashless</span>
             <span className="mt-0.5 block text-[13px] leading-[18px] text-pretty text-label-secondary">
               Treatment at a network hospital, with nothing to pay upfront
             </span>
@@ -275,18 +277,13 @@ function TypeStep({ onCashless }: { onCashless: () => void }) {
           <Chevron className="text-label-tertiary" />
         </button>
       </li>
-      <li>
-        <div
-          aria-disabled="true"
-          className="flex min-h-[76px] w-full items-center gap-3.5 rounded-[18px] bg-surface/70 px-4 py-3.5 shadow-[0_0_0_1px_rgb(0_0_0_/_0.06)]"
-        >
-          <span className="grid size-11 shrink-0 place-items-center rounded-[11px] bg-fill text-label-tertiary">
+      <li className="relative before:absolute before:top-0 before:right-0 before:left-[70px] before:h-px before:bg-separator">
+        <div aria-disabled="true" className="flex min-h-[72px] w-full items-center gap-3.5 px-4 py-3.5">
+          <span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-fill text-label-tertiary">
             <IconDocuments />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label-secondary">
-              Reimbursement
-            </span>
+            <span className="block text-[16px] leading-5 font-semibold tracking-[-0.01em] text-label-secondary">Reimbursement</span>
             <span className="mt-0.5 block text-[13px] leading-[18px] text-pretty text-label-secondary">
               Claim back treatment you&apos;ve already paid for
             </span>
@@ -304,8 +301,7 @@ type StepProps = { draft: Draft; set: (patch: Partial<Draft>) => void };
 
 function PatientStep({ draft, set }: StepProps) {
   return (
-    <fieldset className="flex flex-col gap-3">
-      <legend className="sr-only">Patient</legend>
+    <ChoiceGroup label="Patient" inset={60}>
       {policyDetail.family.map((person) => (
         <ChoiceCard
           key={person.name}
@@ -314,10 +310,15 @@ function PatientStep({ draft, set }: StepProps) {
           onChange={() => set({ patient: person.name })}
           title={person.name}
           hint={`${person.relation} · ${ageFrom(person.dob)} years`}
-          leading={<Monogram name={person.name} primary={person.relation === "You"} />}
+          leading={
+            <Asset
+              src={`/dashboard/health-card/${person.relation === "You" ? "member-primary" : "member"}.svg`}
+              className="size-8 shrink-0"
+            />
+          }
         />
       ))}
-    </fieldset>
+    </ChoiceGroup>
   );
 }
 
@@ -350,8 +351,7 @@ function TreatmentStep({
         open={open === "category"}
         onToggle={() => toggle("category")}
       >
-        <fieldset className="flex flex-col gap-2.5">
-          <legend className="sr-only">Category</legend>
+        <ChoiceGroup label="Category" nested>
           {categories.map((item) => (
             <ChoiceCard
               key={item.id}
@@ -367,7 +367,7 @@ function TreatmentStep({
               hint={item.hint}
             />
           ))}
-        </fieldset>
+        </ChoiceGroup>
       </Disclosure>
 
       <Disclosure
@@ -411,28 +411,29 @@ function TreatmentStep({
         onToggle={() => toggle("stage")}
       >
         {draft.category ? (
-          <fieldset className="flex flex-col gap-2.5">
-            <legend className="sr-only">Stage</legend>
-            {stages[draft.category].map((item) => (
-              <ChoiceCard
-                key={item.id}
-                name="stage"
-                checked={draft.stage === item.id}
-                onChange={() => {
-                  set({ stage: item.id });
-                  if (item.id !== "after") setOpen(null);
-                }}
-                title={item.label}
-                hint={item.hint}
-              />
-            ))}
+          <div className="flex flex-col gap-3">
+            <ChoiceGroup label="Stage" nested>
+              {stages[draft.category].map((item) => (
+                <ChoiceCard
+                  key={item.id}
+                  name="stage"
+                  checked={draft.stage === item.id}
+                  onChange={() => {
+                    set({ stage: item.id });
+                    if (item.id !== "after") setOpen(null);
+                  }}
+                  title={item.label}
+                  hint={item.hint}
+                />
+              ))}
+            </ChoiceGroup>
             {draft.stage === "after" ? (
               <Note tone="warning">
                 Once you&apos;ve left the hospital, cashless usually isn&apos;t possible. You can still send this request
                 and we&apos;ll help you claim the costs back.
               </Note>
             ) : null}
-          </fieldset>
+          </div>
         ) : (
           <Note>Choose a category first. The stages depend on it.</Note>
         )}
@@ -519,8 +520,7 @@ function DateStep({ draft, set }: StepProps) {
   const past = draft.stage !== "planning" && draft.stage !== "today";
   return (
     <div className="flex flex-col gap-6">
-      <fieldset className="flex flex-col gap-3">
-        <legend className="mb-3 text-[15px] leading-5 font-medium text-label">Do you know the date of admission?</legend>
+      <ChoiceGroup label="Do you know the date of admission?" showLabel>
         <ChoiceCard
           name="knows-date"
           checked={draft.knowsDate === true}
@@ -533,7 +533,7 @@ function DateStep({ draft, set }: StepProps) {
           onChange={() => set({ knowsDate: false, admission: "" })}
           title="No, it isn't decided yet"
         />
-      </fieldset>
+      </ChoiceGroup>
 
       {draft.knowsDate ? (
         <div>
@@ -611,45 +611,48 @@ function HospitalStep({ draft, set }: StepProps) {
         {q ? ` for “${query.trim()}”` : ""} · a sample list for this prototype
       </p>
 
-      <fieldset className="mt-3 flex flex-col gap-2.5">
-        <legend className="sr-only">Hospital</legend>
-        {entered ? (
-          <ChoiceCard
-            name="hospital"
-            checked
-            onChange={() => {}}
-            title={entered.name}
-            hint="Entered by you"
-          />
+      <div className="mt-3 flex flex-col gap-3">
+        {entered || chosen === "undecided" || results.length ? (
+          <ChoiceGroup label="Hospital">
+            {entered ? (
+              <ChoiceCard
+                name="hospital"
+                checked
+                onChange={() => {}}
+                title={entered.name}
+                hint="Entered by you"
+              />
+            ) : null}
+            {results.map((hospital) => (
+              <ChoiceCard
+                key={hospital.id}
+                name="hospital"
+                checked={chosenId === hospital.id}
+                onChange={() => pick(hospital)}
+                title={hospital.name}
+                hint={`${hospital.address}, ${hospital.city} ${hospital.pin}`}
+                trailing={
+                  <span
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-[12px] leading-4 font-medium ${
+                      hospital.network ? "bg-green-tint text-green-text" : "bg-grey-tint text-grey-text"
+                    }`}
+                  >
+                    {hospital.network ? "Cashless" : "Not in network"}
+                  </span>
+                }
+              />
+            ))}
+            {chosen === "undecided" ? (
+              <ChoiceCard name="hospital" checked onChange={() => {}} title="Hospital not chosen yet" hint="You can add it later" />
+            ) : null}
+          </ChoiceGroup>
         ) : null}
-        {results.map((hospital) => (
-          <ChoiceCard
-            key={hospital.id}
-            name="hospital"
-            checked={chosenId === hospital.id}
-            onChange={() => pick(hospital)}
-            title={hospital.name}
-            hint={`${hospital.address}, ${hospital.city} ${hospital.pin}`}
-            trailing={
-              <span
-                className={`shrink-0 rounded-full px-2 py-0.5 text-[12px] leading-4 font-medium ${
-                  hospital.network ? "bg-green-tint text-green-text" : "bg-grey-tint text-grey-text"
-                }`}
-              >
-                {hospital.network ? "Cashless" : "Not in network"}
-              </span>
-            }
-          />
-        ))}
         {results.length === 0 ? (
           <p className="rounded-[14px] bg-fill px-4 py-4 text-[15px] leading-5 text-label-secondary">
             No hospitals match “{query.trim()}”. Check the spelling, or enter the hospital yourself.
           </p>
         ) : null}
-        {chosen === "undecided" ? (
-          <ChoiceCard name="hospital" checked onChange={() => {}} title="Hospital not chosen yet" hint="You can add it later" />
-        ) : null}
-      </fieldset>
+      </div>
 
       {chosen && chosen !== "undecided" && !chosen.network ? (
         <div className="mt-3">

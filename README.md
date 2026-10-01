@@ -178,9 +178,14 @@ page's one filled action, and the open claims once there are any.
      whether it's in Care Health's network; picking one that isn't explains
      what that means. **Can't find your hospital?** lets you enter one or say
      you haven't chosen yet.
-- **Your cashless claim:** status, a reference to copy, what happens next,
-  what to show at the hospital, the claim's details, and Delete claim (with a
-  confirmation that focuses Cancel).
+- **Your cashless claim:** status and request date; the health card itself,
+  with its glare, to show at the hospital, beside the patient and a reference
+  to copy; what happens next; the claim's details; and, quietly at the foot,
+  Delete claim (with a confirmation that focuses Cancel).
+- **Look:** each step opens with a small picture of the policy card and the
+  policy's name. Answers are one card with hairline rows (inset grouped, as
+  on iOS); the chosen row is tinted and its radio filled. People get the
+  member icons from the policy card.
 - **Claims:** Active and Past, with an empty state. After a delete it says
   which claim went.
 

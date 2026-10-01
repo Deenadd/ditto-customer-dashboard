@@ -3,12 +3,14 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Note } from "@/components/claims/claim-bits";
-import { Monogram } from "@/components/dashboard/policy-pair";
+import { useCardConfig } from "@/components/dashboard/card-config";
+import { PolicyCardFront } from "@/components/dashboard/health-card";
+import { Asset } from "@/components/ui/asset";
 import { BackLink } from "@/components/ui/back-link";
 import { Button } from "@/components/ui/buttons";
 import { StatusPill, cardClass } from "@/components/ui/card-bits";
 import { IconCheck } from "@/components/ui/icons";
-import { InsurerLogo } from "@/components/ui/insurer-logo";
+import { GlareFace, GlareGroup } from "@/components/ui/glare";
 import {
   categoryLabel,
   claimsHref,
@@ -19,6 +21,7 @@ import {
   useHydrated,
   type Claim,
 } from "@/lib/claims";
+import { activePolicyGroups } from "@/lib/dashboard-data";
 import { policyDetail } from "@/lib/policy-detail";
 import type { Customer } from "@/lib/routes";
 
@@ -31,7 +34,11 @@ const journey = [
   { title: "Discharge", body: "The hospital bills Care Health directly. You pay only for anything the policy doesn't cover." },
 ];
 
-/** A cashless claim: where it stands, what happens next, what to show at the hospital, and its details. */
+/**
+ * A cashless claim: where it stands, the health card to show at the hospital
+ * (with its glare, as on the dashboard), what happens next, and its details.
+ * Delete sits quietly at the foot, behind a confirmation.
+ */
 export function ClaimView({ claimId, customer, created }: { claimId: string; customer: Customer; created: boolean }) {
   const hydrated = useHydrated();
   const claims = useClaims(policyDetail.id);
@@ -56,8 +63,12 @@ export function ClaimView({ claimId, customer, created }: { claimId: string; cus
   return <ClaimDetail claim={claim} customer={customer} created={created} />;
 }
 
+/* The health policy as the dashboard draws it, for the card. */
+const card = activePolicyGroups.flatMap((group) => group.items).find((item) => item.id === policyDetail.id)!;
+
 function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Customer; created: boolean }) {
   const router = useRouter();
+  const cardConfig = useCardConfig();
   const [copied, setCopied] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -76,7 +87,6 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
     { label: "Category", value: categoryLabel(claim.category) },
     { label: "Stage", value: stageLabel(claim) },
     { label: "Admission", value: claim.admission ? formatDate(claim.admission) : "Not decided yet" },
-    { label: "Requested on", value: formatDate(claim.createdAt) },
   ];
 
   return (
@@ -87,16 +97,9 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
         <h1 className="text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label">Your cashless claim</h1>
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
           <StatusPill status="received" />
-          <span className="text-[13px] leading-[18px] text-label-secondary">
-            Reference <span className="font-medium text-label tabular-nums">{claim.id}</span>
+          <span className="text-[13px] leading-[18px] text-label-secondary tabular-nums">
+            Requested {formatDate(claim.createdAt)}
           </span>
-          <button
-            type="button"
-            onClick={copy}
-            className="-mx-1 h-7 rounded-[8px] px-2 text-[13px] leading-none font-medium text-accent-text transition-colors hover:bg-accent-tint"
-          >
-            {copied ? "Copied" : "Copy"}
-          </button>
           <span role="status" className="sr-only">
             {copied ? "Reference copied." : ""}
           </span>
@@ -112,7 +115,42 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
         </p>
       ) : null}
 
-      <div className="mt-6 flex flex-col gap-6">
+      <section aria-labelledby="card-title" className="mt-6 grid items-center gap-5 sm:grid-cols-[minmax(0,380px)_1fr] sm:gap-7">
+        <GlareGroup settings={cardConfig}>
+          <GlareFace>
+            <PolicyCardFront policy={card} palette={cardConfig.blue} />
+          </GlareFace>
+        </GlareGroup>
+        <div>
+          <h2 id="card-title" className={cardTitle}>
+            Show this at the hospital
+          </h2>
+          <p className="mt-1 text-[15px] leading-5 text-pretty text-label-secondary">
+            At the insurance desk, with a photo ID. Give them your reference so they can find the request.
+          </p>
+          <dl className="mt-4 flex flex-col gap-3">
+            <div>
+              <dt className="text-[12px] leading-4 text-label-secondary">Patient</dt>
+              <dd className="mt-0.5 text-[15px] leading-5 font-medium text-label">{claim.patient.name}</dd>
+            </div>
+            <div>
+              <dt className="text-[12px] leading-4 text-label-secondary">Reference</dt>
+              <dd className="mt-0.5 flex items-center gap-2">
+                <span className="text-[15px] leading-5 font-medium text-label tabular-nums">{claim.id}</span>
+                <button
+                  type="button"
+                  onClick={copy}
+                  className="-my-1 h-7 rounded-[8px] px-2 text-[13px] leading-none font-medium text-accent-text transition-colors hover:bg-accent-tint"
+                >
+                  {copied ? "Copied" : "Copy"}
+                </button>
+              </dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <div className="mt-8 flex flex-col gap-6">
         <section aria-labelledby="next-title" className={`${cardClass} p-5`}>
           <h2 id="next-title" className={cardTitle}>
             What happens next
@@ -146,39 +184,17 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
           </ol>
         </section>
 
-        <section aria-labelledby="card-title" className={`${cardClass} p-5`}>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <h2 id="card-title" className={cardTitle}>
-                Show this at the hospital
-              </h2>
-              <p className="mt-0.5 text-[13px] leading-[18px] text-label-secondary">At the insurance desk, with a photo ID.</p>
-            </div>
-            <InsurerLogo insurer={policyDetail.insurer} size={44} />
-          </div>
-          <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4 rounded-[14px] bg-fill px-4 py-4">
-            {[
-              { label: "Patient", value: claim.patient.name },
-              { label: "Insurer", value: "Care Health" },
-              { label: "Policy number", value: policyDetail.id },
-              { label: "Sum insured", value: policyDetail.fields.find((f) => f.label === "Sum insured")?.value ?? "" },
-              { label: "Valid till", value: policyDetail.fields.find((f) => f.label === "Valid till")?.value ?? "" },
-            ].map((field) => (
-              /* The policy number is too long to share a row on a phone. */
-              <div key={field.label} className={`min-w-0 ${field.label === "Policy number" ? "max-sm:col-span-2" : ""}`}>
-                <dt className="text-[12px] leading-4 text-label-secondary">{field.label}</dt>
-                <dd className="mt-1 text-[15px] leading-5 font-medium tracking-[-0.01em] whitespace-nowrap text-label tabular-nums">{field.value}</dd>
-              </div>
-            ))}
-          </dl>
-        </section>
+
 
         <section aria-labelledby="details-title" className={`${cardClass} p-5`}>
           <h2 id="details-title" className={cardTitle}>
             Claim details
           </h2>
           <div className="mt-4 flex items-center gap-3">
-            <Monogram name={claim.patient.name} primary={claim.patient.relation === "You"} />
+            <Asset
+              src={`/dashboard/health-card/${claim.patient.relation === "You" ? "member-primary" : "member"}.svg`}
+              className="size-9 shrink-0"
+            />
             <div className="min-w-0">
               <p className="text-[15px] leading-5 font-medium text-label">{claim.patient.name}</p>
               <p className="text-[13px] leading-[18px] text-label-secondary tabular-nums">
@@ -212,17 +228,17 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
           ) : null}
         </section>
 
-        <section aria-labelledby="delete-title" className={`${cardClass} flex flex-wrap items-center justify-between gap-3 p-5`}>
-          <div>
-            <h2 id="delete-title" className="text-[15px] leading-5 font-semibold text-label">
-              Didn&apos;t mean to make this claim?
-            </h2>
-            <p className="mt-0.5 text-[13px] leading-[18px] text-label-secondary">You can delete it while it&apos;s still a request.</p>
-          </div>
-          <Button variant="plain" className="text-red-text [@media(hover:hover)]:hover:bg-red-tint" onClick={() => dialogRef.current?.showModal()}>
-            Delete claim
-          </Button>
-        </section>
+      </div>
+
+      <div className="mt-8 flex flex-col items-center gap-1 text-center">
+        <p className="text-[13px] leading-[18px] text-label-secondary">Didn&apos;t mean to make this claim?</p>
+        <Button
+          variant="plain"
+          className="text-red-text [@media(hover:hover)]:hover:bg-red-tint"
+          onClick={() => dialogRef.current?.showModal()}
+        >
+          Delete claim
+        </Button>
       </div>
 
       <dialog

@@ -1,14 +1,49 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
+import { MiniPolicyCard } from "@/components/dashboard/health-card";
 import { Chevron } from "@/components/dashboard/policy-pair";
 import { StatusPill } from "@/components/ui/card-bits";
 import { IconClaim } from "@/components/ui/icons";
 import { formatDate, type Claim } from "@/lib/claims";
 
 /**
- * One answer among several, as a card: the whole card is the hit area, the
- * radio is real (so arrow keys move between answers), and the chosen card
- * gets an accent ring as well as a filled radio.
+ * A set of answers as one card, rows split by hairlines (inset to line up
+ * with the text when rows have a leading icon). `nested` is for a group
+ * inside another card: a hairline ring instead of a shadow.
+ */
+export function ChoiceGroup({
+  label,
+  showLabel = false,
+  inset = 16,
+  nested = false,
+  children,
+}: {
+  label: string;
+  /** Show the question above the group rather than only to screen readers. */
+  showLabel?: boolean;
+  inset?: number;
+  nested?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <fieldset>
+      <legend className={showLabel ? "mb-3 text-[15px] leading-5 font-medium text-label" : "sr-only"}>{label}</legend>
+      <div
+        className={`choice-group overflow-hidden rounded-[16px] bg-surface ${
+          nested ? "shadow-[0_0_0_1px_rgb(0_0_0_/_0.08)]" : "shadow-card"
+        }`}
+        style={{ "--sep-inset": `${inset}px` } as CSSProperties}
+      >
+        {children}
+      </div>
+    </fieldset>
+  );
+}
+
+/**
+ * One answer, as a row in a ChoiceGroup: the whole row is the hit area, the
+ * radio is real (so arrow keys move between answers), and the chosen row is
+ * tinted as well as having a filled radio.
  */
 export function ChoiceCard({
   name,
@@ -29,15 +64,13 @@ export function ChoiceCard({
 }) {
   return (
     <label
-      className={`flex min-h-16 cursor-pointer items-center gap-3 rounded-[14px] bg-surface px-4 py-3 transition-[box-shadow,background-color] duration-150 ease-out has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-accent [@media(hover:hover)]:hover:bg-[#fbfbfd] ${
-        checked
-          ? "shadow-[0_0_0_2px_var(--color-accent)]"
-          : "shadow-[0_0_0_1px_rgb(0_0_0_/_0.08),0_1px_2px_rgb(0_0_0_/_0.04)]"
+      className={`choice-row relative flex min-h-[60px] cursor-pointer items-center gap-3 px-4 py-3 transition-colors duration-150 ease-out has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-accent ${
+        checked ? "bg-accent-tint/60" : "[@media(hover:hover)]:hover:bg-fill/70"
       }`}
     >
       {leading}
       <span className="min-w-0 flex-1">
-        <span className="block text-[15px] leading-5 font-medium text-pretty text-label">{title}</span>
+        <span className={`block text-[15px] leading-5 text-pretty text-label ${checked ? "font-semibold" : "font-medium"}`}>{title}</span>
         {hint ? <span className="mt-0.5 block text-[13px] leading-[18px] text-pretty text-label-secondary">{hint}</span> : null}
       </span>
       {trailing}
@@ -49,6 +82,19 @@ export function ChoiceCard({
         className="size-5 shrink-0 cursor-pointer appearance-none rounded-full border-[1.5px] border-label-tertiary/70 bg-surface transition-[border-width,border-color] duration-150 ease-out checked:border-[6px] checked:border-accent focus-visible:outline-none"
       />
     </label>
+  );
+}
+
+/** Which policy the claim is on: the card in miniature and its name. */
+export function ClaimingOn({ name }: { name: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <MiniPolicyCard tone="blue" />
+      <div className="min-w-0">
+        <p className="text-[12px] leading-4 text-label-secondary">Claiming on</p>
+        <p className="truncate text-[14px] leading-5 font-medium text-label">{name}</p>
+      </div>
+    </div>
   );
 }
 

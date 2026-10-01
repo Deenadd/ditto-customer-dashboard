@@ -83,48 +83,11 @@ export function PolicyCardPair({ policy, href, tone }: { policy: ActivePolicy; h
   const config = useCardConfig();
   const palette = config[tone];
   const frame = frameBackground(palette);
-  const fields = [
-    { label: "Policy number", value: policy.policyNumber },
-    { label: "Sum insured", value: policy.sumInsured },
-    { label: "Coverage type", value: policy.coverageType },
-    policy.term,
-  ];
 
   return (
     <GlareGroup settings={config} className="group relative grid gap-4 sm:grid-cols-2">
       <GlareFace>
-        <article aria-label={policy.name} className={`${face} min-h-[237px]`} style={frame}>
-          <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
-            <Wave box="inset-[-99.16%_-48.22%_29.98%_47.67%]" src={art("front-shade-a.png")} color={palette.shade} opacity="opacity-15" />
-            <Wave box="inset-[-99.16%_-48.22%_29.98%_47.67%]" src={art("front-shade-b.png")} color={palette.shade} opacity="opacity-15" />
-            <Wave box="inset-[-61.86%_-23.7%_69.9%_69.06%]" src={art("front-wave-1.svg")} color={palette.wave} bleed="-36.99% -35.18%" />
-            <Wave box="inset-[-79.39%_-36.59%_49.57%_59.39%]" src={art("front-wave-2.svg")} color={palette.wave} />
-            <Wave box="inset-[-61.86%_-23.7%_69.9%_69.06%]" src={art("front-wave-3.svg")} color={palette.wave} />
-            <div className="absolute top-[-106px] left-[86%] size-[156px]">
-              <div className="absolute inset-[-64.1%]" style={tinted(art("corner-glow.svg"), palette.glow)} />
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3 px-4 pt-4">
-            <span className="shrink-0 rounded-[12px] border-2 border-white shadow-[0px_6px_24px_0px_rgba(0,0,0,0.07)]">
-              <InsurerLogo insurer={policy.insurer} size={40} />
-            </span>
-            <div className="min-w-0 text-white">
-              <h3 className="truncate text-[16px] leading-5 font-semibold tracking-[-0.01em]">{policy.name}</h3>
-              <p className="mt-0.5 text-[12px] leading-4 font-medium">{policy.kind}</p>
-            </div>
-          </div>
-
-          <dl className={`${inset} mx-2 mt-3 mb-2 grid flex-1 grid-cols-2 content-center gap-x-4 gap-y-7 px-5 py-6`}>
-            {fields.map((field) => (
-              <div key={field.label} className="min-w-0">
-                <dt className="text-[12px] leading-4 text-label-secondary">{field.label}</dt>
-                <dd className="mt-2 text-[14px] leading-4 font-semibold text-label tabular-nums">{field.value}</dd>
-              </div>
-            ))}
-          </dl>
-          <Bevel />
-        </article>
+        <PolicyCardFront policy={policy} palette={palette} />
       </GlareFace>
 
       <GlareFace>
@@ -159,6 +122,65 @@ export function PolicyCardPair({ policy, href, tone }: { policy: ActivePolicy; h
         />
       ) : null}
     </GlareGroup>
+  );
+}
+
+/** The card's front: the insurer and policy in the frame, its facts in the white inset. */
+export function PolicyCardFront({ policy, palette }: { policy: ActivePolicy; palette: CardPalette }) {
+  const fields = [
+    { label: "Policy number", value: policy.policyNumber },
+    { label: "Sum insured", value: policy.sumInsured },
+    { label: "Coverage type", value: policy.coverageType },
+    policy.term,
+  ];
+  return (
+    <article aria-label={policy.name} className={`${face} min-h-[237px]`} style={frameBackground(palette)}>
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
+        <Wave box="inset-[-99.16%_-48.22%_29.98%_47.67%]" src={art("front-shade-a.png")} color={palette.shade} opacity="opacity-15" />
+        <Wave box="inset-[-99.16%_-48.22%_29.98%_47.67%]" src={art("front-shade-b.png")} color={palette.shade} opacity="opacity-15" />
+        <Wave box="inset-[-61.86%_-23.7%_69.9%_69.06%]" src={art("front-wave-1.svg")} color={palette.wave} bleed="-36.99% -35.18%" />
+        <Wave box="inset-[-79.39%_-36.59%_49.57%_59.39%]" src={art("front-wave-2.svg")} color={palette.wave} />
+        <Wave box="inset-[-61.86%_-23.7%_69.9%_69.06%]" src={art("front-wave-3.svg")} color={palette.wave} />
+        <div className="absolute top-[-106px] left-[86%] size-[156px]">
+          <div className="absolute inset-[-64.1%]" style={tinted(art("corner-glow.svg"), palette.glow)} />
+        </div>
+      </div>
+
+      <div className="flex items-center gap-3 px-4 pt-4">
+        <span className="shrink-0 rounded-[12px] border-2 border-white shadow-[0px_6px_24px_0px_rgba(0,0,0,0.07)]">
+          <InsurerLogo insurer={policy.insurer} size={40} />
+        </span>
+        <div className="min-w-0 text-white">
+          <h3 className="truncate text-[16px] leading-5 font-semibold tracking-[-0.01em]">{policy.name}</h3>
+          <p className="mt-0.5 text-[12px] leading-4 font-medium">{policy.kind}</p>
+        </div>
+      </div>
+
+      <dl className={`${inset} mx-2 mt-3 mb-2 grid flex-1 grid-cols-2 content-center gap-x-4 gap-y-7 px-5 py-6`}>
+        {fields.map((field) => (
+          <div key={field.label} className="min-w-0">
+            <dt className="text-[12px] leading-4 text-label-secondary">{field.label}</dt>
+            <dd className="mt-2 text-[14px] leading-4 font-semibold text-label tabular-nums">{field.value}</dd>
+          </div>
+        ))}
+      </dl>
+      <Bevel />
+    </article>
+  );
+}
+
+/** The card in miniature: its frame and white inset, for showing which policy something is on. */
+export function MiniPolicyCard({ tone }: { tone: CardTone }) {
+  const palette = useCardConfig()[tone];
+  return (
+    <span
+      aria-hidden
+      className="relative block h-[30px] w-[46px] shrink-0 overflow-hidden rounded-[7px] shadow-[0_1px_3px_rgb(0_0_0_/_0.12)]"
+      style={frameBackground(palette)}
+    >
+      <span className="absolute inset-x-[3px] top-[11px] bottom-[3px] rounded-[4px] bg-white" />
+      <span className="absolute inset-0 rounded-[inherit] shadow-[inset_0px_1px_2px_0px_rgba(255,255,255,0.49),inset_0px_-1px_2px_0px_rgba(0,0,0,0.2)]" />
+    </span>
   );
 }
 
