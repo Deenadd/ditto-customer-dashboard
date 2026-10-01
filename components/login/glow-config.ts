@@ -1,6 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
+import { referenceBase, referenceCore, type GlowStop } from "./glow-ramps";
 
 /**
  * Tuning for the sign-in wash at the top of the screen. Every field is a
@@ -17,20 +18,32 @@ export type GlowConfig = {
   coreWidth: number;
   /** How far the blue dome hangs, as % of the wash's height. */
   coreDepth: number;
+  /** Where the dome's centre sits: across the screen and down the wash (%). */
+  domeX: number;
+  domeY: number;
+  /** The dome's colours, heart outward; `at` is % of its radius. */
+  core: GlowStop[];
+  /** The band's colours, top down; `at` is % of the wash's height. */
+  base: GlowStop[];
   /** Overall strength of the wash, 0 to 1. */
   intensity: number;
   /** Blue, red and green crossfade over this long (ms). */
   toneDuration: number;
 };
 
+/* Tuned in the glow panel on 1 Oct 2026. */
 export const defaultGlowConfig: GlowConfig = {
-  heightVh: 48,
-  curve: 0.15,
-  softness: 25,
+  heightVh: 54,
+  curve: 1,
+  softness: 90,
   coreWidth: 62,
-  coreDepth: 42,
-  intensity: 1,
-  toneDuration: 500,
+  coreDepth: 56,
+  domeX: 50,
+  domeY: 0,
+  core: referenceCore,
+  base: referenceBase,
+  intensity: 0.4,
+  toneDuration: 1950,
 };
 
 /* A tiny store so the glow and the panel share one config, it survives a

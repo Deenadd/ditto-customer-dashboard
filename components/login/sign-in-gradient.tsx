@@ -1,33 +1,34 @@
 import type { CSSProperties } from "react";
 import type { GlowConfig } from "./glow-config";
-import { glowRamps } from "./glow-ramps";
-
-export type GlowTone = keyof typeof glowRamps;
+import { inTone, type GlowStop, type GlowTone } from "./glow-ramps";
 
 const tones: GlowTone[] = ["blue", "red", "green"];
 
 const hexToRgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16)).join(" ");
 
+const sorted = (stops: GlowStop[]) => [...stops].sort((a, b) => a.at - b.at);
+
 /**
- * The sign-in wash: the reference's gradient (see glow-ramps.ts), hanging
- * from the top of the screen. A deep blue dome sits in a cyan band, which
- * pales through sky into the page. It stays put for the whole flow; red and
- * green crossfade over the blue for a wrong or right code.
+ * The sign-in wash, hanging from the top of the screen: a deep blue dome in a
+ * cyan band that pales into the page (colours in glow-ramps.ts). It stays put
+ * for the whole flow; red and green crossfade over the blue for a wrong or
+ * right code, made from whatever blue is set.
  *
- * The dome is an ellipse from the top centre, `coreWidth` wide and
- * `coreDepth` deep (% of the wash). Its rim fades to transparent in its own
- * colour, so it melts into the cyan without a grey seam. The wash's lower
- * edge fades through a mask that bows down in the middle by `curve`.
+ * The dome is an ellipse `coreWidth` wide and `coreDepth` deep, centred at
+ * (`domeX`, `domeY`). Its rim fades to transparent in its own colour, so it
+ * melts into the band without a grey seam. The wash's lower edge fades
+ * through a mask that bows down in the middle by `curve`.
  *
- * Every number comes from GlowConfig, which the glow panel edits live.
+ * Every number and colour comes from GlowConfig, which the glow panel edits.
  */
 function layers(tone: GlowTone, config: GlowConfig) {
-  const { core, base } = glowRamps[tone];
-  const rim = core[core.length - 1][1];
-  const dome = `radial-gradient(ellipse ${config.coreWidth}% ${config.coreDepth}% at 50% 0%, ${core
-    .map(([p, c]) => `${c} ${p}%`)
+  const core = sorted(config.core).map((stop) => ({ ...stop, color: inTone(stop.color, tone) }));
+  const base = sorted(config.base).map((stop) => ({ ...stop, color: inTone(stop.color, tone) }));
+  const rim = core[core.length - 1].color;
+  const dome = `radial-gradient(ellipse ${config.coreWidth}% ${config.coreDepth}% at ${config.domeX}% ${config.domeY}%, ${core
+    .map((stop) => `${stop.color} ${stop.at}%`)
     .join(", ")}, rgb(${hexToRgb(rim)} / 0) 100%)`;
-  const band = `linear-gradient(to bottom, ${base.map(([p, c]) => `${c} ${p}%`).join(", ")})`;
+  const band = `linear-gradient(to bottom, ${base.map((stop) => `${stop.color} ${stop.at}%`).join(", ")})`;
   return `${dome}, ${band}`;
 }
 

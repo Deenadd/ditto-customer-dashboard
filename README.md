@@ -67,9 +67,8 @@ the right one green, then the dashboard opens. Values are in
 
 The sign-in block is centred on screen, both ways. The two steps differ in
 height, so it's centred on their midpoint: the logo, heading and inputs stay
-in the same place on both steps and when an error appears. The wash is 48dvh
-deep so the grey subtitle keeps at least 4.5:1 against it (measured 4.72 at
-worst, 1280 × 640, red).
+in the same place on both steps and when an error appears. The defaults (54dvh deep at 0.4 intensity, a soft bowed edge) are the ones
+tuned in the panel on 1 Oct 2026.
 
 ### Glow controls
 
@@ -78,8 +77,16 @@ the wash:
 
 - **Preview:** force it blue, red or green.
 - **Shape:** height, how much the lower edge bows, how soft it is, intensity.
-- **Blue dome:** width and depth.
+- **Blue dome:** a pad you drag to move it (with Across and Down sliders for
+  the keyboard), plus width and depth.
+- **Dome colours** and **Band colours:** a strip previewing each gradient,
+  then one row per colour: the swatch opens a colour picker, the slider moves
+  it, and minus removes it (two at least). **Add colour** puts a new one in
+  the widest gap, mixed from its neighbours, up to ten.
 - **Animation:** colour-change speed.
+
+Red and green are made from whatever blue is set, by hue alone, so edited
+colours carry through to the wrong-code and right-code states.
 
 Changes apply live and are remembered in that browser. **Copy config** copies
 the JSON; paste it into `defaultGlowConfig` in

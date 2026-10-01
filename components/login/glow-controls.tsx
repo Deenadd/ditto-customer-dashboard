@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type PointerEvent, type ReactNode } from "react";
 import { defaultGlowConfig, setGlowConfig, type GlowConfig } from "./glow-config";
-import type { GlowTone } from "./sign-in-gradient";
+import type { GlowStop, GlowTone } from "./glow-ramps";
 
 export type GlowPreview = { tone: GlowTone | "auto" };
 
@@ -115,8 +115,19 @@ export function GlowControls({
         </Section>
 
         <Section label="Blue dome">
+          <PositionPad x={config.domeX} y={config.domeY} onChange={(domeX, domeY) => set({ domeX, domeY })} />
+          <Slider label="Across" unit="%" min={0} max={100} step={1} value={config.domeX} onChange={(domeX) => set({ domeX })} />
+          <Slider label="Down" unit="%" min={0} max={100} step={1} value={config.domeY} onChange={(domeY) => set({ domeY })} />
           <Slider label="Width" unit="%" min={10} max={150} step={1} value={config.coreWidth} onChange={(coreWidth) => set({ coreWidth })} />
           <Slider label="Depth" unit="%" min={5} max={100} step={1} value={config.coreDepth} onChange={(coreDepth) => set({ coreDepth })} />
+        </Section>
+
+        <Section label="Dome colours">
+          <StopEditor name="Dome" direction="to right" stops={config.core} onChange={(core) => set({ core })} />
+        </Section>
+
+        <Section label="Band colours">
+          <StopEditor name="Band" direction="to right" stops={config.base} onChange={(base) => set({ base })} />
         </Section>
 
         <Section label="Animation">
@@ -235,6 +246,138 @@ function Choice<T extends string>({
           </button>
         ))}
       </div>
+    </div>
+  );
+}
+
+/**
+ * Drag the dot to move the dome. The pad is the wash in miniature: across is
+ * the screen's width, down is the wash's height. The Across and Down sliders
+ * beside it do the same from the keyboard.
+ */
+function PositionPad({ x, y, onChange }: { x: number; y: number; onChange: (x: number, y: number) => void }) {
+  const moveTo = (event: PointerEvent<HTMLDivElement>) => {
+    const box = event.currentTarget.getBoundingClientRect();
+    const clamp = (v: number) => Math.round(Math.min(100, Math.max(0, v)));
+    onChange(clamp(((event.clientX - box.left) / box.width) * 100), clamp(((event.clientY - box.top) / box.height) * 100));
+  };
+  return (
+    <div
+      aria-hidden
+      onPointerDown={(event) => {
+        event.currentTarget.setPointerCapture(event.pointerId);
+        moveTo(event);
+      }}
+      onPointerMove={(event) => {
+        if (event.currentTarget.hasPointerCapture(event.pointerId)) moveTo(event);
+      }}
+      className="relative h-24 cursor-crosshair touch-none overflow-hidden rounded-[10px] bg-[#1a1a1c] bg-[linear-gradient(#2d2d33_1px,transparent_1px),linear-gradient(90deg,#2d2d33_1px,transparent_1px)] bg-[size:25%_25%] bg-center"
+    >
+      <span
+        className="pointer-events-none absolute size-3.5 -translate-1/2 rounded-full bg-white shadow-[0_0_0_3px_rgb(255_255_255_/_0.2)]"
+        style={{ left: `${x}%`, top: `${y}%` }}
+      />
+    </div>
+  );
+}
+
+const MAX_STOPS = 10;
+
+/** Mix two hex colours halfway, for a new stop between them. */
+function mix(a: string, b: string) {
+  const channel = (hex: string, i: number) => parseInt(hex.slice(i, i + 2), 16);
+  return `#${[1, 3, 5].map((i) => Math.round((channel(a, i) + channel(b, i)) / 2).toString(16).padStart(2, "0")).join("")}`;
+}
+
+/**
+ * A gradient's colours: change one with its swatch, move it with its slider,
+ * remove it, or add one. A new colour goes into the widest gap, mixed from
+ * its neighbours. Rows keep their order while you drag, so a row never jumps
+ * out from under the pointer; the gradient itself always uses position order.
+ */
+function StopEditor({
+  name,
+  direction,
+  stops,
+  onChange,
+}: {
+  name: string;
+  direction: string;
+  stops: GlowStop[];
+  onChange: (stops: GlowStop[]) => void;
+}) {
+  const ordered = [...stops].sort((a, b) => a.at - b.at);
+  const update = (index: number, patch: Partial<GlowStop>) =>
+    onChange(stops.map((stop, i) => (i === index ? { ...stop, ...patch } : stop)));
+
+  function add() {
+    let gap = { from: ordered[0], to: ordered[0], size: -1 };
+    for (let i = 0; i < ordered.length - 1; i++) {
+      const size = ordered[i + 1].at - ordered[i].at;
+      if (size > gap.size) gap = { from: ordered[i], to: ordered[i + 1], size };
+    }
+    const last = ordered[ordered.length - 1];
+    /* Past the last stop is a gap too, as long as there's room. */
+    if (100 - last.at > gap.size) gap = { from: last, to: { color: last.color, at: 100 }, size: 100 - last.at };
+    onChange([...stops, { color: mix(gap.from.color, gap.to.color), at: Math.round((gap.from.at + gap.to.at) / 2) }]);
+  }
+
+  return (
+    <div className="flex flex-col gap-1.5">
+      <div
+        aria-hidden
+        className="h-5 rounded-[7px] shadow-[inset_0_0_0_1px_rgb(255_255_255_/_0.08)]"
+        style={{ background: `linear-gradient(${direction}, ${ordered.map((s) => `${s.color} ${s.at}%`).join(", ")})` }}
+      />
+      {stops.map((stop, index) => (
+        <div key={index} className="flex items-center gap-1.5">
+          <label
+            className="relative size-[34px] shrink-0 cursor-pointer rounded-[10px] shadow-[inset_0_0_0_1px_rgb(255_255_255_/_0.12)] has-[:focus-visible]:outline-2 has-[:focus-visible]:outline-offset-1 has-[:focus-visible]:outline-white/70"
+            style={{ background: stop.color }}
+          >
+            <input
+              type="color"
+              aria-label={`${name} colour ${index + 1}`}
+              value={stop.color}
+              onChange={(event) => update(index, { color: event.target.value })}
+              className="absolute inset-0 size-full cursor-pointer opacity-0"
+            />
+          </label>
+          <div className="min-w-0 flex-1">
+            <Slider
+              label={stop.color.toUpperCase()}
+              unit="%"
+              min={0}
+              max={100}
+              step={1}
+              value={stop.at}
+              onChange={(at) => update(index, { at })}
+            />
+          </div>
+          <button
+            type="button"
+            aria-label={`Remove ${name.toLowerCase()} colour ${index + 1}`}
+            disabled={stops.length <= 2}
+            onClick={() => onChange(stops.filter((_, i) => i !== index))}
+            className="grid size-[34px] shrink-0 place-items-center rounded-[10px] bg-[#1a1a1c] text-zinc-400 transition-colors hover:bg-[#232326] hover:text-white disabled:opacity-30 disabled:hover:bg-[#1a1a1c] disabled:hover:text-zinc-400"
+          >
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden>
+              <path d="M5 12h14" />
+            </svg>
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={add}
+        disabled={stops.length >= MAX_STOPS}
+        className="flex h-[34px] items-center justify-center gap-1.5 rounded-[10px] border border-dashed border-white/15 text-[12px] text-zinc-300 transition-colors hover:border-white/30 hover:text-white disabled:opacity-30"
+      >
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden>
+          <path d="M12 5v14M5 12h14" />
+        </svg>
+        Add colour
+      </button>
     </div>
   );
 }

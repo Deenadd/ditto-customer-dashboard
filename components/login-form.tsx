@@ -8,7 +8,8 @@ import { OtpField } from "@/components/otp-field";
 import { Button } from "@/components/ui/buttons";
 import { useGlowConfig } from "@/components/login/glow-config";
 import { GlowControls, type GlowPreview } from "@/components/login/glow-controls";
-import { SignInGradient, type GlowTone } from "@/components/login/sign-in-gradient";
+import type { GlowTone } from "@/components/login/glow-ramps";
+import { SignInGradient } from "@/components/login/sign-in-gradient";
 
 type Mode = "mobile" | "policy";
 
