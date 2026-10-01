@@ -3,63 +3,40 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * Tuning for the sign-in glow. Every field is a control in the glow panel
- * (Shift+Option+C on the sign-in page). Lengths scale with the glow's radius
- * unless noted; durations are ms.
+ * Tuning for the sign-in wash at the top of the screen. Every field is a
+ * control in the glow panel (Shift+Option+C on the sign-in page).
  */
 export type GlowConfig = {
-  /** Radius as a share of the viewport height (dvh). */
-  radiusVh: number;
-  /** Cap on the radius as a share of the viewport width (vw). */
-  maxRadiusVw: number;
-  /** Where the soft edge begins, as % of the radius. Lower is softer. */
-  featherStart: number;
-  /** Overall strength of the glow, 0 to 1. */
+  /** How far down the wash reaches, soft edge included (dvh). */
+  heightVh: number;
+  /** How much the lower edge bows down in the middle, 0 (flat) to 1. */
+  curve: number;
+  /** The share of the height that fades into the page (%). */
+  softness: number;
+  /** The blue dome's width, as % of the screen width. */
+  coreWidth: number;
+  /** How far the blue dome hangs, as % of the wash's height. */
+  coreDepth: number;
+  /** Overall strength of the wash, 0 to 1. */
   intensity: number;
-
-  /** Resting at the bottom: centre below the edge (× radius), across (%), scale. */
-  bottomOffset: number;
-  bottomX: number;
-  bottomScale: number;
-
-  /** Resting at the top: centre above the edge (× radius), across (%), scale. */
-  topOffset: number;
-  topX: number;
-  topScale: number;
-
-  /** The move between bottom and top. */
-  moveDuration: number;
-  cubic: [number, number, number, number];
-  /** Blue, red and green crossfade over this long. */
+  /** Blue, red and green crossfade over this long (ms). */
   toneDuration: number;
 };
 
 export const defaultGlowConfig: GlowConfig = {
-  radiusVh: 59,
-  maxRadiusVw: 100,
-  featherStart: 67.2,
+  heightVh: 48,
+  curve: 0.15,
+  softness: 25,
+  coreWidth: 62,
+  coreDepth: 42,
   intensity: 1,
-  bottomOffset: 0.12,
-  bottomX: 50,
-  bottomScale: 1,
-  topOffset: 0.06,
-  topX: 50,
-  topScale: 0.56,
-  moveDuration: 1000,
-  cubic: [0.32, 0.72, 0, 1],
   toneDuration: 500,
 };
 
-export const easingPresets: { label: string; cubic: GlowConfig["cubic"] }[] = [
-  { label: "Sheet", cubic: [0.32, 0.72, 0, 1] },
-  { label: "Snappy", cubic: [0.23, 1, 0.32, 1] },
-  { label: "Gentle", cubic: [0.45, 0, 0.2, 1] },
-  { label: "Linear", cubic: [0, 0, 1, 1] },
-];
-
 /* A tiny store so the glow and the panel share one config, it survives a
    reload in this browser, and the server render always uses the defaults. */
-const KEY = "ditto.glow-config.v1";
+/* v2: the wash replaced the moving circle, so v1 settings no longer apply. */
+const KEY = "ditto.glow-config.v2";
 const listeners = new Set<() => void>();
 let current: GlowConfig | null = null;
 

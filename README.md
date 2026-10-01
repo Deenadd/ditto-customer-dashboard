@@ -57,31 +57,34 @@ polished Apple style:
 
 ## Sign in
 
-The 3D art is gone; a circular glow in the colours of the reference
-(pinterest.com/pin/16747829862479363, sampled from its pixels: deep blue
-`#0471fa` at the core, cyan `#00ccff`, a soft edge into white) rises from the
-bottom. The logo, heading, subtitle and input row sit in the same place on
-both steps; only the words change and the glow moves. Entering a number sends
-the glow up to hang from the top for the code step. A wrong code turns it red,
+The 3D art is gone. A wash of colour hangs from the top of the screen for the
+whole flow, taken from the reference's vectorised gradient (Fuse's onboarding,
+1179 × 1817 under a 126px blur) and mirrored: a deep blue dome (`#3063DB`
+through `#4EA1E8`) in a cyan band (`#65C9F1`, `#62C2F5`, `#60C3F1`) that pales
+through sky `#C0E6F9` into white. It doesn't move. A wrong code turns it red,
 the right one green, then the dashboard opens. Values are in
 `components/login/glow-ramps.ts`.
+
+The sign-in block is centred on screen, both ways. The two steps differ in
+height, so it's centred on their midpoint: the logo, heading and inputs stay
+in the same place on both steps and when an error appears. The wash is 48dvh
+deep so the grey subtitle keeps at least 4.5:1 against it (measured 4.72 at
+worst, 1280 × 640, red).
 
 ### Glow controls
 
 On the sign-in page, **Shift+Option+C** (Shift+Alt+C) opens a tuning panel for
-the glow:
+the wash:
 
-- **Preview:** force it to the top or bottom, and blue, red or green.
-- **Size:** radius, width cap, where the soft edge starts, and intensity.
-- **Positions:** offset, horizontal position and scale for the bottom and top
-  rest positions.
-- **Animation:** move duration, easing presets or a custom curve with a
-  preview, and colour-change speed.
+- **Preview:** force it blue, red or green.
+- **Shape:** height, how much the lower edge bows, how soft it is, intensity.
+- **Blue dome:** width and depth.
+- **Animation:** colour-change speed.
 
 Changes apply live and are remembered in that browser. **Copy config** copies
 the JSON; paste it into `defaultGlowConfig` in
 `components/login/glow-config.ts` to make it the default for everyone.
-Escape or the shortcut closes the panel, and the glow goes back to following
+Escape or the shortcut closes the panel, and the colour goes back to following
 the flow.
 
 ## Frosted side sheet
@@ -98,7 +101,7 @@ returns to the row that opened it; Escape or a click outside closes it.
 
 - **Sign in**: a 10-digit mobile number, or a policy number (letters, digits
   and hyphens, 8 to 20 characters). Either leads to **Verify your number**. The
-  prototype sends no SMS: **2168** signs in; any other code turns the glow red,
+  prototype sends no SMS: **2168** signs in; any other code turns the wash red,
   explains, and clears the boxes. A full code verifies itself. There's a
   30-second resend timer and Change number.
 - **Segmented controls** are links, so every view has its own URL.
@@ -177,7 +180,7 @@ app/
   dashboard/policies/[id]/    Policy view
 components/
   login-form.tsx              Number step and code step
-  login/                      The sign-in glow and its colour ramps
+  login/                      The sign-in wash and its colour ramps
   claims/                     Claims support card and conversation
   ui/frosted-side-sheet/      The reusable sheet and its config
   dashboard/  policy/         Cards, timeline, empty state, policy view

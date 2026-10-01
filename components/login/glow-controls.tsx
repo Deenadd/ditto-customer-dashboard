@@ -1,18 +1,13 @@
 "use client";
 
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
-import {
-  defaultGlowConfig,
-  easingPresets,
-  setGlowConfig,
-  type GlowConfig,
-} from "./glow-config";
-import type { GlowPosition, GlowTone } from "./sign-in-gradient";
+import { defaultGlowConfig, setGlowConfig, type GlowConfig } from "./glow-config";
+import type { GlowTone } from "./sign-in-gradient";
 
-export type GlowPreview = { position: GlowPosition | "auto"; tone: GlowTone | "auto" };
+export type GlowPreview = { tone: GlowTone | "auto" };
 
 /**
- * Tuning panel for the sign-in glow, styled after the DD-Kitchen side sheet
+ * Tuning panel for the sign-in wash, styled after the DD-Kitchen side sheet
  * controls. Shift+Option+C opens and closes it; Escape closes it. Changes
  * apply live and are remembered in this browser. Copy config puts the JSON on
  * the clipboard, ready to become the defaults in glow-config.ts.
@@ -100,16 +95,6 @@ export function GlowControls({
       <div className="flex flex-col gap-4 overflow-y-auto overscroll-contain px-3 pb-3">
         <Section label="Preview">
           <Choice
-            label="Position"
-            value={preview.position}
-            options={[
-              ["auto", "Flow"],
-              ["bottom", "Bottom"],
-              ["top", "Top"],
-            ]}
-            onChange={(position) => onPreviewChange({ ...preview, position })}
-          />
-          <Choice
             label="Colour"
             value={preview.tone}
             options={[
@@ -118,65 +103,23 @@ export function GlowControls({
               ["red", "Red"],
               ["green", "Green"],
             ]}
-            onChange={(tone) => onPreviewChange({ ...preview, tone })}
+            onChange={(tone) => onPreviewChange({ tone })}
           />
         </Section>
 
-        <Section label="Size">
-          <Slider label="Radius" unit="dvh" min={20} max={120} step={1} value={config.radiusVh} onChange={(radiusVh) => set({ radiusVh })} />
-          <Slider label="Max radius" unit="vw" min={20} max={160} step={1} value={config.maxRadiusVw} onChange={(maxRadiusVw) => set({ maxRadiusVw })} />
-          <Slider label="Soft edge from" unit="%" min={30} max={95} step={0.5} value={config.featherStart} onChange={(featherStart) => set({ featherStart })} />
+        <Section label="Shape">
+          <Slider label="Height" unit="dvh" min={15} max={100} step={1} value={config.heightVh} onChange={(heightVh) => set({ heightVh })} />
+          <Slider label="Edge curve" min={0} max={1} step={0.01} value={config.curve} onChange={(curve) => set({ curve })} />
+          <Slider label="Soft edge" unit="%" min={5} max={90} step={1} value={config.softness} onChange={(softness) => set({ softness })} />
           <Slider label="Intensity" min={0} max={1} step={0.05} value={config.intensity} onChange={(intensity) => set({ intensity })} />
         </Section>
 
-        <Section label="Bottom position">
-          <Slider label="Below edge" unit="× r" min={-0.6} max={0.9} step={0.01} value={config.bottomOffset} onChange={(bottomOffset) => set({ bottomOffset })} />
-          <Slider label="Across" unit="%" min={0} max={100} step={1} value={config.bottomX} onChange={(bottomX) => set({ bottomX })} />
-          <Slider label="Scale" unit="×" min={0.2} max={2} step={0.01} value={config.bottomScale} onChange={(bottomScale) => set({ bottomScale })} />
-        </Section>
-
-        <Section label="Top position">
-          <Slider label="Above edge" unit="× r" min={-0.6} max={0.9} step={0.01} value={config.topOffset} onChange={(topOffset) => set({ topOffset })} />
-          <Slider label="Across" unit="%" min={0} max={100} step={1} value={config.topX} onChange={(topX) => set({ topX })} />
-          <Slider label="Scale" unit="×" min={0.2} max={2} step={0.01} value={config.topScale} onChange={(topScale) => set({ topScale })} />
+        <Section label="Blue dome">
+          <Slider label="Width" unit="%" min={10} max={150} step={1} value={config.coreWidth} onChange={(coreWidth) => set({ coreWidth })} />
+          <Slider label="Depth" unit="%" min={5} max={100} step={1} value={config.coreDepth} onChange={(coreDepth) => set({ coreDepth })} />
         </Section>
 
         <Section label="Animation">
-          <Slider label="Move duration" unit="ms" min={0} max={3000} step={50} value={config.moveDuration} onChange={(moveDuration) => set({ moveDuration })} />
-          <div className="flex flex-wrap gap-1.5 px-0.5">
-            {easingPresets.map((preset) => {
-              const active = preset.cubic.every((v, i) => v === config.cubic[i]);
-              return (
-                <button
-                  key={preset.label}
-                  type="button"
-                  aria-pressed={active}
-                  onClick={() => set({ cubic: preset.cubic })}
-                  className={`h-7 rounded-full px-3 text-[12px] transition-colors ${
-                    active ? "bg-white text-black" : "bg-[#1a1a1c] text-zinc-300 hover:bg-[#232326] hover:text-white"
-                  }`}
-                >
-                  {preset.label}
-                </button>
-              );
-            })}
-          </div>
-          <CurvePreview cubic={config.cubic} />
-          {(["x1", "y1", "x2", "y2"] as const).map((name, index) => (
-            <Slider
-              key={name}
-              label={`Curve ${name}`}
-              min={index % 2 === 0 ? 0 : -1}
-              max={index % 2 === 0 ? 1 : 2}
-              step={0.01}
-              value={config.cubic[index]}
-              onChange={(value) => {
-                const cubic = [...config.cubic] as GlowConfig["cubic"];
-                cubic[index] = value;
-                set({ cubic });
-              }}
-            />
-          ))}
           <Slider label="Colour change" unit="ms" min={0} max={2000} step={50} value={config.toneDuration} onChange={(toneDuration) => set({ toneDuration })} />
         </Section>
       </div>
@@ -292,23 +235,6 @@ function Choice<T extends string>({
           </button>
         ))}
       </div>
-    </div>
-  );
-}
-
-/** The easing curve, drawn so you can see its shape as you tune it. */
-function CurvePreview({ cubic }: { cubic: GlowConfig["cubic"] }) {
-  const [x1, y1, x2, y2] = cubic;
-  const map = (x: number, y: number) => `${6 + x * 88} ${64 - y * 58}`;
-  return (
-    <div className="rounded-[10px] bg-[#1a1a1c] p-2.5">
-      <svg viewBox="0 0 100 70" className="h-20 w-full" aria-label={`Easing curve ${cubic.join(", ")}`} role="img">
-        <line x1="6" y1="64" x2="94" y2="64" stroke="#2d2d33" strokeWidth="0.5" />
-        <line x1="6" y1="6" x2="94" y2="6" stroke="#2d2d33" strokeWidth="0.5" strokeDasharray="2 3" />
-        <line x1="6" y1="64" x2={6 + x1 * 88} y2={64 - y1 * 58} stroke="#52525b" strokeWidth="0.6" />
-        <line x1="94" y1="6" x2={6 + x2 * 88} y2={64 - y2 * 58} stroke="#52525b" strokeWidth="0.6" />
-        <path d={`M ${map(0, 0)} C ${map(x1, y1)}, ${map(x2, y2)}, ${map(1, 1)}`} fill="none" stroke="white" strokeWidth="1.4" strokeLinecap="round" />
-      </svg>
     </div>
   );
 }

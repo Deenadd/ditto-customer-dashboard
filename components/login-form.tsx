@@ -47,10 +47,9 @@ const ease = [0.23, 1, 0.32, 1] as const;
 
 /**
  * Sign in, in two steps. The logo, heading, subtitle and input row sit in
- * the same place on both steps; only the words change, and the glow moves.
- * It rises from the bottom while you enter a number, travels to the top for
- * the code, and turns red for a wrong code or green for the right one before
- * the dashboard opens.
+ * the same place on both steps; only the words change. A blue wash rests at
+ * the top throughout, and turns red for a wrong code or green for the right
+ * one before the dashboard opens.
  */
 export function SignInFlow() {
   const [step, setStep] = useState<"number" | "code">("number");
@@ -60,7 +59,7 @@ export function SignInFlow() {
   const reduced = useReducedMotion();
   const glow = useGlowConfig();
   const [controlsOpen, setControlsOpen] = useState(false);
-  const [preview, setPreview] = useState<GlowPreview>({ position: "auto", tone: "auto" });
+  const [preview, setPreview] = useState<GlowPreview>({ tone: "auto" });
 
   /* Shift+Option+C (Shift+Alt+C) reveals the glow controls. The key code is
      used because Option changes the typed character on a Mac. */
@@ -87,7 +86,6 @@ export function SignInFlow() {
     <>
       <SignInGradient
         config={glow}
-        position={preview.position === "auto" ? (step === "number" ? "bottom" : "top") : preview.position}
         tone={preview.tone === "auto" ? tone : preview.tone}
       />
       <GlowControls
@@ -95,14 +93,19 @@ export function SignInFlow() {
         onClose={() => {
           /* Hand the glow back to the flow when the panel closes. */
           setControlsOpen(false);
-          setPreview({ position: "auto", tone: "auto" });
+          setPreview({ tone: "auto" });
         }}
         config={glow}
         preview={preview}
         onPreviewChange={setPreview}
       />
 
-      <div className="flex w-full flex-col items-center px-6 pt-[max(56px,12dvh)] pb-12">
+      {/* Centred on screen. The two steps differ in height (394 and 458px from
+          logo to last line), so the column is centred on their midpoint, 424px,
+          rather than on whichever is showing. Both sit within 32px of true
+          centre, and the logo, heading and inputs stay put between steps and
+          when an error line appears; extra lines grow downward. */}
+      <div className="flex w-full flex-col items-center px-6 pt-[max(40px,calc((100dvh-424px)/2))] pb-12">
         <Image
           src="/brand/ditto-logo.png"
           alt="Ditto"
