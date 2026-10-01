@@ -231,7 +231,7 @@ function NumberStep({
           className={`flex h-[52px] w-full items-center rounded-control bg-surface pl-4 transition-shadow duration-150 ${
             invalid
               ? "shadow-[0_0_0_1.5px_var(--color-red-text)] has-[:focus-visible]:shadow-[0_0_0_2px_var(--color-red-text),0_0_0_6px_rgb(196_30_58_/_0.12)]"
-              : "shadow-[0_0_0_1px_rgb(0_0_0_/_0.1),0_1px_2px_rgb(0_0_0_/_0.04)] has-[:focus-visible]:shadow-[0_0_0_2px_var(--color-accent),0_0_0_6px_rgb(0_113_227_/_0.15)]"
+              : "shadow-field has-[:focus-visible]:shadow-[0_0_0_2px_var(--color-accent),0_0_0_6px_rgb(0_113_227_/_0.15)]"
           }`}
         >
           {mode === "mobile" ? (

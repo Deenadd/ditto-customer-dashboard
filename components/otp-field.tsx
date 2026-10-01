@@ -36,7 +36,7 @@ export const OtpField = forwardRef<
                 ? "shadow-[0_0_0_1.5px_var(--color-red-text)]"
                 : isActive
                   ? "shadow-[0_0_0_2px_var(--color-accent),0_0_0_6px_rgb(0_113_227_/_0.15)]"
-                  : "shadow-[0_0_0_1px_rgb(0_0_0_/_0.1),0_1px_2px_rgb(0_0_0_/_0.04)]"
+                  : "shadow-field"
             }`}
           >
             {digit ?? (isActive ? <span className="h-7 w-0.5 rounded-full bg-accent motion-safe:animate-caret" /> : null)}

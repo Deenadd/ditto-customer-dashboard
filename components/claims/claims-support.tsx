@@ -69,7 +69,7 @@ export function ClaimsSupport() {
                 }}
                 className="group flex h-16 w-full items-center gap-3 rounded-[14px] px-3 text-left transition-colors duration-150 ease-out hover:bg-fill active:bg-fill aria-expanded:bg-fill"
               >
-                <span className="grid size-11 shrink-0 place-items-center rounded-[11px] bg-surface text-accent shadow-[0_0_0_0.5px_rgb(0_0_0_/_0.08),0_1px_2px_rgb(0_0_0_/_0.06)]">
+                <span className="grid size-11 shrink-0 place-items-center rounded-[11px] bg-surface text-accent shadow-tile">
                   <Icon />
                 </span>
                 <span className="min-w-0 flex-1">

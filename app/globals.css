@@ -58,21 +58,35 @@
   --color-logo-tile: #d0eafe;
   --color-avatar: #cee4f9;
 
-  /* Elevation. Cards sit on a white page, so a 1px hairline draws the edge
-     and a soft ambient shadow lifts it. */
-  --shadow-card:
-    0 0 0 1px rgb(0 0 0 / 0.07),
-    0 1px 2px rgb(0 0 0 / 0.04),
-    0 8px 24px -12px rgb(0 0 0 / 0.1);
-  /* Lighter than a card: the hairline and a whisper of lift, for cards
-     that sit in a stack, like the claim flow's questions and answers. */
+  /* Elevation. Cards sit on a white page, so a hairline draws the edge and
+     stacked shadows lift it: each layer twice the reach of the last at a
+     lower opacity, so the falloff is smooth rather than one hard blur.
+     soft < tile < card < raised, from resting in a stack to floating. */
   --shadow-soft:
-    0 0 0 1px rgb(0 0 0 / 0.07),
-    0 1px 2px rgb(0 0 0 / 0.03);
+    0 0 0 1px rgb(0 0 0 / 0.06),
+    0 1px 1px rgb(0 0 0 / 0.02),
+    0 2px 4px -1px rgb(0 0 0 / 0.025);
+  --shadow-tile:
+    0 0 0 0.5px rgb(0 0 0 / 0.08),
+    0 1px 1px rgb(0 0 0 / 0.03),
+    0 2px 4px -1px rgb(0 0 0 / 0.04),
+    0 4px 8px -3px rgb(0 0 0 / 0.04);
+  --shadow-card:
+    0 0 0 1px rgb(0 0 0 / 0.06),
+    0 1px 1px rgb(0 0 0 / 0.02),
+    0 2px 4px -1px rgb(0 0 0 / 0.025),
+    0 6px 12px -4px rgb(0 0 0 / 0.035),
+    0 16px 32px -12px rgb(0 0 0 / 0.07);
   --shadow-raised:
     0 0 0 0.5px rgb(0 0 0 / 0.05),
-    0 4px 12px rgb(0 0 0 / 0.06),
-    0 24px 48px -16px rgb(0 0 0 / 0.16);
+    0 1px 2px rgb(0 0 0 / 0.03),
+    0 4px 8px -2px rgb(0 0 0 / 0.04),
+    0 12px 24px -6px rgb(0 0 0 / 0.06),
+    0 32px 56px -16px rgb(0 0 0 / 0.12);
+  /* Text fields: the edge, and the slightest inset weight. */
+  --shadow-field:
+    0 0 0 1px rgb(0 0 0 / 0.1),
+    0 1px 2px rgb(0 0 0 / 0.04);
   --shadow-thumb:
     0 0 0 0.5px rgb(0 0 0 / 0.04),
     0 3px 8px rgb(0 0 0 / 0.12),
@@ -141,18 +155,23 @@
   }
 }
 
-/* Translucent chrome: frosted over content, solid when transparency is off. */
+/* Translucent chrome: frosted over content, solid when transparency is off.
+   The -webkit- line comes first: the minifier keeps only the last of the
+   pair, and Chrome reads only the standard property. */
+/* 88% white with a 24px blur: frosted, but what's behind blurs to a smear
+   instead of showing through as a second line of text (popover lists sat
+   over the welcome card's heading at 72%). */
 .material-bar {
-  background-color: rgb(255 255 255 / 0.72);
-  backdrop-filter: saturate(180%) blur(20px);
-  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  background-color: rgb(255 255 255 / 0.88);
+  -webkit-backdrop-filter: saturate(180%) blur(24px);
+  backdrop-filter: saturate(180%) blur(24px);
 }
 
 @media (prefers-reduced-transparency: reduce) {
   .material-bar {
     background-color: var(--color-surface);
-    backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }
 
@@ -213,7 +232,7 @@
 
 @media (prefers-reduced-transparency: reduce) {
   .progressive-blur-layer {
-    backdrop-filter: none;
     -webkit-backdrop-filter: none;
+    backdrop-filter: none;
   }
 }

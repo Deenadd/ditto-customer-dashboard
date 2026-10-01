@@ -258,7 +258,7 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
 
 function TypeStep({ onCashless }: { onCashless: () => void }) {
   return (
-    <ul className="overflow-hidden rounded-[16px] bg-surface shadow-soft">
+    <ul className="overflow-hidden rounded-[18px] bg-surface shadow-soft">
       <li>
         <button
           type="button"
@@ -392,7 +392,7 @@ function TreatmentStep({
           }}
           placeholder="For example, knee surgery"
           autoComplete="off"
-          className="h-[52px] w-full rounded-control bg-surface px-4 text-[17px] leading-6 text-label shadow-[0_0_0_1px_rgb(0_0_0_/_0.12)] transition-shadow duration-150 placeholder:text-label-tertiary focus:shadow-[0_0_0_2px_var(--color-accent)] focus:outline-none"
+          className="h-[52px] w-full rounded-control bg-surface px-4 text-[17px] leading-6 text-label shadow-field transition-shadow duration-150 placeholder:text-label-tertiary focus:shadow-[0_0_0_2px_var(--color-accent)] focus:outline-none"
         />
         <div className="mt-3 flex justify-end">
           <Button variant="tinted" onClick={() => draft.treatment.trim() && next({})}>
@@ -548,7 +548,7 @@ function DateStep({ draft, set }: StepProps) {
             max={policyPeriod.end}
             onChange={(event) => set({ admission: event.target.value })}
             aria-describedby="admission-hint"
-            className="mt-2 h-[52px] w-full max-w-[320px] rounded-control bg-surface px-4 text-[17px] leading-6 text-label tabular-nums shadow-[0_0_0_1px_rgb(0_0_0_/_0.12)] transition-shadow duration-150 focus:shadow-[0_0_0_2px_var(--color-accent)] focus:outline-none"
+            className="mt-2 h-[52px] w-full max-w-[320px] rounded-control bg-surface px-4 text-[17px] leading-6 text-label tabular-nums shadow-field transition-shadow duration-150 focus:shadow-[0_0_0_2px_var(--color-accent)] focus:outline-none"
           />
           <p id="admission-hint" className="mt-2 text-[13px] leading-[18px] text-label-secondary tabular-nums">
             Your policy year runs from {formatDate(policyPeriod.start)} to {formatDate(policyPeriod.end)}.
@@ -602,7 +602,7 @@ function HospitalStep({ draft, set }: StepProps) {
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Search by hospital, city or PIN"
           autoComplete="off"
-          className="h-[52px] w-full rounded-control bg-surface pr-4 pl-11 text-[17px] leading-6 text-label shadow-[0_0_0_1px_rgb(0_0_0_/_0.12)] transition-shadow duration-150 placeholder:text-label-tertiary focus:shadow-[0_0_0_2px_var(--color-accent)] focus:outline-none"
+          className="h-[52px] w-full rounded-control bg-surface pr-4 pl-11 text-[17px] leading-6 text-label shadow-field transition-shadow duration-150 placeholder:text-label-tertiary focus:shadow-[0_0_0_2px_var(--color-accent)] focus:outline-none"
         />
       </div>
 
@@ -718,7 +718,7 @@ function HospitalStep({ draft, set }: StepProps) {
             onChange={(event) => setManual(event.target.value)}
             placeholder="For example, City General Hospital"
             autoComplete="off"
-            className="mt-2 h-[52px] w-full rounded-control bg-surface px-4 text-[17px] leading-6 text-label shadow-[0_0_0_1px_rgb(0_0_0_/_0.12)] transition-shadow duration-150 placeholder:text-label-tertiary focus:shadow-[0_0_0_2px_var(--color-accent)] focus:outline-none"
+            className="mt-2 h-[52px] w-full rounded-control bg-surface px-4 text-[17px] leading-6 text-label shadow-field transition-shadow duration-150 placeholder:text-label-tertiary focus:shadow-[0_0_0_2px_var(--color-accent)] focus:outline-none"
           />
           <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <Button

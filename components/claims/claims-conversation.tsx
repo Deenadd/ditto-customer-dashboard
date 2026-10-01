@@ -198,7 +198,7 @@ function ChoiceRow({ choice, onChoose }: { choice: Choice; onChoose: () => void 
     <button
       type="button"
       onClick={onChoose}
-      className="group flex min-h-16 w-full items-center gap-3 rounded-[14px] bg-surface py-2.5 pr-4 pl-3 text-left shadow-[0_0_0_0.5px_rgb(0_0_0_/_0.08),0_1px_3px_rgb(0_0_0_/_0.06)] transition-colors duration-150 ease-out active:bg-fill [@media(hover:hover)]:hover:bg-fill"
+      className="group flex min-h-16 w-full items-center gap-3 rounded-[14px] bg-surface py-2.5 pr-4 pl-3 text-left shadow-tile transition-colors duration-150 ease-out active:bg-fill [@media(hover:hover)]:hover:bg-fill"
     >
       {choice.insurer ? <InsurerLogo insurer={choice.insurer} size={40} /> : null}
       <span className="min-w-0 flex-1">
@@ -258,7 +258,7 @@ function EntryView({ entry }: { entry: Entry }) {
 }
 
 const outcomeCard =
-  "ml-12 rounded-[14px] bg-surface px-4 py-4 shadow-[0_0_0_0.5px_rgb(0_0_0_/_0.06),0_1px_3px_rgb(0_0_0_/_0.06)]";
+  "ml-12 rounded-[14px] bg-surface px-4 py-4 shadow-tile";
 
 function OutcomeCard({ outcome }: { outcome: Outcome }) {
   if (outcome.kind === "documents") return <DocumentChecklist outcome={outcome} />;

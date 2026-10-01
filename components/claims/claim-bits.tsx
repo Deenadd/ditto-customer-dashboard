@@ -29,9 +29,7 @@ export function ChoiceGroup({
     <fieldset>
       <legend className={showLabel ? "mb-3 text-[15px] leading-5 font-medium text-label" : "sr-only"}>{label}</legend>
       <div
-        className={`choice-group overflow-hidden rounded-[16px] bg-surface ${
-          nested ? "shadow-[0_0_0_1px_rgb(0_0_0_/_0.08)]" : "shadow-soft"
-        }`}
+        className={`choice-group overflow-hidden bg-surface ${nested ? "rounded-[14px] shadow-[0_0_0_1px_rgb(0_0_0_/_0.08)]" : "rounded-[18px] shadow-soft"}`}
         style={{ "--sep-inset": `${inset}px` } as CSSProperties}
       >
         {children}
@@ -102,7 +100,7 @@ export function ClaimingOn({ name }: { name: string }) {
 export function Note({ children, tone = "info" }: { children: ReactNode; tone?: "info" | "warning" }) {
   return (
     <p
-      className={`flex gap-2.5 rounded-[12px] px-3.5 py-3 text-[13px] leading-[18px] text-pretty ${
+      className={`flex gap-2.5 rounded-[14px] px-3.5 py-3 text-[13px] leading-[18px] text-pretty ${
         tone === "warning" ? "bg-orange-tint text-orange-text" : "bg-fill text-label-secondary"
       }`}
     >

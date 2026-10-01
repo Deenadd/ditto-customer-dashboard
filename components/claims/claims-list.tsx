@@ -65,7 +65,7 @@ export function ClaimsList({ customer, view, deleted }: { customer: Customer; vi
           </ul>
         ) : (
           <div className="flex flex-col items-center px-6 py-12 text-center">
-            <span className="grid size-14 place-items-center rounded-[16px] bg-accent-tint text-accent">
+            <span className="grid size-14 place-items-center rounded-[14px] bg-accent-tint text-accent">
               <IconClaim size={26} />
             </span>
             <p className="mt-4 text-[17px] leading-[22px] font-semibold text-label">

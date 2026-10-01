@@ -99,7 +99,7 @@ export function CoveredCard({ items }: { items: CoverItem[] }) {
       <ul className="mt-4 grid gap-x-6 gap-y-5 sm:grid-cols-2">
         {items.map((item) => (
           <li key={item.title} className="flex items-start gap-3.5">
-            <span className="grid size-11 shrink-0 place-items-center rounded-[12px] bg-accent-tint">
+            <span className="grid size-11 shrink-0 place-items-center rounded-[11px] bg-accent-tint">
               <CoverGlyph icon={item.icon} size={24} />
             </span>
             <div className="min-w-0 pt-0.5">
