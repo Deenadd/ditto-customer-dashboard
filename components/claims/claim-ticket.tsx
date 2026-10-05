@@ -2,6 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { animate, useReducedMotion } from "motion/react";
+import { TicketControls } from "@/components/claims/ticket-controls";
+import { useTicketConfig } from "@/components/claims/ticket-config";
 import { Button } from "@/components/ui/buttons";
 import { categoryLabel, formatDate, type Claim } from "@/lib/claims";
 
@@ -12,17 +14,39 @@ import { categoryLabel, formatDate, type Claim } from "@/lib/claims";
  * foot shows first; then a "Request received" stamp lands on it.
  *
  * It runs once per claim and on Print again, a rare moment, so it can take
- * its time (about 2.6s) and carry a little bounce on the stamp. Reduced
+ * its time (about 2.6s) and carry a little bounce on the stamp. Every value
+ * comes from TicketConfig, tuned in the print panel (Shift+Option+C). Reduced
  * motion shows the finished ticket with a short fade. The paper moves by
  * transform only; the slot clips it, so it never covers the page.
  */
 
-/* Feed in pulls with short pauses, by share of the ticket's height hidden. */
-const FEED = {
-  transform: ["translateY(-100%)", "translateY(-74%)", "translateY(-72%)", "translateY(-44%)", "translateY(-42%)", "translateY(-14%)", "translateY(-12%)", "translateY(0%)"],
-};
-const FEED_TIMES = [0, 0.22, 0.3, 0.52, 0.6, 0.82, 0.9, 1];
-const FEED_MS = 2100;
+/* Pulls mode: the paper moves for part of each pull and rests for the rest,
+   from fully hidden (-100%) to out (0%). */
+function pullKeyframes(pulls: number, pause: number) {
+  const values = ["translateY(-100%)"];
+  const times = [0];
+  for (let k = 1; k <= pulls; k++) {
+    const start = (k - 1) / pulls;
+    const at = `translateY(${-100 + (100 * k) / pulls}%)`;
+    values.push(at);
+    times.push(start + (1 - pause) / pulls);
+    if (k < pulls) {
+      values.push(at);
+      times.push(k / pulls);
+    }
+  }
+  times[times.length - 1] = 1;
+  return { values, times };
+}
+
+/* A spring that runs at `speed` (0.25 is four times slower): time scales by
+   1/speed when stiffness scales by speed² and damping by speed. */
+const slowed = (stiffness: number, damping: number, mass: number, speed: number) => ({
+  type: "spring" as const,
+  stiffness: stiffness * speed * speed,
+  damping: damping * speed,
+  mass,
+});
 
 /** Bars from the reference, so every ticket's barcode is its own and stable. */
 function bars(seed: string) {
@@ -65,52 +89,120 @@ export function ClaimTicket({
   const [done, setDone] = useState(false);
   const viewRef = useRef<HTMLButtonElement>(null);
 
+  /* The latest tuning, read when a print starts, so dragging a slider
+     doesn't restart the print; Print again plays the new values. */
+  const config = useTicketConfig();
+  const configRef = useRef(config);
+  useEffect(() => {
+    configRef.current = config;
+  });
+
   useEffect(() => {
     const paper = paperRef.current;
     const stamp = stampRef.current;
     const printer = printerRef.current;
     if (!paper || !stamp || !printer) return;
+    const c = configRef.current;
     let cancelled = false;
     const controls: { stop: () => void }[] = [];
+    const timers: number[] = [];
+    const later = (ms: number, fn: () => void) => timers.push(window.setTimeout(() => !cancelled && fn(), ms));
 
     if (reduced) {
       paper.style.transform = "none";
       stamp.style.opacity = "1";
-      stamp.style.transform = "rotate(-10deg)";
+      stamp.style.transform = `rotate(${c.stampTilt}deg)`;
       controls.push(animate(paper, { opacity: [0, 1] }, { duration: 0.25 }));
-      const t = window.setTimeout(() => setDone(true), 250);
-      return () => window.clearTimeout(t);
+      later(250, () => setDone(true));
+      return () => {
+        cancelled = true;
+        timers.forEach(window.clearTimeout);
+      };
     }
 
+    const speed = c.speed;
+    const setFeed = (share: number) => (paper.style.transform = `translateY(${(share - 1) * 100}%)`);
+    const setStamp = (v: number) => {
+      const scale = c.stampFrom + (1 - c.stampFrom) * v;
+      const tilt = c.stampTiltFrom + (c.stampTilt - c.stampTiltFrom) * v;
+      stamp.style.transform = `scale(${scale}) rotate(${tilt}deg)`;
+      stamp.style.opacity = String(Math.min(1, Math.max(0, v * 4)));
+    };
     paper.style.opacity = "1";
-    stamp.style.opacity = "0";
-    controls.push(animate(paper, FEED, { duration: FEED_MS / 1000, times: FEED_TIMES, ease: "easeOut" }));
+    setFeed(0);
+    setStamp(0);
+
     /* The printer hums while it feeds. */
-    controls.push(
-      animate(printer, { transform: ["translateY(0px)", "translateY(0.6px)", "translateY(0px)"] }, { duration: 0.12, repeat: 16, ease: "linear" }),
-    );
-    const stampAt = window.setTimeout(() => {
+    const hum =
+      c.hum > 0
+        ? animate(
+            printer,
+            { transform: ["translateY(0px)", `translateY(${c.hum}px)`, "translateY(0px)"] },
+            { duration: c.humSpeed / 1000 / speed, repeat: Infinity, ease: "linear" },
+          )
+        : null;
+    if (hum) controls.push(hum);
+
+    function stampIt() {
+      later(c.stampDelay / speed, () => {
+        controls.push(
+          animate(0, 1, {
+            ...slowed(c.stampStiffness, c.stampDamping, c.stampMass, speed),
+            onUpdate: setStamp,
+          }),
+        );
+        /* The paper takes the knock as the stamp lands. */
+        if (c.knock > 0)
+          later(90 / speed, () =>
+            controls.push(
+              animate(paper, { transform: ["translateY(0px)", `translateY(${c.knock}px)`, "translateY(0px)"] }, { duration: 0.22 / speed, ease: "easeOut" }),
+            ),
+          );
+        later(420 / speed, () => setDone(true));
+      });
+    }
+
+    function fed() {
       if (cancelled) return;
-      controls.push(
-        animate(
-          stamp,
-          { opacity: [0, 1], transform: ["scale(1.9) rotate(-22deg)", "scale(1) rotate(-10deg)"] },
-          { type: "spring", duration: 0.45, bounce: 0.35 },
-        ),
-      );
-      /* The paper takes the knock. */
-      controls.push(
-        animate(paper, { transform: ["translateY(0px)", "translateY(3px)", "translateY(0px)"] }, { duration: 0.22, delay: 0.12, ease: "easeOut" }),
-      );
-      window.setTimeout(() => !cancelled && setDone(true), 420);
-    }, FEED_MS + 150);
+      hum?.stop();
+      printer!.style.transform = "none";
+      setFeed(1);
+      stampIt();
+    }
+
+    if (c.feedMode === "spring") {
+      const feed = animate(0, 1, { ...slowed(c.feedStiffness, c.feedDamping, c.feedMass, speed), onUpdate: setFeed });
+      controls.push(feed);
+      feed.then(fed);
+    } else {
+      const { values, times } = pullKeyframes(Math.max(1, Math.round(c.pulls)), c.pause);
+      const feed = animate(paper, { transform: values }, { duration: c.feedDuration / 1000 / speed, times, ease: "easeOut" });
+      controls.push(feed);
+      feed.then(fed);
+    }
 
     return () => {
       cancelled = true;
-      window.clearTimeout(stampAt);
-      controls.forEach((c) => c.stop());
+      timers.forEach(window.clearTimeout);
+      controls.forEach((ctl) => ctl.stop());
     };
   }, [run, reduced]);
+
+  /* Shift+Option+C toggles the print panel. */
+  const [panel, setPanel] = useState(false);
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!(event.altKey && event.shiftKey && event.code === "KeyC")) return;
+      event.preventDefault();
+      setPanel((open) => !open);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+  const replay = () => {
+    setDone(false);
+    setRun((n) => n + 1);
+  };
 
   /* Once printed, the main action takes focus. */
   useEffect(() => {
@@ -208,14 +300,12 @@ export function ClaimTicket({
           variant="plain"
           size="large"
           className="w-full"
-          onClick={() => {
-            setDone(false);
-            setRun((n) => n + 1);
-          }}
+          onClick={replay}
         >
           Print again
         </Button>
       </div>
+      <TicketControls open={panel} onClose={() => setPanel(false)} onReplay={replay} />
     </div>
   );
 }

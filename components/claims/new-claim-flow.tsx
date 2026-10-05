@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ChoiceCard, ChoiceGroup, ClaimingOn, Note } from "@/components/claims/claim-bits";
 import { ClaimTicket } from "@/components/claims/claim-ticket";
+import { defaultSideSheetConfig, hexToRgb } from "@/components/ui/frosted-side-sheet/config";
 import { Chevron } from "@/components/dashboard/policy-pair";
 import { Asset } from "@/components/ui/asset";
 import { BackLink } from "@/components/ui/back-link";
@@ -46,6 +47,21 @@ const steps = [
 ];
 
 const ease = [0.23, 1, 0.32, 1] as const;
+
+/* The side sheet's material (config: 28px blur, #F7F7F7 at 72%). */
+const sheet = defaultSideSheetConfig;
+const barMask = "linear-gradient(to bottom, transparent, #000 40px)";
+const barBlur: CSSProperties = {
+  WebkitBackdropFilter: `blur(${sheet.blurStrength}px) saturate(180%)`,
+  backdropFilter: `blur(${sheet.blurStrength}px) saturate(180%)`,
+  WebkitMaskImage: barMask,
+  maskImage: barMask,
+};
+const barTint: CSSProperties = {
+  background: `rgb(${Object.values(hexToRgb(sheet.sheetColor)).join(" ")} / ${sheet.sheetTint})`,
+  WebkitMaskImage: barMask,
+  maskImage: barMask,
+};
 
 const today = () => {
   const now = new Date();
@@ -236,9 +252,13 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
       </div>
 
       {step > 0 ? (
-        /* Above the dashboard's bottom progressive blur (z-20), which would wash it out. */
-        <div className="material-bar sticky bottom-0 z-30 shadow-[0_-0.5px_0_rgb(0_0_0_/_0.08)]">
-          <div className="mx-auto flex w-full max-w-[640px] items-center gap-4 px-4 py-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:px-6">
+        /* Above the dashboard's bottom progressive blur (z-20), which would
+           wash it out. Finished like the side sheet: its blur and tint, faded
+           in through a mask over the 40px above the bar, so there's no edge. */
+        <div className="sticky bottom-0 z-30">
+          <div aria-hidden className="bar-blur pointer-events-none absolute inset-x-0 -top-10 bottom-0" style={barBlur} />
+          <div aria-hidden className="bar-tint pointer-events-none absolute inset-x-0 -top-10 bottom-0" style={barTint} />
+          <div className="relative mx-auto flex w-full max-w-[640px] items-center gap-4 px-4 py-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:px-6">
             <div className="min-w-0 flex-1">
               <div
                 role="progressbar"

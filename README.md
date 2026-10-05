@@ -205,6 +205,13 @@ page's one filled action, and the open claims once there are any.
   receipt animation): it feeds out of a printer slot in short pulls, torn
   edge and barcode first, then a "Request received" stamp lands. View claim
   opens it; Print again replays it. Reduced motion shows it finished.
+  On the ticket, **Shift+Option+C** opens print controls: feed as pulls
+  (duration, count, pause) or a spring (stiffness, damping, mass), the
+  printer's hum, and the stamp's delay, start size and tilt, landing tilt,
+  spring and knock, with ½×, ¼× and ⅒× speed to check the feel. Copy config
+  gives the JSON for `components/claims/ticket-config.ts`.
+- **Continue bar** in the claim flow uses the side sheet's material (28px
+  blur, #F7F7F7 at 72%), faded in over 40px so it has no top edge.
 - **Claims:** Active and Past, with an empty state. After a delete it says
   which claim went.
 
