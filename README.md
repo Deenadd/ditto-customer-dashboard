@@ -124,7 +124,7 @@ returns to the row that opened it; Escape or a click outside closes it.
   foil shifts. Reduced motion keeps the glare and drops the tilt; touch
   screens, with no hover, get none of it.
 
-- **Ditto Buddy** (home page, after Plum's "Ask Plum AI") opens the side
+- **Ditto Buddy** (home page, in place of Claims support; after Plum's "Ask Plum AI") opens the side
   sheet with the claims chat from a greeting, plus a text box. Typed
   questions are matched by keywords to the topic that answers them, and
   anything else gets an honest "I can't answer that yet" with topics.
