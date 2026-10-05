@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import type { CSSProperties } from "react";
-import { isLightCard, useCardConfig, type CardPalette, type CardTone } from "@/components/dashboard/card-config";
+import { useCardConfig, type CardPalette, type CardTone } from "@/components/dashboard/card-config";
 import { Asset } from "@/components/ui/asset";
 import { GlareFace, GlareGroup } from "@/components/ui/glare";
 import { IconCheck } from "@/components/ui/icons";
@@ -32,23 +32,16 @@ export function frameBackground(palette: CardPalette): CSSProperties {
 const face =
   "relative isolate flex h-full flex-col overflow-hidden rounded-[16px] shadow-card transition-shadow duration-200 ease-out [@media(hover:hover)]:group-has-[a:hover]:shadow-raised";
 
-/* White inset card: 12px corners inside the 16px frame and its 8px margin.
-   A light (plastic) card has no inset: its facts sit on the card itself. */
-const insetPanel =
+/* White inset card: 12px corners inside the 16px frame and its 8px margin. */
+const inset =
   "rounded-[12px] bg-surface drop-shadow-[0px_58px_11.5px_rgba(0,0,0,0.01)] drop-shadow-[0px_33px_10px_rgba(0,0,0,0.05)] drop-shadow-[0px_15px_7.5px_rgba(0,0,0,0.09)] drop-shadow-[0px_4px_4px_rgba(0,0,0,0.1)]";
-const inset = (light: boolean) => (light ? "rounded-[12px]" : insetPanel);
 
-/** Light catching the card's top edge, and its shade along the bottom;
-    gentler on a light card, as on moulded plastic. */
-function Bevel({ light }: { light: boolean }) {
+/** Light catching the frame's top edge, and its shade along the bottom. */
+function Bevel() {
   return (
     <div
       aria-hidden
-      className={`pointer-events-none absolute inset-0 rounded-[inherit] ${
-        light
-          ? "shadow-[inset_0px_1px_0px_0px_rgba(255,255,255,1),inset_0px_0px_0px_1px_rgba(0,0,0,0.04),inset_0px_-2px_6px_0px_rgba(0,0,0,0.05)]"
-          : "shadow-[inset_0px_1px_4px_0px_rgba(255,255,255,0.49),inset_0px_-1px_4px_0px_rgba(0,0,0,0.25)]"
-      }`}
+      className="pointer-events-none absolute inset-0 rounded-[inherit] shadow-[inset_0px_1px_4px_0px_rgba(255,255,255,0.49),inset_0px_-1px_4px_0px_rgba(0,0,0,0.25)]"
     />
   );
 }
@@ -107,7 +100,6 @@ export function PolicyCardPair({
   const config = useCardConfig();
   const palette = config[tone];
   const frame = frameBackground(palette);
-  const light = isLightCard(palette);
 
   return (
     <GlareGroup settings={config} className={`group relative grid gap-4 [&>*]:min-w-0 ${stacked ? "" : "sm:grid-cols-2"}`}>
@@ -124,7 +116,7 @@ export function PolicyCardPair({
             <Wave box="inset-[66.41%_-23.7%_-58.37%_69.06%]" src={art("back-wave-3.svg")} color={palette.wave} />
           </div>
 
-          <div className={`${inset(light)} m-2 mb-0 flex flex-1 flex-col gap-5 px-5 pt-5 pb-5`}>
+          <div className={`${inset} m-2 mb-0 flex flex-1 flex-col gap-5 px-5 pt-5 pb-5`}>
             {policy.people.layout === "members" ? (
               <PeopleGroup label="Member details" members={policy.people.members} />
             ) : (
@@ -134,10 +126,8 @@ export function PolicyCardPair({
               </>
             )}
           </div>
-          <p className={`px-4 py-2.5 text-center text-[12px] leading-4 font-medium ${light ? "text-label-secondary" : "text-white"}`}>
-            {captions[tone]}
-          </p>
-          <Bevel light={light} />
+          <p className="px-4 py-2.5 text-center text-[12px] leading-4 font-medium text-white">{captions[tone]}</p>
+          <Bevel />
         </article>
       </GlareFace>
 
@@ -169,7 +159,6 @@ export function PolicyCardFront({
     { label: "Coverage type", value: policy.coverageType },
     policy.term,
   ];
-  const light = isLightCard(palette);
   return (
     <article aria-label={policy.name} className={`${face} min-h-[237px]`} style={frameBackground(palette)}>
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
@@ -184,16 +173,16 @@ export function PolicyCardFront({
       </div>
 
       <div className={`flex items-center gap-3 px-4 pt-4 ${download ? "pr-[164px]" : ""}`}>
-        <span className={`shrink-0 rounded-[12px] ${light ? "" : "border-2 border-white shadow-[0px_6px_24px_0px_rgba(0,0,0,0.07)]"}`}>
+        <span className="shrink-0 rounded-[12px] border-2 border-white shadow-[0px_6px_24px_0px_rgba(0,0,0,0.07)]">
           <InsurerLogo insurer={policy.insurer} size={40} />
         </span>
-        <div className={`min-w-0 ${light ? "text-label" : "text-white"}`}>
+        <div className="min-w-0 text-white">
           <h3 className={`text-[16px] leading-5 font-semibold tracking-[-0.01em] ${download ? "line-clamp-2 text-balance" : "truncate"}`}>{policy.name}</h3>
-          <p className={`mt-0.5 text-[12px] leading-4 font-medium ${light ? "text-label-secondary" : ""}`}>{policy.kind}</p>
+          <p className="mt-0.5 text-[12px] leading-4 font-medium">{policy.kind}</p>
         </div>
       </div>
 
-      <dl className={`${inset(light)} mx-2 mt-3 mb-2 grid flex-1 grid-cols-2 content-center gap-x-4 gap-y-7 px-5 py-6`}>
+      <dl className={`${inset} mx-2 mt-3 mb-2 grid flex-1 grid-cols-2 content-center gap-x-4 gap-y-7 px-5 py-6`}>
         {fields.map((field) => (
           <div key={field.label} className="min-w-0">
             <dt className="text-[12px] leading-4 text-label-secondary">{field.label}</dt>
@@ -202,7 +191,7 @@ export function PolicyCardFront({
         ))}
       </dl>
       {download ? <DownloadPill policy={policy} palette={palette} /> : null}
-      <Bevel light={light} />
+      <Bevel />
     </article>
   );
 }
@@ -237,22 +226,13 @@ function DownloadPill({ policy, palette }: { policy: ActivePolicy; palette: Card
 /** The card in miniature: its frame and white inset, for showing which policy something is on. */
 export function MiniPolicyCard({ tone }: { tone: CardTone }) {
   const palette = useCardConfig()[tone];
-  const light = isLightCard(palette);
   return (
     <span
       aria-hidden
-      className="relative block h-[30px] w-[46px] shrink-0 overflow-hidden rounded-[7px] shadow-[0_0_0_0.5px_rgb(0_0_0_/_0.08),0_1px_3px_rgb(0_0_0_/_0.12)]"
+      className="relative block h-[30px] w-[46px] shrink-0 overflow-hidden rounded-[7px] shadow-[0_1px_3px_rgb(0_0_0_/_0.12)]"
       style={frameBackground(palette)}
     >
-      {light ? (
-        <>
-          {/* The blue rings, as two arcs in the top-right corner. */}
-          <span className="absolute -top-3 -right-3 size-8 rounded-full border-[1.5px]" style={{ borderColor: palette.wave }} />
-          <span className="absolute -top-5 -right-5 size-12 rounded-full border-[1.5px] opacity-60" style={{ borderColor: palette.wave }} />
-        </>
-      ) : (
-        <span className="absolute inset-x-[3px] top-[11px] bottom-[3px] rounded-[4px] bg-white" />
-      )}
+      <span className="absolute inset-x-[3px] top-[11px] bottom-[3px] rounded-[4px] bg-white" />
       <span className="absolute inset-0 rounded-[inherit] shadow-[inset_0px_1px_2px_0px_rgba(255,255,255,0.49),inset_0px_-1px_2px_0px_rgba(0,0,0,0.2)]" />
     </span>
   );
