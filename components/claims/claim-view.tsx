@@ -17,6 +17,7 @@ import {
   deleteClaim,
   formatDate,
   rupees,
+  typeLabel,
   stageLabel,
   useClaims,
   useHydrated,
@@ -117,13 +118,19 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
       <BackLink href={claimsHref(policyDetail.id, customer)}>All claims</BackLink>
 
       <header className="mt-4">
+        {/* Named for where and who, so claims tell apart at a glance. */}
         <h1 className="text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label">
-          {reimbursement ? "Your reimbursement claim" : "Your cashless claim"}
+          {claim.hospital?.name ?? `${typeLabel(claim)} claim`}
+          <span className="text-label-secondary max-sm:block">
+            <span aria-hidden className="max-sm:hidden"> · </span>
+            <span className="sr-only">, for </span>
+            {claim.patient.name}
+          </span>
         </h1>
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
           <StatusPill status="received" />
           <span className="text-[13px] leading-[18px] text-label-secondary tabular-nums">
-            Requested {formatDate(claim.createdAt)}
+            {claim.hospital ? `${typeLabel(claim)} claim · ` : ""}Requested {formatDate(claim.createdAt)}
           </span>
           <span role="status" className="sr-only">
             {copied ? "Reference copied." : ""}
