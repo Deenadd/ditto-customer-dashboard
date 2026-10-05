@@ -1,6 +1,8 @@
+"use client";
+
+import { useState, type ReactNode } from "react";
 import { Monogram } from "@/components/dashboard/policy-pair";
 import { Asset } from "@/components/ui/asset";
-import { Button } from "@/components/ui/buttons";
 import { AddOnChips, FieldItem, cardClass } from "@/components/ui/card-bits";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
 import type { CoverIcon, CoverItem, Exclusion } from "@/lib/policy-detail";
@@ -8,7 +10,7 @@ import { policyDetail } from "@/lib/policy-detail";
 
 const cardTitle = "text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label";
 
-/** Large-title header for the policy page: icon, name, status, download. */
+/** Large-title header for the policy page: the insurer and the name. */
 export function PolicyHeader({ policy }: { policy: typeof policyDetail }) {
   return (
     /* The logo's top lines up with the title's first line. */
@@ -19,18 +21,6 @@ export function PolicyHeader({ policy }: { policy: typeof policyDetail }) {
           {policy.name}
         </h1>
       </div>
-      <Button variant="tinted" size="medium" className="self-center max-sm:ml-[72px]">
-        <svg aria-hidden width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path
-            d="M8 2v8.5m0 0L4.75 7.25M8 10.5l3.25-3.25M2.75 13.25h10.5"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-        Download policy
-      </Button>
     </header>
   );
 }
@@ -89,10 +79,7 @@ export function CoverGlyph({ icon, size }: { icon: CoverIcon; size: number }) {
 /** What's covered: two columns of benefits, each on its own icon tile. */
 export function CoveredCard({ items }: { items: CoverItem[] }) {
   return (
-    <section aria-labelledby="covered-title" className={`${cardClass} p-5`}>
-      <h2 id="covered-title" className={cardTitle}>
-        What&rsquo;s covered
-      </h2>
+    <Collapsible id="covered" title="What’s covered" summary={`${items.length} benefits`}>
       <ul className="mt-4 grid gap-x-6 gap-y-5 sm:grid-cols-2">
         {items.map((item) => (
           <li key={item.title} className="flex items-start gap-3.5">
@@ -108,17 +95,14 @@ export function CoveredCard({ items }: { items: CoverItem[] }) {
           </li>
         ))}
       </ul>
-    </section>
+    </Collapsible>
   );
 }
 
 /** What's not covered. */
 export function NotCoveredCard({ items }: { items: Exclusion[] }) {
   return (
-    <section aria-labelledby="not-covered-title" className={`${cardClass} p-5`}>
-      <h2 id="not-covered-title" className={cardTitle}>
-        What&rsquo;s not covered
-      </h2>
+    <Collapsible id="not-covered" title="What’s not covered" summary={`${items.length} exclusions`}>
       <ul className="mt-3 overflow-hidden rounded-[14px] bg-fill">
         {items.map((item, index) => (
           <li key={item.label} className="relative flex items-center gap-3 px-4 py-3">
@@ -130,6 +114,55 @@ export function NotCoveredCard({ items }: { items: Exclusion[] }) {
           </li>
         ))}
       </ul>
+    </Collapsible>
+  );
+}
+
+/**
+ * A card that folds on phones. Below 640px the title is a button with a
+ * count, closed at first, and the content opens with a grid-rows transition;
+ * from 640px the plain title shows and the content is always open. Pure CSS
+ * decides which, so nothing shifts once the page loads.
+ */
+function Collapsible({ id, title, summary, children }: { id: string; title: string; summary: string; children: ReactNode }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <section aria-labelledby={`${id}-title`} className={`${cardClass} p-5 max-sm:py-0`}>
+      <h2 id={`${id}-title`} className={`${cardTitle} max-sm:hidden`}>
+        {title}
+      </h2>
+      <h2 className="sm:hidden">
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls={`${id}-body`}
+          onClick={() => setOpen((value) => !value)}
+          className="-mx-5 flex min-h-16 w-[calc(100%+40px)] items-center gap-3 px-5 text-left"
+        >
+          <span className="flex-1">
+            <span className={`block ${cardTitle}`}>{title}</span>
+            <span className="block text-[13px] leading-[18px] text-label-secondary">{summary}</span>
+          </span>
+          <svg
+            aria-hidden
+            width="12"
+            height="8"
+            viewBox="0 0 12 8"
+            fill="none"
+            className={`shrink-0 text-label-tertiary transition-transform duration-200 ease-out ${open ? "rotate-180" : ""}`}
+          >
+            <path d="M1.25 1.5 6 6.25l4.75-4.75" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+      </h2>
+      <div
+        id={`${id}-body`}
+        className={`grid transition-[grid-template-rows,visibility] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] sm:grid-rows-[1fr] ${
+          open ? "grid-rows-[1fr]" : "grid-rows-[0fr] max-sm:invisible"
+        }`}
+      >
+        <div className={`min-h-0 overflow-hidden ${open ? "max-sm:pb-5" : ""}`}>{children}</div>
+      </div>
     </section>
   );
 }

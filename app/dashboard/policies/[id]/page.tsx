@@ -10,8 +10,12 @@ import {
   PolicyHeader,
   PolicySummaryCard,
 } from "@/components/policy/policy-detail-cards";
-import { ClaimsSupport } from "@/components/claims/claims-support";
 import { covered, notCovered, policyDetail } from "@/lib/policy-detail";
+import { activePolicyGroups } from "@/lib/dashboard-data";
+import { PolicyCardPair } from "@/components/dashboard/health-card";
+
+/* The policy as the dashboard draws it, for the card. */
+const healthCard = activePolicyGroups.flatMap((group) => group.items).find((item) => item.id === policyDetail.id)!;
 import { dashboardHref, readDashboardState } from "@/lib/routes";
 
 export const metadata: Metadata = {
@@ -39,17 +43,16 @@ export default async function PolicyPage({
         <div className="mt-4 grid gap-x-8 gap-y-6 lg:grid-cols-[minmax(0,750px)_330px] lg:justify-between">
           <div className="flex min-w-0 flex-col gap-6">
             <PolicyHeader policy={policyDetail} />
+            <PolicyCardPair policy={healthCard} tone="blue" download />
             <PolicySummaryCard policy={policyDetail} />
             <CoveredCard items={covered} />
             <NotCoveredCard items={notCovered} />
           </div>
-          {/* Three cards are taller than most windows, so the column only
-              sticks when there's room for all of it. */}
+          {/* Two tall cards: the column only sticks when there's room for both. */}
           <aside
             aria-label="Claims and support"
             className="flex flex-col gap-6 self-start lg:top-24 lg:[@media(min-height:1080px)]:sticky"
           >
-            <ClaimsSupport />
             <PolicyClaimsCard policyId={policyDetail.id} customer={customer} />
             <QuickActions />
           </aside>

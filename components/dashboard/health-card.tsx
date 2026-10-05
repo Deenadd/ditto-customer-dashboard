@@ -102,7 +102,7 @@ export function PolicyCardPair({
   const frame = frameBackground(palette);
 
   return (
-    <GlareGroup settings={config} className={`group relative grid gap-4 ${stacked ? "" : "sm:grid-cols-2"}`}>
+    <GlareGroup settings={config} className={`group relative grid gap-4 [&>*]:min-w-0 ${stacked ? "" : "sm:grid-cols-2"}`}>
       <GlareFace>
         <PolicyCardFront policy={policy} palette={palette} download={download} />
       </GlareFace>
@@ -172,12 +172,12 @@ export function PolicyCardFront({
         </div>
       </div>
 
-      <div className={`flex items-center gap-3 px-4 pt-4 ${download ? "pr-40" : ""}`}>
+      <div className={`flex items-center gap-3 px-4 pt-4 ${download ? "pr-[164px]" : ""}`}>
         <span className="shrink-0 rounded-[12px] border-2 border-white shadow-[0px_6px_24px_0px_rgba(0,0,0,0.07)]">
           <InsurerLogo insurer={policy.insurer} size={40} />
         </span>
         <div className="min-w-0 text-white">
-          <h3 className="truncate text-[16px] leading-5 font-semibold tracking-[-0.01em]">{policy.name}</h3>
+          <h3 className={`text-[16px] leading-5 font-semibold tracking-[-0.01em] ${download ? "line-clamp-2 text-balance" : "truncate"}`}>{policy.name}</h3>
           <p className="mt-0.5 text-[12px] leading-4 font-medium">{policy.kind}</p>
         </div>
       </div>

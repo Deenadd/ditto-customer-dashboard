@@ -17,20 +17,10 @@ const icons: Record<TopicId, Icon> = {
 };
 
 /**
- * Claims support: four common questions. Choosing one opens the frosted side
- * sheet with that conversation; while it's open, the other rows dim to 40%
- * so the one you chose stays clear.
+ * Claims support: four common questions in a card. Choosing one opens the
+ * frosted sheet with that conversation (see ClaimsTopics).
  */
 export function ClaimsSupport() {
-  const [openTopic, setOpenTopic] = useState<TopicId | null>(null);
-  /* The last topic stays rendered while the sheet slides out. */
-  const [shownTopic, setShownTopic] = useState<TopicId | null>(null);
-  /* A new session remounts the conversation, even for the same topic. */
-  const [session, setSession] = useState(0);
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
-  const reduced = useReducedMotion();
-  const topic = topics.find((item) => item.id === shownTopic);
-
   return (
     <section aria-labelledby="claims-title" className={`${cardClass} pb-2`}>
       <div className="px-5 pt-5">
@@ -44,10 +34,41 @@ export function ClaimsSupport() {
           Answers to common questions, one step at a time.
         </p>
       </div>
+      <ClaimsTopics className="mt-3 px-2" />
+    </section>
+  );
+}
 
-      <ul className="mt-3 flex flex-col gap-0.5 px-2">
-        {topics.map((item) => {
-          const Icon = icons[item.id];
+/**
+ * The claims questions as rows, each opening the frosted sheet with its
+ * conversation; while it's open, the other rows dim to 40% so the one you
+ * chose stays clear. `only` picks which topics show.
+ */
+export function ClaimsTopics({
+  only,
+  rename,
+  className = "",
+}: {
+  only?: TopicId[];
+  /** Different wording for a topic where its usual label would clash. */
+  rename?: Partial<Record<TopicId, { label: string; hint: string }>>;
+  className?: string;
+}) {
+  const [openTopic, setOpenTopic] = useState<TopicId | null>(null);
+  /* The last topic stays rendered while the sheet slides out. */
+  const [shownTopic, setShownTopic] = useState<TopicId | null>(null);
+  /* A new session remounts the conversation, even for the same topic. */
+  const [session, setSession] = useState(0);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const reduced = useReducedMotion();
+  const named = topics.map((item) => ({ ...item, ...rename?.[item.id] }));
+  const topic = named.find((item) => item.id === shownTopic);
+  const shown = only ? named.filter((item) => only.includes(item.id)) : named;
+
+  return (
+    <>
+      <ul className={`flex flex-col gap-0.5 ${className}`}>
+        {shown.map((item) => {          const Icon = icons[item.id];
           const dimmed = openTopic !== null && openTopic !== item.id;
           return (
             <motion.li
@@ -91,6 +112,6 @@ export function ClaimsSupport() {
       >
         {topic ? <ClaimsConversation key={`${topic.id}-${session}`} start={topic.start} /> : null}
       </FrostedSideSheet>
-    </section>
+    </>
   );
 }

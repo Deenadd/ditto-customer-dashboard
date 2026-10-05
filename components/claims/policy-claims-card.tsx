@@ -2,22 +2,23 @@
 
 import Link from "next/link";
 import { ClaimRow } from "@/components/claims/claim-bits";
+import { ClaimsTopics } from "@/components/claims/claims-support";
 import { buttonClass } from "@/components/ui/buttons";
 import { cardClass } from "@/components/ui/card-bits";
 import { claimHref, claimsHref, newClaimHref, useClaims, useHydrated } from "@/lib/claims";
 import type { Customer } from "@/lib/routes";
 
 /**
- * Claims, under Claims support beside the policy: the open ones (up to two),
- * Start a claim (the page's one filled action) and, once there are claims,
- * a way to see them all. Laid out for the 330px column.
+ * Claims beside the policy: the open ones (up to two), Start a claim (the
+ * page's one filled action), All claims once there are some, and the claims
+ * questions from Claims support. Laid out for the 330px column.
  */
 export function PolicyClaimsCard({ policyId, customer }: { policyId: string; customer: Customer }) {
   const hydrated = useHydrated();
   const claims = useClaims(policyId);
 
   return (
-    <section aria-labelledby="claims-card-title" className={`${cardClass} p-5`}>
+    <section aria-labelledby="claims-card-title" className={`${cardClass} p-5 pb-3`}>
       <h2 id="claims-card-title" className="text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label">
         Claims
       </h2>
@@ -25,7 +26,7 @@ export function PolicyClaimsCard({ policyId, customer }: { policyId: string; cus
         {!hydrated
           ? null
           : claims.length === 0
-            ? "No open claims. Start one for cashless treatment at a network hospital."
+            ? "No open claims."
             : claims.length === 1
               ? "1 open claim"
               : `${claims.length} open claims`}
@@ -48,6 +49,16 @@ export function PolicyClaimsCard({ policyId, customer }: { policyId: string; cus
             All claims
           </Link>
         ) : null}
+      </div>
+
+      {/* Claims support, folded in: the questions people have before claiming. */}
+      <div className="-mx-5 mt-5 border-t border-separator pt-4">
+        <h3 className="px-5 text-[13px] leading-[18px] font-semibold text-label-secondary">Questions about claims</h3>
+        <ClaimsTopics
+          only={["make-claim", "documents", "covered"]}
+          rename={{ "make-claim": { label: "Which kind of claim?", hint: "Cashless or reimbursement" } }}
+          className="mt-1.5 px-2"
+        />
       </div>
     </section>
   );
