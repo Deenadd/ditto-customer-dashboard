@@ -10,8 +10,8 @@ import { useEffect, useRef } from "react";
  * Technique adapted from Skiper UI — Skiper 41 "ProgressiveBlur" by
  * @gurvinder-singh02 (https://gxuri.me), inspired by devouringdetails.com;
  * free for personal and commercial use with attribution to Skiper UI.
- * Both edges are a pure progressive blur (below): the top a short strip
- * behind the header, the bottom 112px.
+ * Both edges are a pure progressive blur (below): the top a 28px band under
+ * the header, the bottom 112px.
  *
  * The top edge sits behind the header and fades in over the first 80px of
  * scroll, so at rest the header floats on the plain page and nothing is
@@ -73,18 +73,20 @@ export function ProgressiveBlur() {
 
   return (
     <>
-      {/* Just past the header (56px, 64px from sm), so it stays short. */}
+      {/* A short band right under the header, which is solid page colour:
+          iOS 26 Safari tints the status bar from an opaque bar at the top,
+          and content softens as it slides under it. */}
       <div
         ref={topRef}
         aria-hidden
         style={{ opacity: 0 }}
-        className="pointer-events-none fixed inset-x-0 top-0 z-[25] h-[72px] select-none sm:h-20"
+        className="pointer-events-none fixed inset-x-0 top-[calc(56px+env(safe-area-inset-top))] z-[25] h-7 select-none sm:top-[calc(64px+env(safe-area-inset-top))]"
       >
         {topLayers.map((layer) => (
           <div key={layer.blur} className="progressive-blur-layer absolute inset-0" style={layer.style} />
         ))}
       </div>
-      <div aria-hidden className="pointer-events-none fixed inset-x-0 bottom-0 z-20 h-28 select-none">
+      <div aria-hidden className="pointer-events-none fixed inset-x-0 bottom-0 z-20 h-[calc(112px+env(safe-area-inset-bottom))] select-none">
         {bottomLayers.map((layer) => (
           <div key={layer.blur} className="progressive-blur-layer absolute inset-0" style={layer.style} />
         ))}

@@ -24,6 +24,7 @@ import {
 import { activePolicyGroups } from "@/lib/dashboard-data";
 import { policyDetail } from "@/lib/policy-detail";
 import type { Customer } from "@/lib/routes";
+import { lockScroll, unlockScroll } from "@/lib/use-scroll-lock";
 
 const cardTitle = "text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label";
 
@@ -235,7 +236,10 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
         <Button
           variant="plain"
           className="text-red-text"
-          onClick={() => dialogRef.current?.showModal()}
+          onClick={() => {
+            lockScroll();
+            dialogRef.current?.showModal();
+          }}
         >
           Delete claim
         </Button>
@@ -245,6 +249,7 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
         ref={dialogRef}
         aria-labelledby="delete-dialog-title"
         aria-describedby="delete-dialog-body"
+        onClose={unlockScroll}
         className="m-auto w-[min(400px,calc(100vw-32px))] rounded-[22px] bg-surface p-0 text-label shadow-raised backdrop:bg-black/30 open:animate-pop"
       >
         <div className="p-6">
@@ -264,6 +269,7 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
               size="large"
               onClick={() => {
                 deleteClaim(claim.id);
+                dialogRef.current?.close();
                 router.replace(claimsHref(policyDetail.id, customer, `?deleted=${claim.id}`));
               }}
             >

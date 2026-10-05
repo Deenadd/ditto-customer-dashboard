@@ -26,6 +26,7 @@ import {
   resolveSideSheetConfig,
   type SideSheetConfig,
 } from "./config";
+import { useScrollLock } from "@/lib/use-scroll-lock";
 import { IconClose } from "@/components/ui/icons";
 
 const noSubscribe = () => () => {};
@@ -105,6 +106,7 @@ export function FrostedSideSheet({
   const mounted = useSyncExternalStore(noSubscribe, () => true, () => false);
   const panelRef = useRef<HTMLDivElement>(null);
   const titleId = "frosted-sheet-title";
+  useScrollLock(open);
 
   /* Move focus in on open; hand it back to the trigger on close. */
   useEffect(() => {
@@ -210,7 +212,7 @@ export function FrostedSideSheet({
             className="pointer-events-auto absolute inset-y-0 right-0 flex flex-col focus-visible:outline-none"
             style={{ width: `min(${SHEET_WIDTH}px, 100vw)` }}
           >
-            <header className="flex items-center justify-between gap-3 py-3 pr-3 pl-5">
+            <header className="flex items-center justify-between gap-3 pt-[calc(12px+env(safe-area-inset-top))] pr-3 pb-3 pl-5">
               <div className="flex min-w-0 items-center gap-2">
                 <h2 id={titleId} className="truncate text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label">
                   {title}

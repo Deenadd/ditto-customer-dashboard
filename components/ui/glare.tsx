@@ -114,9 +114,13 @@ const foil: CSSProperties = {
 /** One face that tilts and catches the glare. Its child should fill it. */
 export function GlareFace({ children, className = "", radius = 16 }: { children: ReactNode; className?: string; radius?: number }) {
   const round = { borderRadius: radius } as CSSProperties;
+  const fine = useSyncExternalStore(subscribe, () => window.matchMedia(finePointer).matches, () => false);
+  /* Touch screens never hover, so they get the card alone: no 3D layer and
+     no blend-mode overlays, which Safari composites at a cost. */
+  if (!fine) return <div className={className}>{children}</div>;
   return (
     <div data-glare-face className={`[perspective:var(--g-persp,600px)] ${className}`}>
-      <div className="relative h-full transition-transform duration-[var(--g-dur,300ms)] ease-out will-change-transform [transform:rotateY(var(--r-x,0deg))_rotateX(var(--r-y,0deg))_scale(var(--s,1))]">
+      <div className="relative h-full transition-transform duration-[var(--g-dur,300ms)] ease-out [transform:rotateY(var(--r-x,0deg))_rotateX(var(--r-y,0deg))_scale(var(--s,1))]">
         {children}
         <div
           aria-hidden

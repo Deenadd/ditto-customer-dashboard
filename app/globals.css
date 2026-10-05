@@ -226,6 +226,18 @@
   background: var(--color-separator);
 }
 
+/* The claim ticket's torn foot: a row of teeth cut by a mask, so the paper
+   (and the drop shadow on its wrapper) follows the zigzag. */
+.ticket-paper {
+  --tooth: 8px;
+  -webkit-mask:
+    linear-gradient(#000 0 0) top / 100% calc(100% - var(--tooth)) no-repeat,
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / calc(var(--tooth) * 2) var(--tooth) repeat-x;
+  mask:
+    linear-gradient(#000 0 0) top / 100% calc(100% - var(--tooth)) no-repeat,
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / calc(var(--tooth) * 2) var(--tooth) repeat-x;
+}
+
 /* Progressive blur along the viewport edges (see components/ui/progressive-blur). */
 
 

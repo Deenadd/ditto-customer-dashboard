@@ -7,14 +7,16 @@ import { SheetItem, SheetReveal, useSheetReveal } from "@/components/ui/frosted-
 import { defaultSideSheetConfig } from "@/components/ui/frosted-side-sheet/config";
 import { IconBack, IconCheck, IconPhone, IconRestart } from "@/components/ui/icons";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
-import { closingChoices, steps, type Choice, type Outcome } from "@/lib/claims-flow";
+import { ChatWidget } from "@/components/claims/chat-widgets";
+import { closingChoices, steps, type Choice, type Outcome, type WidgetId } from "@/lib/claims-flow";
 
 /* The conversation only grows, or is cut back by Back, so an entry's
    position is its key. */
 type Entry =
   | { kind: "ditto"; text: string; first: boolean }
   | { kind: "you"; text: string }
-  | { kind: "outcome"; outcome: Outcome };
+  | { kind: "outcome"; outcome: Outcome }
+  | { kind: "widget"; widget: WidgetId };
 
 /** Stagger timing in seconds, from the sheet's tuned config. */
 const INITIAL = defaultSideSheetConfig.staggerInitial / 1000;
@@ -46,6 +48,8 @@ export function ClaimsConversation({ start }: { start: string }) {
   const timer = useRef<number | undefined>(undefined);
 
   const answered = history.length > 0;
+  /* Widgets after your latest answer are live; earlier ones are a record. */
+  const lastAnswer = entries.findLastIndex((entry) => entry.kind === "you");
   const choices: Choice[] = steps[current]?.choices ?? closingChoices;
   const asRows = choices.some((choice) => choice.hint);
   const choicesDelay =
@@ -95,11 +99,13 @@ export function ClaimsConversation({ start }: { start: string }) {
     node.scrollTo({ top: node.scrollHeight, behavior: reduced ? "auto" : "smooth" });
   }, [entries.length, typing, batchFrom, reduced]);
 
-  /* When the next answers arrive, focus moves to the first of them. */
+  /* When the next answers arrive, focus moves to the first of them, or
+     into a widget if the reply brought one. */
   useEffect(() => {
     if (batchFrom === null || typing) return;
     const frame = requestAnimationFrame(() => {
-      footerRef.current?.querySelector<HTMLButtonElement>("button")?.focus({ preventScroll: true });
+      const widget = viewport.current?.querySelector<HTMLElement>("section:not([inert]) [data-widget-focus]");
+      (widget ?? footerRef.current?.querySelector<HTMLButtonElement>("button"))?.focus({ preventScroll: true });
     });
     return () => cancelAnimationFrame(frame);
   }, [entries.length, batchFrom, typing]);
@@ -111,6 +117,7 @@ export function ClaimsConversation({ start }: { start: string }) {
         tabIndex={0}
         role="region"
         aria-label="Conversation"
+        data-scroll-lock-scrollable
         className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 pt-4 pb-6 [mask-image:linear-gradient(to_bottom,black_calc(100%-24px),transparent)] focus-visible:outline-offset-[-2px]"
       >
         <SheetReveal className="flex flex-col gap-5">
@@ -122,7 +129,7 @@ export function ClaimsConversation({ start }: { start: string }) {
                 /* Lines in one turn sit closer than one turn to the next. */
                 className={entry.kind === "ditto" && !entry.first ? "-mt-3" : undefined}
               >
-                <EntryView entry={entry} />
+                <EntryView entry={entry} active={!typing && index > lastAnswer} onAnswer={reply} />
               </SheetItem>
             ))}
           </div>
@@ -138,7 +145,7 @@ export function ClaimsConversation({ start }: { start: string }) {
         ref={footerRef}
         tabIndex={-1}
         aria-busy={typing}
-        className="px-5 pt-3 pb-5 focus:outline-none"
+        className="px-5 pt-3 pb-[calc(20px+env(safe-area-inset-bottom))] focus:outline-none"
       >
         {typing ? (
           <p className="flex h-8 items-center text-[13px] leading-[18px] text-label-tertiary">Ditto is replying…</p>
@@ -189,7 +196,9 @@ export function ClaimsConversation({ start }: { start: string }) {
 function stepEntries(stepId: string): Entry[] {
   const step = steps[stepId];
   const said: Entry[] = step.say.map((text, index) => ({ kind: "ditto", text, first: index === 0 }));
-  return step.outcome ? [...said, { kind: "outcome", outcome: step.outcome }] : said;
+  const widget: Entry[] = step.widget ? [{ kind: "widget", widget: step.widget }] : [];
+  const outcome: Entry[] = step.outcome ? [{ kind: "outcome", outcome: step.outcome }] : [];
+  return [...said, ...widget, ...outcome];
 }
 
 /** A policy or other answer that needs a second line: a list row. */
@@ -230,7 +239,16 @@ function Typing() {
   );
 }
 
-function EntryView({ entry }: { entry: Entry }) {
+function EntryView({
+  entry,
+  active,
+  onAnswer,
+}: {
+  entry: Entry;
+  active: boolean;
+  onAnswer: (label: string, next: string) => void;
+}) {
+  if (entry.kind === "widget") return <ChatWidget widget={entry.widget} active={active} onAnswer={onAnswer} />;
   if (entry.kind === "you") {
     return (
       <div className="flex justify-end">

@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes } from "react";
+import type { ComponentPropsWithRef } from "react";
 
 type Variant = "filled" | "tinted" | "plain" | "destructive";
 type Size = "small" | "medium" | "large";
@@ -33,6 +33,6 @@ export function Button({
   className = "",
   type = "button",
   ...props
-}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; size?: Size }) {
+}: ComponentPropsWithRef<"button"> & { variant?: Variant; size?: Size }) {
   return <button type={type} className={`${buttonClass(variant, size)} ${className}`} {...props} />;
 }

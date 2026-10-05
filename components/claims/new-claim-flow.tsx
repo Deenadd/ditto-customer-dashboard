@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } fr
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ChoiceCard, ChoiceGroup, ClaimingOn, Note } from "@/components/claims/claim-bits";
+import { ClaimTicket } from "@/components/claims/claim-ticket";
 import { Chevron } from "@/components/dashboard/policy-pair";
 import { Asset } from "@/components/ui/asset";
 import { BackLink } from "@/components/ui/back-link";
@@ -19,11 +20,13 @@ import {
   hospitals,
   policyPeriod,
   stages,
+  type Claim,
   type ClaimCategory,
   type Hospital,
 } from "@/lib/claims";
 import { policyDetail } from "@/lib/policy-detail";
 import type { Customer } from "@/lib/routes";
+import { lockScroll, unlockScroll } from "@/lib/use-scroll-lock";
 
 type Draft = {
   patient?: string;
@@ -64,6 +67,8 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
   const [direction, setDirection] = useState(1);
   const [draft, setDraft] = useState<Draft>({ treatment: "", admission: "" });
   const [error, setError] = useState<string | null>(null);
+  /* Once sent, the flow gives way to the printed claim ticket. */
+  const [ticket, setTicket] = useState<Claim | null>(null);
   const [open, setOpen] = useState<"category" | "treatment" | "stage" | null>("category");
   const moved = useRef(false);
 
@@ -147,7 +152,20 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
           ? { name: draft.hospital.name, address: draft.hospital.address, network: draft.hospital.network }
           : null,
     });
-    router.replace(`${claimHref(policyDetail.id, claim.id, customer)}${customer === "new" ? "&" : "?"}created=1`);
+    window.scrollTo({ top: 0 });
+    setTicket(claim);
+  }
+
+  if (ticket) {
+    return (
+      <div className="mx-auto w-full max-w-[640px] px-4 pt-8 sm:px-6 sm:pt-12">
+        <ClaimTicket
+          claim={ticket}
+          policyName={policyDetail.name}
+          onView={() => router.replace(claimHref(policyDetail.id, ticket.id, customer))}
+        />
+      </div>
+    );
   }
 
   const meta = steps[step - 1];
@@ -667,7 +685,10 @@ function HospitalStep({ draft, set }: StepProps) {
 
       <button
         type="button"
-        onClick={() => dialogRef.current?.showModal()}
+        onClick={() => {
+          lockScroll();
+          dialogRef.current?.showModal();
+        }}
         className="group mt-4 flex w-full items-center gap-3 rounded-[14px] px-3 py-3 text-left transition-opacity duration-150 active:opacity-50 [@media(hover:hover)]:hover:opacity-70"
       >
         <span className="min-w-0 flex-1">
@@ -681,7 +702,10 @@ function HospitalStep({ draft, set }: StepProps) {
         ref={dialogRef}
         aria-labelledby="manual-title"
         className="m-auto w-[min(440px,calc(100vw-32px))] rounded-[22px] bg-surface p-0 text-label shadow-raised backdrop:bg-black/30 open:animate-pop"
-        onClose={() => setManual("")}
+        onClose={() => {
+          setManual("");
+          unlockScroll();
+        }}
       >
         <div className="p-5">
           <div className="flex items-start justify-between gap-3">

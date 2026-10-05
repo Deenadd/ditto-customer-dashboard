@@ -23,8 +23,13 @@ export type Outcome =
   | { kind: "documents"; title: string; documents: { label: string; onFile?: boolean }[]; note?: string }
   | { kind: "booked"; title: string; rows: { label: string; value: string }[]; note?: string };
 
+/** An interactive answer in the chat: something to explore, not just read. */
+export type WidgetId = "network-check" | "stay-window";
+
 export type Step = {
   say: string[];
+  /** Shown after the messages; it can answer the step itself. */
+  widget?: WidgetId;
   outcome?: Outcome;
   choices?: Choice[];
 };
@@ -85,15 +90,9 @@ export const steps: Record<string, Step> = {
     ],
   },
   "network-unsure": {
-    say: [
-      "The hospital's insurance desk can tell you in a minute. You can also ask us.",
-      "Once you know, pick the answer that fits.",
-    ],
-    choices: [
-      { label: "It's in the network", next: "cashless" },
-      { label: "It isn't", next: "reimbursement" },
-      expert,
-    ],
+    say: ["Let's check now. Search for the hospital, and I'll tell you whether cashless works there."],
+    widget: "network-check",
+    choices: [expert],
   },
   emergency: {
     say: [
@@ -182,9 +181,10 @@ export const steps: Record<string, Step> = {
   },
   "covered-stay": {
     say: [
-      "Medical costs in the 60 days before you're admitted are covered.",
-      "So are costs in the 90 days after you're discharged.",
+      "Medical costs in the 60 days before you're admitted and the 90 days after you're discharged are covered.",
+      "Try your dates to see exactly which bills count.",
     ],
+    widget: "stay-window",
     choices: [{ label: "Check something else", next: "covered" }, makeClaim],
   },
   "covered-maternity": {

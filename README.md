@@ -124,6 +124,17 @@ returns to the row that opened it; Escape or a click outside closes it.
   foil shifts. Reduced motion keeps the glare and drops the tilt; touch
   screens, with no hover, get none of it.
 
+### Mobile
+
+- Edge to edge on iPhones (`viewport-fit=cover`), with safe-area padding on
+  the header, sheet and bottom bars. The header is solid page white: iOS 26
+  Safari tints the status bar from it (otherwise content scrolls sharp
+  behind the clock), and a short progressive blur sits just below it.
+- The page is scroll-locked behind the side sheet and dialogs
+  (`lib/use-scroll-lock.ts`), on iOS too, while the chat itself scrolls.
+- Touch screens get the cards without the glare layers, which they can't
+  use and Safari composites at a cost.
+
 ### Card controls
 
 On the dashboard, **Shift+Option+C** opens a panel for the cards. Pick Health
@@ -147,6 +158,10 @@ colour points layer over the wash.
     tick off, with a count and a bar; photo ID starts ticked, as it's on file.
   - Talk to a claims expert books a callback (now, later today or tomorrow
     morning) and ends on a confirmation. No call is placed.
+  - Some answers are interactive (gabriell_lab's tip: make it explorable).
+    Not sure a hospital is in the network? Search it in the chat and it says
+    whether cashless works, then carries on. Before and after a stay shows
+    your exact cover window for a date and length of stay.
   - Every answer can be undone with Back; Start over asks the first question
     again. Each ending offers a next step, such as Check something else.
 - **Notifications** (the bell) lists the latest application updates and marks
@@ -186,6 +201,10 @@ page's one filled action, and the open claims once there are any.
   policy's name. Answers are one card with hairline rows (inset grouped, as
   on iOS); the chosen row is tinted and its radio filled. People get the
   member icons from the policy card.
+- **Claim ticket:** sending the claim prints a ticket (after msbr_dev's
+  receipt animation): it feeds out of a printer slot in short pulls, torn
+  edge and barcode first, then a "Request received" stamp lands. View claim
+  opens it; Print again replays it. Reduced motion shows it finished.
 - **Claims:** Active and Past, with an empty state. After a delete it says
   which claim went.
 

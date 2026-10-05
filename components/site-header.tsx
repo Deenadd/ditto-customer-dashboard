@@ -32,7 +32,7 @@ export function SiteHeader({ customerState = "default" }: { customerState?: Cust
         );
 
   return (
-    <header className="sticky top-0 z-30">
+    <header className="sticky top-0 z-30 bg-page pt-[env(safe-area-inset-top)]">
       <div className="mx-auto flex h-14 max-w-[1112px] items-center justify-between px-5 sm:h-16 xl:px-0">
         <Link
           href={dashboardHref({ customer: customerState })}
