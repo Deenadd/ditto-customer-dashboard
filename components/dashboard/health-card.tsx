@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState, type ReactNode } from "react";
 import { useReducedMotion } from "motion/react";
 import { useCardConfig } from "@/components/dashboard/card-config";
+import { CardFoil } from "@/components/dashboard/card-foil";
 import { Topography } from "@/components/dashboard/topography";
 import { Asset, Glow } from "@/components/ui/asset";
 import { cardClass } from "@/components/ui/card-bits";
@@ -77,6 +78,7 @@ export function PolicyCardPair({
             )}
           </div>
           <p className="px-5 py-3 text-[12px] leading-4 text-label-secondary">{captions[tone]}</p>
+          <CardFoil />
         </article>
         {/* The same link again, so this face hears the pointer; the front's
             copy is the one keyboards and screen readers meet. */}
@@ -167,6 +169,7 @@ export function PolicyCardFront({ policy, download = false }: { policy: ActivePo
           </div>
         ))}
       </dl>
+      <CardFoil />
       {download ? <DownloadPill policy={policy} /> : null}
     </article>
   );

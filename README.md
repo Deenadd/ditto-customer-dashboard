@@ -122,6 +122,12 @@ returns to the row that opened it; Escape or a click outside closes it.
   it, a dent of shadow follows the pointer and the opposite rim catches the
   light, all from one sprung pointer position. Reduced motion keeps the
   dent and drops the turn. The card panel can switch to the earlier Glare.
+- **Holographic foil** on every card face, after the Holy Cards carousel
+  (`components/dashboard/card-foil.tsx`): a pale rainbow band, a diagonal
+  lattice of embossed dimples, coloured glitter and a glint, all lit from
+  the hover (the rim opposite the pointer under Press, the pointer under
+  Glare). Colour is multiplied onto the white card, so the text stays dark.
+  Some of it shows at rest; touch screens get the resting foil.
 - **Ditto Buddy** (home page, in place of Claims support; after Plum's "Ask Plum AI") opens the side
   sheet with the claims chat from a greeting, plus a text box. Typed
   questions are matched by keywords to the topic that answers them, and
@@ -161,7 +167,9 @@ returns to the row that opened it; Escape or a click outside closes it.
 
 On the dashboard, **Shift+Option+C** opens a panel for the cards' hover:
 **Press** (tilt, dent shade, spring, depth, sink; Bencho's values by
-default) or **Glare** (glare, foil, tilt, perspective, lift, settle). Copy
+default) or **Glare** (glare, tilt, perspective, lift, settle), and the
+**Foil** under either (covers whole card or edges, tint, intensity, at rest,
+dimple size, emboss, band frequency, saturation, hue shift, sparkle). Copy
 config gives the JSON for `components/dashboard/card-config.ts`.
 
 The sign-in glow panel has the same mesh pad: the ring is the blue dome, and

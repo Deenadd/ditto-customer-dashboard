@@ -26,8 +26,22 @@ export type CardConfig = {
   lift: number;
   /** The white glare that follows the pointer, 0 to 1. */
   glare: number;
-  /** The rainbow foil sheen, 0 to 1. */
+  /** The holographic foil finish (card-foil.tsx), for both effects: how
+      strong it is (0 turns it off), how much shows at rest, a base tint
+      (#ffffff for none), the dimple size (px), how many rainbow bands cross
+      the card, their saturation and hue shift, the glitter, how deep the
+      dimples read, and whether it covers the whole card or only its edges
+      around the panel. */
   foil: number;
+  foilRest: number;
+  foilTint: string;
+  foilScale: number;
+  foilBand: number;
+  foilSaturation: number;
+  foilHue: number;
+  sparkle: number;
+  emboss: number;
+  foilCover: "card" | "edge";
   /** How long the card takes to settle back (ms). */
   settle: number;
 };
@@ -45,13 +59,23 @@ export const defaultCardConfig: CardConfig = {
   perspective: 350,
   lift: 1.055,
   glare: 0.2,
-  foil: 0.15,
   settle: 600,
+  /* After the reference's Foil preset, toned for a white card. */
+  foil: 0.5,
+  foilRest: 0.45,
+  foilTint: "#ffffff",
+  foilScale: 10,
+  foilBand: 0.6,
+  foilSaturation: 0.65,
+  foilHue: 10,
+  sparkle: 0.35,
+  emboss: 0.4,
+  foilCover: "card",
 };
 
 /* One shared config, remembered in this browser, defaults on the server.
-   v6: adds the press effect, now the default. */
-const KEY = "ditto.card-config.v6";
+   v7: the holographic foil replaces the glare's own rainbow. */
+const KEY = "ditto.card-config.v7";
 const listeners = new Set<() => void>();
 let current: CardConfig | null = null;
 

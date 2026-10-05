@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { defaultCardConfig, setCardConfig, useCardConfig } from "@/components/dashboard/card-config";
-import { Choice, Section, Slider, TuningPanel } from "@/components/ui/tuning-panel";
+import { Choice, ColorField, Section, Slider, TuningPanel } from "@/components/ui/tuning-panel";
 
 /**
  * Tuning panel for the dashboard's policy cards' hover: Press (Bencho's
- * tilt card, sinking under the pointer) or Glare, each with its controls.
+ * tilt card, sinking under the pointer) or Glare, each with its controls,
+ * and the holographic foil finish, which works under either.
  * Shift+Option+C opens and closes it. Changes apply live and are
  * remembered in this browser; Copy config gives the JSON for card-config.ts.
  */
@@ -59,7 +60,6 @@ export function CardControls() {
         <>
           <Section label="Glare">
             <Slider label="Glare" min={0} max={1} step={0.05} value={config.glare} onChange={(glare) => set({ glare })} />
-            <Slider label="Foil" min={0} max={1} step={0.05} value={config.foil} onChange={(foil) => set({ foil })} />
           </Section>
 
           <Section label="Tilt">
@@ -70,6 +70,27 @@ export function CardControls() {
           </Section>
         </>
       )}
+
+      <Section label="Foil">
+        <Choice
+          label="Covers"
+          value={config.foilCover}
+          options={[
+            ["card", "Whole card"],
+            ["edge", "Edges"],
+          ]}
+          onChange={(foilCover) => set({ foilCover })}
+        />
+        <ColorField label="Tint" value={config.foilTint} onChange={(foilTint) => set({ foilTint })} />
+        <Slider label="Intensity" min={0} max={1} step={0.05} value={config.foil} onChange={(foil) => set({ foil })} />
+        <Slider label="At rest" min={0} max={1} step={0.05} value={config.foilRest} onChange={(foilRest) => set({ foilRest })} />
+        <Slider label="Dimple size" unit="px" min={4} max={28} step={1} value={config.foilScale} onChange={(foilScale) => set({ foilScale })} />
+        <Slider label="Emboss" min={0} max={1} step={0.05} value={config.emboss} onChange={(emboss) => set({ emboss })} />
+        <Slider label="Band frequency" min={0.2} max={2} step={0.05} value={config.foilBand} onChange={(foilBand) => set({ foilBand })} />
+        <Slider label="Saturation" min={0} max={1} step={0.05} value={config.foilSaturation} onChange={(foilSaturation) => set({ foilSaturation })} />
+        <Slider label="Hue shift" unit="°" min={0} max={360} step={5} value={config.foilHue} onChange={(foilHue) => set({ foilHue })} />
+        <Slider label="Sparkle" min={0} max={1} step={0.05} value={config.sparkle} onChange={(sparkle) => set({ sparkle })} />
+      </Section>
     </TuningPanel>
   );
 }

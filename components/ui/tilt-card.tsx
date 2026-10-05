@@ -337,6 +337,14 @@ export function TiltCard({
       <div
         className={`tlt-card ${holding ? "tlt-card--holding" : ""}`}
         style={{
+          /* Ditto: the light, for the foil finish inside (card-foil.tsx).
+             It is the rim's light, so it sits at the pointer's mirror like
+             the rim does, and it rides the same springs, so no transition
+             of the foil's own (--g-dur) gets a say. */
+          ["--foil-x" as string]: `${100 - px}%`,
+          ["--foil-y" as string]: `${100 - py}%`,
+          ["--foil-lit" as string]: lit,
+          ["--g-dur" as string]: "0ms",
           borderRadius: clamp(corner, 0, 40),
           backgroundImage: image ? `url(${image})` : undefined,
           /* translateZ FIRST, so the retreat is measured in
