@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
+import { useReducedMotion } from "motion/react";
 import { useCardConfig } from "@/components/dashboard/card-config";
 import { Topography } from "@/components/dashboard/topography";
 import { Asset, Glow } from "@/components/ui/asset";
@@ -9,6 +10,7 @@ import { cardClass } from "@/components/ui/card-bits";
 import { GlareFace, GlareGroup } from "@/components/ui/glare";
 import { IconCheck } from "@/components/ui/icons";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
+import { TiltCard } from "@/components/ui/tilt-card";
 import { downloadPolicyCard } from "@/lib/download-card";
 import type { ActivePolicy, Member } from "@/lib/dashboard-data";
 
@@ -32,8 +34,8 @@ const captions: Record<CardTone, string> = {
 /**
  * A policy as a pair of cards, after the Figma active-policies screen: the
  * policy on the front, its people on the back, both white with the blue
- * contour lines and an outlined panel. Each face tilts and catches a glare
- * on hover, and the pair opens the policy when it has a page.
+ * contour lines and an outlined panel. Each face responds to the pointer
+ * (see CardFace), and the pair opens the policy when it has a page.
  */
 export function PolicyCardPair({
   policy,
@@ -54,11 +56,12 @@ export function PolicyCardPair({
 
   return (
     <GlareGroup settings={config} className={`group relative grid gap-4 [&>*]:min-w-0 ${stacked ? "" : "sm:grid-cols-2"}`}>
-      <GlareFace radius={22}>
+      <CardFace>
         <PolicyCardFront policy={policy} download={download} />
-      </GlareFace>
+        {href ? <FaceLink href={href} label={`${policy.name}, view policy details`} /> : null}
+      </CardFace>
 
-      <GlareFace radius={22}>
+      <CardFace>
         <article aria-label={`People on ${policy.name}`} className={face}>
           <div aria-hidden className="absolute inset-0 -z-10">
             <Topography variant="members" />
@@ -75,16 +78,57 @@ export function PolicyCardPair({
           </div>
           <p className="px-5 py-3 text-[12px] leading-4 text-label-secondary">{captions[tone]}</p>
         </article>
-      </GlareFace>
-
-      {href ? (
-        <Link
-          href={href}
-          aria-label={`${policy.name}, view policy details`}
-          className="absolute inset-0 z-10 rounded-[22px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
-        />
-      ) : null}
+        {/* The same link again, so this face hears the pointer; the front's
+            copy is the one keyboards and screen readers meet. */}
+        {href ? <FaceLink href={href} hidden /> : null}
+      </CardFace>
     </GlareGroup>
+  );
+}
+
+/**
+ * One face of a card, with the hover effect the card panel has chosen:
+ * Press (Bencho's tilt card, which sinks under the pointer) or Glare (it
+ * turns toward the pointer and catches a glare). Each face listens for the
+ * pointer itself, so anything that covers it, like its link, must be inside.
+ */
+export function CardFace({ children }: { children: ReactNode }) {
+  const config = useCardConfig();
+  /* Reduced motion: no turn and no retreat; the dent's light still follows. */
+  const reduced = !!useReducedMotion();
+  if (config.effect === "glare") {
+    return (
+      <GlareFace radius={22}>
+        <div className="relative h-full">{children}</div>
+      </GlareFace>
+    );
+  }
+  return (
+    <TiltCard
+      className="h-full"
+      corner={22}
+      tilt={reduced ? 0 : config.pressTilt}
+      shade={config.shade}
+      tune={config.spring}
+      depth={config.depth}
+      sink={reduced ? 0 : config.sink}
+    >
+      <div className="relative h-full">{children}</div>
+    </TiltCard>
+  );
+}
+
+/** A face-covering link to the policy. `hidden` is the duplicate on the
+    second face: out of the tab order and the accessibility tree. */
+function FaceLink({ href, label, hidden = false }: { href: string; label?: string; hidden?: boolean }) {
+  return (
+    <Link
+      href={href}
+      aria-label={hidden ? undefined : label}
+      aria-hidden={hidden || undefined}
+      tabIndex={hidden ? -1 : undefined}
+      className="absolute inset-0 z-10 rounded-[22px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+    />
   );
 }
 
