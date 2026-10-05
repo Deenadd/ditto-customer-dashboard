@@ -18,7 +18,6 @@ export const metadata: Metadata = {
    indicator, and fixed chrome pads itself with env(safe-area-inset-*). */
 export const viewport: Viewport = {
   viewportFit: "cover",
-  themeColor: "#ffffff",
 };
 
 export default function RootLayout({

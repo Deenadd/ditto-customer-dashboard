@@ -136,6 +136,10 @@ returns to the row that opened it; Escape or a click outside closes it.
 
 ### Mobile
 
+- Touch screens skip the bottom progressive blur: phone browsers blur
+  behind their own toolbar, and iOS 26 Safari stops the page short of its
+  floating toolbar, filling the gap with white, when anything fixed touches
+  the bottom edge. Without it, content runs under the toolbar.
 - Edge to edge on iPhones (`viewport-fit=cover`), with safe-area padding on
   the header, sheet and bottom bars. The header is solid page white: iOS 26
   Safari tints the status bar from it (otherwise content scrolls sharp

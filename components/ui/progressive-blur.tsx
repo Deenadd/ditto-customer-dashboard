@@ -86,7 +86,10 @@ export function ProgressiveBlur() {
           <div key={layer.blur} className="progressive-blur-layer absolute inset-0" style={layer.style} />
         ))}
       </div>
-      <div aria-hidden className="pointer-events-none fixed inset-x-0 bottom-0 z-20 h-[calc(112px+env(safe-area-inset-bottom))] select-none">
+      {/* Not on touch screens: phone browsers blur content behind their own
+          toolbar, and iOS Safari stops the page short of its floating toolbar
+          (filling the gap with white) when anything fixed touches the bottom. */}
+      <div aria-hidden className="pointer-events-none fixed inset-x-0 bottom-0 z-20 h-[calc(112px+env(safe-area-inset-bottom))] select-none [@media(pointer:coarse)]:hidden">
         {bottomLayers.map((layer) => (
           <div key={layer.blur} className="progressive-blur-layer absolute inset-0" style={layer.style} />
         ))}
