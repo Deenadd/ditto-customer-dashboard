@@ -1,4 +1,4 @@
-import type { CardPalette } from "@/components/dashboard/card-config";
+import { isLightCard, type CardPalette } from "@/components/dashboard/card-config";
 import type { ActivePolicy } from "@/lib/dashboard-data";
 
 /*
@@ -31,6 +31,7 @@ export async function downloadPolicyCard(policy: ActivePolicy, palette: CardPale
   canvas.width = W;
   canvas.height = H;
   const ctx = canvas.getContext("2d")!;
+  const light = isLightCard(palette);
 
   /* The frame. */
   roundRect(ctx, 0, 0, W, H, 16 * S);
@@ -46,13 +47,26 @@ export async function downloadPolicyCard(policy: ActivePolicy, palette: CardPale
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, W, H);
 
-  /* The insurer's mark, in a white ring. */
+  /* The three rings from the card's top-right corner. */
+  ctx.strokeStyle = palette.wave;
+  ctx.lineWidth = 1.5 * S;
+  [36, 62, 88].forEach((r, i) => {
+    ctx.globalAlpha = 0.55 - i * 0.15;
+    ctx.beginPath();
+    ctx.arc(W + 6 * S, -10 * S, r * S, 0, Math.PI * 2);
+    ctx.stroke();
+  });
+  ctx.globalAlpha = 1;
+
+  /* The insurer's mark, in a white ring on a coloured card. */
   const logoSize = 40 * S;
   const lx = 16 * S;
   const ly = 16 * S;
-  roundRect(ctx, lx - 2 * S, ly - 2 * S, logoSize + 4 * S, logoSize + 4 * S, 12 * S);
-  ctx.fillStyle = "#ffffff";
-  ctx.fill();
+  if (!light) {
+    roundRect(ctx, lx - 2 * S, ly - 2 * S, logoSize + 4 * S, logoSize + 4 * S, 12 * S);
+    ctx.fillStyle = "#ffffff";
+    ctx.fill();
+  }
   const logo = policy.insurer === "care" ? await loadImage("/dashboard/insurer-care.png") : null;
   roundRect(ctx, lx, ly, logoSize, logoSize, 10 * S);
   ctx.fillStyle = policy.insurer === "care" ? "#fbdf00" : "#fce0c8";
@@ -65,23 +79,26 @@ export async function downloadPolicyCard(policy: ActivePolicy, palette: CardPale
     ctx.restore();
   }
 
-  ctx.fillStyle = "#ffffff";
+  ctx.fillStyle = light ? "#1d1d1f" : "#ffffff";
   ctx.textBaseline = "alphabetic";
   ctx.font = `600 ${16 * S}px ${FONT}`;
   ctx.fillText(policy.name, 68 * S, 34 * S, W - 84 * S);
   ctx.font = `500 ${12 * S}px ${FONT}`;
+  if (light) ctx.fillStyle = "#6e6e73";
   ctx.fillText(policy.kind, 68 * S, 51 * S);
 
   /* The white inset and its facts. */
   const ix = 8 * S;
   const iy = 70 * S;
-  roundRect(ctx, ix, iy, W - 16 * S, H - iy - 8 * S, 12 * S);
-  ctx.fillStyle = "#ffffff";
-  ctx.shadowColor = "rgba(0,0,0,0.12)";
-  ctx.shadowBlur = 8 * S;
-  ctx.shadowOffsetY = 2 * S;
-  ctx.fill();
-  ctx.shadowColor = "transparent";
+  if (!light) {
+    roundRect(ctx, ix, iy, W - 16 * S, H - iy - 8 * S, 12 * S);
+    ctx.fillStyle = "#ffffff";
+    ctx.shadowColor = "rgba(0,0,0,0.12)";
+    ctx.shadowBlur = 8 * S;
+    ctx.shadowOffsetY = 2 * S;
+    ctx.fill();
+    ctx.shadowColor = "transparent";
+  }
 
   const fields = [
     { label: "Policy number", value: policy.policyNumber },

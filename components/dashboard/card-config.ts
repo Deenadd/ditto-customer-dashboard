@@ -47,33 +47,27 @@ export type CardConfig = {
   settle: number;
 };
 
-/* Tuned in the card panel on 1 Oct 2026. Blue is the health card. Green
-   (term) keeps its own colours, made from the Figma blues by moving the hue
-   in OKLCH (147 + (259 − h) × 0.35), and shares blue's shape: where the ring
-   sits, the gradient's centre and its reach. */
-const shape = { midAt: 30, focusX: 100, focusY: 11, spread: 1.1 };
+/* A plain plastic card, the same for health and term: soft white to pale
+   grey, lit from the top right, with only the three wave rings (their faint
+   shading and the corner glow) in Ditto blue. Ring position and reach are
+   the ones tuned in the card panel on 1 Oct 2026. */
+const plastic: CardPalette = {
+  center: "#ffffff",
+  mid: "#f7f8fa",
+  edge: "#e9ecf1",
+  midAt: 30,
+  focusX: 100,
+  focusY: 11,
+  spread: 1.1,
+  wave: "#3dabf5",
+  shade: "#3dabf5",
+  glow: "#70befc",
+  mesh: [],
+};
 
 export const defaultCardConfig: CardConfig = {
-  blue: {
-    center: "#0e87d8",
-    mid: "#17ccf9",
-    edge: "#1c8dd9",
-    ...shape,
-    wave: "#ccecff",
-    shade: "#c0e0e0",
-    glow: "#70befc",
-    mesh: [],
-  },
-  green: {
-    center: "#09b458",
-    mid: "#56d499",
-    edge: "#2db563",
-    ...shape,
-    wave: "#d1f0db",
-    shade: "#c4e0d5",
-    glow: "#78cc91",
-    mesh: [],
-  },
+  blue: plastic,
+  green: plastic,
   tilt: 0.15,
   perspective: 350,
   lift: 1.055,
@@ -84,8 +78,8 @@ export const defaultCardConfig: CardConfig = {
 
 /* The glow config's store pattern: one shared config, remembered in this
    browser, defaults on the server. */
-/* v2: new defaults, so settings saved against v1 don't hide them. */
-const KEY = "ditto.card-config.v2";
+/* v3: the plastic defaults, so earlier saved settings don't hide them. */
+const KEY = "ditto.card-config.v3";
 const listeners = new Set<() => void>();
 let current: CardConfig | null = null;
 
@@ -126,4 +120,12 @@ export function useCardConfig(): CardConfig {
     () => (current ??= load()),
     () => defaultCardConfig,
   );
+}
+
+/** A light card (like the plastic default) takes dark text and no inner
+    white panel; a dark or saturated one keeps the Figma's white text. */
+export function isLightCard(palette: CardPalette) {
+  const [r, g, b] = [1, 3, 5].map((i) => parseInt(palette.mid.slice(i, i + 2), 16) / 255);
+  const lin = (c: number) => (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+  return 0.2126 * lin(r) + 0.7152 * lin(g) + 0.0722 * lin(b) > 0.6;
 }

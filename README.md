@@ -113,10 +113,11 @@ returns to the row that opened it; Escape or a click outside closes it.
   30-second resend timer and Change number.
 - **Segmented controls** are links, so every view has its own URL. The
   policy tabs run Active, Pending, Inactive, and Active opens by default.
-- **Active policies are cards** (Figma node 152:12881): the policy on the
-  front and its people on the back, each a white card in a gradient frame
-  with wave lines, blue for health and green for term (the blue's hues moved
-  in OKLCH). A card with a policy page opens it from anywhere on the card.
+- **Active policies are cards** (after Figma node 152:12881): the policy on
+  the front and its people on the back, as plain plastic cards, soft white
+  to pale grey, with the three wave rings in Ditto blue, for health and term
+  alike. A dark or saturated palette from the card panel brings back the
+  white inner panel and white text. A card with a policy page opens it from anywhere on the card.
   White text on the frame measures 2.1 to 2.8:1, below 4.5:1; it's the
   design's palette, so it's left as drawn.
 - **Glare and tilt** on hover, after Aceternity's glare card: the face under
