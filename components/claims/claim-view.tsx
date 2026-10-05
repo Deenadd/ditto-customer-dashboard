@@ -166,7 +166,7 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
       <section aria-labelledby="card-title" className="mt-6 grid items-center gap-5 sm:grid-cols-[minmax(0,380px)_1fr] sm:gap-7">
         <GlareGroup settings={cardConfig}>
           <GlareFace>
-            <PolicyCardFront policy={card} palette={cardConfig.blue} download />
+            <PolicyCardFront policy={card} download />
           </GlareFace>
         </GlareGroup>
         <div>

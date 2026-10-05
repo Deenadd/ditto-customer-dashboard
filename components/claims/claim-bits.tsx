@@ -87,7 +87,7 @@ export function ChoiceCard({
 export function ClaimingOn({ name }: { name: string }) {
   return (
     <div className="flex items-center gap-3">
-      <MiniPolicyCard tone="blue" />
+      <MiniPolicyCard />
       <div className="min-w-0">
         <p className="text-[12px] leading-4 text-label-secondary">Claiming on</p>
         <p className="truncate text-[14px] leading-5 font-medium text-label">{name}</p>

@@ -384,7 +384,7 @@ function PolicyStep({ draft, set }: StepProps) {
         onChange={() => set({ policy: policyDetail.id })}
         title={policyDetail.name}
         hint={`Health insurance · ${policyDetail.id}`}
-        leading={<MiniPolicyCard tone="blue" />}
+        leading={<MiniPolicyCard />}
         trailing={<InsurerLogo insurer={policyDetail.insurer} size={40} />}
       />
     </ChoiceGroup>

@@ -113,12 +113,10 @@ returns to the row that opened it; Escape or a click outside closes it.
   30-second resend timer and Change number.
 - **Segmented controls** are links, so every view has its own URL. The
   policy tabs run Active, Pending, Inactive, and Active opens by default.
-- **Active policies are cards** (Figma node 152:12881): the policy on the
-  front and its people on the back, each a white card in a gradient frame
-  with wave lines, blue for health and green for term (the blue's hues moved
-  in OKLCH). A card with a policy page opens it from anywhere on the card.
-  White text on the frame measures 2.1 to 2.8:1, below 4.5:1; it's the
-  design's palette, so it's left as drawn.
+- **Active policies are cards** as in the Figma active-policies screen: the
+  policy on the front and its people on the back, white cards with the blue
+  contour lines and glow, a blue dot, and an outlined white panel. A card
+  with a policy page opens it from anywhere on the card.
 - **Glare and tilt** on hover, after Aceternity's glare card: the face under
   the pointer tilts toward it, a white glare follows it and a faint rainbow
   foil shifts. Reduced motion keeps the glare and drops the tilt; touch
@@ -161,13 +159,9 @@ returns to the row that opened it; Escape or a click outside closes it.
 
 ### Card controls
 
-On the dashboard, **Shift+Option+C** opens a panel for the cards. Pick Health
-or Term to edit its gradient: a mesh pad (drag the ring to move the gradient's
-centre; add, drag, recolour, resize or remove colour points; arrow keys move
-the focused point), the centre, ring and edge colours, where the ring sits and
-how far it reaches, and the wave, shade and glow colours. Glare, foil, tilt,
-perspective, lift and settle time apply to every card. Copy config gives the
-JSON for `components/dashboard/card-config.ts`.
+On the dashboard, **Shift+Option+C** opens a panel for the cards' glare,
+foil, tilt, perspective, lift and settle time. Copy config gives the JSON
+for `components/dashboard/card-config.ts`.
 
 The sign-in glow panel has the same mesh pad: the ring is the blue dome, and
 colour points layer over the wash.
