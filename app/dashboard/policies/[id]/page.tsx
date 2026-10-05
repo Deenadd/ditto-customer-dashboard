@@ -8,7 +8,6 @@ import {
   CoveredCard,
   NotCoveredCard,
   PolicyHeader,
-  PolicySummaryCard,
 } from "@/components/policy/policy-detail-cards";
 import { covered, notCovered, policyDetail } from "@/lib/policy-detail";
 import { activePolicyGroups } from "@/lib/dashboard-data";
@@ -44,7 +43,6 @@ export default async function PolicyPage({
           <div className="flex min-w-0 flex-col gap-6">
             <PolicyHeader policy={policyDetail} />
             <PolicyCardPair policy={healthCard} tone="blue" download />
-            <PolicySummaryCard policy={policyDetail} />
             <CoveredCard items={covered} />
             <NotCoveredCard items={notCovered} />
           </div>

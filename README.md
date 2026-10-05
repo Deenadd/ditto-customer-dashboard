@@ -129,7 +129,8 @@ returns to the row that opened it; Escape or a click outside closes it.
   questions are matched by keywords to the topic that answers them, and
   anything else gets an honest "I can't answer that yet" with topics.
 - **Policy page:** the insurer and name, then the policy card (with
-  Download card), the summary, and what's covered and not. On phones the
+  Download card), and what's covered and not. The card carries the policy's
+  facts and members, so there's no separate summary. On phones the
   two cover sections fold to a title and a count. Beside them, one Claims
   card holds the open claims, Start a claim and the claims questions
   (Which kind of claim?, Documents you'll need, Check what's covered).

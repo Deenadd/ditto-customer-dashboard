@@ -1,9 +1,8 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Monogram } from "@/components/dashboard/policy-pair";
 import { Asset } from "@/components/ui/asset";
-import { AddOnChips, FieldItem, cardClass } from "@/components/ui/card-bits";
+import { cardClass } from "@/components/ui/card-bits";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
 import type { CoverIcon, CoverItem, Exclusion } from "@/lib/policy-detail";
 import { policyDetail } from "@/lib/policy-detail";
@@ -22,44 +21,6 @@ export function PolicyHeader({ policy }: { policy: typeof policyDetail }) {
         </h1>
       </div>
     </header>
-  );
-}
-
-/** The policy's facts, the family on it, and add-ons. */
-export function PolicySummaryCard({ policy }: { policy: typeof policyDetail }) {
-  return (
-    <section aria-labelledby="summary-title" className={`@container ${cardClass} p-5`}>
-      <h2 id="summary-title" className={cardTitle}>
-        Summary
-      </h2>
-      <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-4 rounded-[14px] bg-fill px-4 py-4 @min-[600px]:grid-cols-4">
-        {policy.fields.map((field) => (
-          <FieldItem key={field.label} field={field} />
-        ))}
-      </dl>
-
-      <h3 className="mt-6 text-[12px] leading-4 font-semibold text-label-secondary">Covered people</h3>
-      <ul className="mt-2.5 grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 @min-[600px]:grid-cols-4">
-        {policy.family.map((person) => (
-          <li key={person.name} className="flex items-center gap-3">
-            <Monogram name={person.name} primary={person.relation === "You"} />
-            <div className="min-w-0">
-              <p className="truncate text-[15px] leading-5 font-medium text-label">{person.name}</p>
-              <p className="text-[12px] leading-4 text-label-secondary tabular-nums">
-                {person.relation}
-                <span aria-hidden> · </span>
-                <span className="sr-only">, born </span>
-                {person.dob}
-              </p>
-            </div>
-          </li>
-        ))}
-      </ul>
-
-      <div className="mt-6">
-        <AddOnChips items={policy.addOns} />
-      </div>
-    </section>
   );
 }
 
