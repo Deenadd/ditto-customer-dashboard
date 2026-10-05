@@ -250,6 +250,70 @@
     conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / calc(var(--tooth) * 2) var(--tooth) repeat-x;
 }
 
+/* ══ Tilt ═══════════════════════════════════════════════════
+   (Tilt card, from Bencho, MIT licensed — bencho.dev/licence.)
+   A picture card that gives under the pointer. Almost nothing
+   is here: the rotation, both gradients and the shadow are
+   written per frame from the pointer's position, and a rule
+   in this file that also had an opinion about any of them
+   would be a second author. What is left is the things that
+   are true whatever the pointer is doing. */
+.tlt {
+  position: relative;
+  /* The frame is what the pointer is measured against and it
+     is deliberately the ONLY thing in here that never moves.
+     The perspective lives on it rather than on the card for
+     the usual reason: on the card itself, `perspective` is
+     applied per element and the vanishing point rides along
+     with the rotation instead of staying put in the room. */
+}
+
+.tlt-card {
+  position: absolute;
+  inset: 0;
+  /* Bencho's --surface-2 is the second surface, the ground a
+     picture sits on before it loads; here that job is
+     --color-fill (#f5f5f7), so it reads the project token
+     rather than defining a new global. */
+  background-color: var(--color-fill);
+  background-size: cover;
+  background-position: center;
+  /* `cover` and a fixed frame, so the crop is the one
+     scripts/butterfly.sh already made rather than a second
+     one on top of it */
+  overflow: hidden;
+  /* NO `will-change`. It would hold a composited layer for
+     every copy of this block on the wall, permanently, to
+     save one frame on a hover that may never come — the same
+     bookkeeping CLAUDE.md objects to for permanent rAF. The
+     browser promotes this on its own once the transform
+     starts moving. */
+}
+
+/* Ditto: holding a card (`children`), it sits in the flow at the card's
+   own size, and the card brings its own ground. */
+.tlt-card--holding {
+  position: relative;
+  inset: auto;
+  height: 100%;
+  background-color: transparent;
+  /* No crop to make, and clipping would cut off the held card's own
+     hairline and shadow; the sheen keeps the corner by inheriting it. */
+  overflow: visible;
+}
+
+/* ── the dent and the rim ───────────────────────────────────
+   One element, two gradients, both placed from the pointer —
+   the dark one under it and the light one at its mirror. It
+   inherits the corner rather than being told one, so the knob
+   only has to reach the card. */
+.tlt-sheen {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
 /* Progressive blur along the viewport edges (see components/ui/progressive-blur). */
 
 

@@ -3,10 +3,21 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * Tuning for the glare and tilt on the dashboard's policy cards. Every field
+ * Tuning for the hover effect on the dashboard's policy cards. Every field
  * is a control in the card panel (Shift+Option+C on the dashboard).
  */
 export type CardConfig = {
+  /** Press: Bencho's tilt card, which sinks under the pointer. Glare: the
+      card turns toward the pointer and catches a glare. */
+  effect: "press" | "glare";
+  /** Press: the most either axis turns (°), how dark the dent gets (0–100),
+      the spring (0–100, 50 is Bencho's), the room's depth (px) and how far
+      the card retreats (px). */
+  pressTilt: number;
+  shade: number;
+  spring: number;
+  depth: number;
+  sink: number;
   /** Tilt toward the pointer; 0.4 is the reference (about ±5°). */
   tilt: number;
   /** Perspective distance in px; smaller looks deeper. */
@@ -21,8 +32,15 @@ export type CardConfig = {
   settle: number;
 };
 
-/* Tuned in the card panel on 1 Oct 2026. */
+/* Glare values tuned in the card panel on 1 Oct 2026. */
 export const defaultCardConfig: CardConfig = {
+  effect: "press",
+  /* Bencho's own values. */
+  pressTilt: 10,
+  shade: 60,
+  spring: 50,
+  depth: 800,
+  sink: 14,
   tilt: 0.15,
   perspective: 350,
   lift: 1.055,
@@ -32,9 +50,8 @@ export const defaultCardConfig: CardConfig = {
 };
 
 /* One shared config, remembered in this browser, defaults on the server.
-   v5: the white Figma cards, so the colour settings of earlier versions are
-   gone. */
-const KEY = "ditto.card-config.v5";
+   v6: adds the press effect, now the default. */
+const KEY = "ditto.card-config.v6";
 const listeners = new Set<() => void>();
 let current: CardConfig | null = null;
 
