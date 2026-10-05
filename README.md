@@ -127,7 +127,7 @@ returns to the row that opened it; Escape or a click outside closes it.
   questions are matched by keywords to the topic that answers them, and
   anything else gets an honest "I can't answer that yet" with topics.
 - **Policy page:** the insurer and name, then the policy card (with
-  Download card), and what's covered and not. The card carries the policy's
+  its download icon), and what's covered and not. The card carries the policy's
   facts and members, so there's no separate summary. On phones the
   two cover sections fold to a title and a count. Beside them, one Claims
   card holds the open claims, Start a claim and the claims questions
@@ -135,7 +135,7 @@ returns to the row that opened it; Escape or a click outside closes it.
 - **Quick actions** on the policy page (after Plum's): network hospitals
   with search, excluded hospitals, FAQs and the health card, each in the
   side sheet. The health card, there and on the claim page, has a
-  **Download card** pill that saves the card's front as a PNG, drawn on a
+  small download icon (top right) that saves the card's front as a PNG, drawn on a
   canvas at 3×.
 
 ### Mobile
