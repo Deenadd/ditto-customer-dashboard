@@ -1,7 +1,7 @@
 import { Monogram } from "@/components/dashboard/policy-pair";
 import { Asset } from "@/components/ui/asset";
 import { Button } from "@/components/ui/buttons";
-import { AddOnChips, FieldItem, StatusPill, cardClass } from "@/components/ui/card-bits";
+import { AddOnChips, FieldItem, cardClass } from "@/components/ui/card-bits";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
 import type { CoverIcon, CoverItem, Exclusion } from "@/lib/policy-detail";
 import { policyDetail } from "@/lib/policy-detail";
@@ -11,18 +11,15 @@ const cardTitle = "text-[17px] leading-[22px] font-semibold tracking-[-0.022em] 
 /** Large-title header for the policy page: icon, name, status, download. */
 export function PolicyHeader({ policy }: { policy: typeof policyDetail }) {
   return (
-    <header className="flex flex-wrap items-center gap-x-4 gap-y-4">
+    /* The logo's top lines up with the title's first line. */
+    <header className="flex flex-wrap items-start gap-x-4 gap-y-4">
       <InsurerLogo insurer={policy.insurer} size={56} />
       <div className="min-w-0 flex-[1_1_240px]">
         <h1 className="text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label">
           {policy.name}
         </h1>
-        <div className="mt-1.5 flex flex-wrap items-center gap-2">
-          <StatusPill status="active" />
-          <span className="text-[13px] leading-[18px] text-label-secondary">{policy.kind}</span>
-        </div>
       </div>
-      <Button variant="tinted" size="medium" className="max-sm:ml-[72px]">
+      <Button variant="tinted" size="medium" className="self-center max-sm:ml-[72px]">
         <svg aria-hidden width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path
             d="M8 2v8.5m0 0L4.75 7.25M8 10.5l3.25-3.25M2.75 13.25h10.5"

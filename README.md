@@ -140,6 +140,10 @@ returns to the row that opened it; Escape or a click outside closes it.
   the header, sheet and bottom bars. The header is solid page white: iOS 26
   Safari tints the status bar from it (otherwise content scrolls sharp
   behind the clock), and a short progressive blur sits just below it.
+- On phones (under 720px) the side sheet becomes a bottom sheet: it rises
+  on the same spring over a dimmed page, with rounded top corners and a
+  grabber. Drag the header down: a pull past 120px or a flick dismisses it,
+  anything less springs back. Tapping the dimmed page or Escape closes it.
 - The page is scroll-locked behind the side sheet and dialogs
   (`lib/use-scroll-lock.ts`), on iOS too, while the chat itself scrolls.
 - Touch screens get the cards without the glare layers, which they can't
