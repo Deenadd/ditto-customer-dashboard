@@ -3,12 +3,14 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Note } from "@/components/claims/claim-bits";
-import { CardFace, PolicyCardFront } from "@/components/dashboard/health-card";
+import { useCardConfig } from "@/components/dashboard/card-config";
+import { PolicyCardFront } from "@/components/dashboard/health-card";
 import { Asset } from "@/components/ui/asset";
 import { BackLink } from "@/components/ui/back-link";
 import { Button } from "@/components/ui/buttons";
 import { StatusPill, cardClass } from "@/components/ui/card-bits";
 import { IconCheck, IconDocuments } from "@/components/ui/icons";
+import { GlareFace, GlareGroup } from "@/components/ui/glare";
 import {
   categoryLabel,
   claimsHref,
@@ -76,6 +78,7 @@ const card = activePolicyGroups.flatMap((group) => group.items).find((item) => i
 
 function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Customer; created: boolean }) {
   const router = useRouter();
+  const cardConfig = useCardConfig();
   const [copied, setCopied] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -161,9 +164,11 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
         </section>
       ) : (
       <section aria-labelledby="card-title" className="mt-6 grid items-center gap-5 sm:grid-cols-[minmax(0,380px)_1fr] sm:gap-7">
-        <CardFace>
-          <PolicyCardFront policy={card} download />
-        </CardFace>
+        <GlareGroup settings={cardConfig}>
+          <GlareFace>
+            <PolicyCardFront policy={card} download />
+          </GlareFace>
+        </GlareGroup>
         <div>
           <h2 id="card-title" className={cardTitle}>
             Show this at the hospital

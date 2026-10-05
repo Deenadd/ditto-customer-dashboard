@@ -117,11 +117,11 @@ returns to the row that opened it; Escape or a click outside closes it.
   policy on the front and its people on the back, white cards with the blue
   contour lines and glow, a blue dot, and an outlined white panel. A card
   with a policy page opens it from anywhere on the card.
-- **Press on hover**, Bencho's Tilt card (MIT, bencho.dev/licence;
-  `components/ui/tilt-card.tsx`): the face under the pointer sinks away from
-  it, a dent of shadow follows the pointer and the opposite rim catches the
-  light, all from one sprung pointer position. Reduced motion keeps the
-  dent and drops the turn. The card panel can switch to the earlier Glare.
+- **Glare and tilt** on hover, after Aceternity's glare card: the face under
+  the pointer tilts toward it, a white glare follows it and a faint rainbow
+  foil shifts. Reduced motion keeps the glare and drops the tilt; touch
+  screens, with no hover, get none of it.
+
 - **Ditto Buddy** (home page, in place of Claims support; after Plum's "Ask Plum AI") opens the side
   sheet with the claims chat from a greeting, plus a text box. Typed
   questions are matched by keywords to the topic that answers them, and
@@ -159,10 +159,9 @@ returns to the row that opened it; Escape or a click outside closes it.
 
 ### Card controls
 
-On the dashboard, **Shift+Option+C** opens a panel for the cards' hover:
-**Press** (tilt, dent shade, spring, depth, sink; Bencho's values by
-default) or **Glare** (glare, foil, tilt, perspective, lift, settle). Copy
-config gives the JSON for `components/dashboard/card-config.ts`.
+On the dashboard, **Shift+Option+C** opens a panel for the cards' glare,
+foil, tilt, perspective, lift and settle time. Copy config gives the JSON
+for `components/dashboard/card-config.ts`.
 
 The sign-in glow panel has the same mesh pad: the ring is the blue dome, and
 colour points layer over the wash.
