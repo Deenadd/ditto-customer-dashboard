@@ -64,11 +64,11 @@ export function CoveredCard({ items }: { items: CoverItem[] }) {
 export function NotCoveredCard({ items }: { items: Exclusion[] }) {
   return (
     <Collapsible id="not-covered" title="What’s not covered" summary={`${items.length} exclusions`}>
-      <ul className="mt-3 overflow-hidden rounded-[14px] bg-fill">
+      <ul className="mt-2">
         {items.map((item, index) => (
-          <li key={item.label} className="relative flex items-center gap-3 px-4 py-3">
+          <li key={item.label} className="relative flex items-center gap-3 py-3">
             {index > 0 ? (
-              <span aria-hidden className="absolute top-0 right-0 left-12 h-px bg-separator" />
+              <span aria-hidden className="absolute top-0 right-0 left-8 h-px bg-separator" />
             ) : null}
             <CoverGlyph icon={item.icon} size={20} />
             <span className="text-[14px] leading-5 text-label">{item.label}</span>

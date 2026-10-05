@@ -105,14 +105,10 @@ export function PolicyCardFront({ policy, download = false }: { policy: ActivePo
       {/* The Figma's blue dot: this card is current. */}
       {download ? null : <span aria-hidden className="absolute top-5 right-5 size-2 rounded-full bg-accent" />}
 
-      <div className={`flex items-center gap-3.5 px-4 pt-4 ${download ? "pr-[164px]" : "pr-10"}`}>
+      <div className={`flex items-center gap-3.5 px-4 pt-4 ${download ? "pr-14" : "pr-10"}`}>
         <InsurerLogo insurer={policy.insurer} size={44} />
         <div className="min-w-0">
-          <h3
-            className={`text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label ${
-              download ? "line-clamp-2 text-balance" : "truncate"
-            }`}
-          >
+          <h3 className="truncate text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label">
             {policy.name}
           </h3>
           <p className="mt-0.5 text-[13px] leading-[18px] text-label">{policy.kind}</p>
@@ -132,29 +128,31 @@ export function PolicyCardFront({ policy, download = false }: { policy: ActivePo
   );
 }
 
-/** Saves the card as a PNG. It sits in the card's header, inside the card so
-    it tilts with it, and says Saved for a moment afterwards. */
+/** Saves the card as a PNG: a small icon button in the card's top-right
+    corner, inside the card so it tilts with it. It shows a tick for a moment
+    afterwards. */
 function DownloadPill({ policy }: { policy: ActivePolicy }) {
   const [saved, setSaved] = useState(false);
   return (
     <button
       type="button"
+      aria-label={saved ? "Card saved" : "Download card"}
+      title="Download card"
       onClick={async (event) => {
         event.stopPropagation();
         await downloadPolicyCard(policy);
         setSaved(true);
         window.setTimeout(() => setSaved(false), 1600);
       }}
-      className="absolute top-[22px] right-4 z-20 inline-flex h-8 items-center gap-1.5 rounded-full bg-white px-3 text-[13px] font-semibold text-label shadow-[0_0_0_0.5px_rgb(0_0_0_/_0.1),0_2px_6px_rgb(0_0_0_/_0.1),0_8px_20px_-6px_rgb(0_0_0_/_0.16)] transition-transform duration-150 ease-out active:scale-[0.96]"
+      className="absolute top-3 right-3 z-20 grid size-9 place-items-center rounded-full text-label-secondary transition-[background-color,color,transform] duration-150 ease-out hover:bg-black/[0.05] hover:text-label active:scale-[0.92]"
     >
       {saved ? (
-        <IconCheck size={14} className="text-green-text" />
+        <IconCheck size={16} className="text-green-text" />
       ) : (
-        <svg aria-hidden width="14" height="14" viewBox="0 0 16 16" fill="none">
+        <svg aria-hidden width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path d="M8 2v8.5m0 0L4.75 7.25M8 10.5l3.25-3.25M2.75 13.25h10.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       )}
-      {saved ? "Saved" : "Download card"}
     </button>
   );
 }
