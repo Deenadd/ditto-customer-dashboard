@@ -8,6 +8,7 @@ export type GlareSettings = {
   perspective: number;
   lift: number;
   glare: number;
+  foil: number;
   settle: number;
 };
 
@@ -21,10 +22,9 @@ const subscribe = (listener: () => void) => {
 /**
  * Glare and tilt on hover, after Aceternity's glare card (as on Linear's
  * site). The group watches the pointer and drives whichever face is under
- * it: the face tilts toward the pointer and a white glare follows it. It
- * eases in, then tracks the pointer closely, and settles back when the
- * pointer leaves. The light is also handed to any foil on the face, through
- * --foil-x, --foil-y and --foil-lit (see card-foil.tsx).
+ * it: the face tilts toward the pointer, a white glare follows it, and a
+ * faint rainbow foil shifts with it. It eases in, then tracks the pointer
+ * closely, and settles back when the pointer leaves.
  *
  * The pointer is read on the group, not each face, because a link may lie
  * over the faces. Touch screens get none of it (there's no hover), and
@@ -50,7 +50,7 @@ export function GlareGroup({
     delete face.dataset.active;
     window.clearTimeout(timers.current.get(face));
     face.style.setProperty("--g-dur", `${settings.settle}ms`);
-    for (const [name, value] of [["--r-x", "0deg"], ["--r-y", "0deg"], ["--s", "1"], ["--g-op", "0"], ["--foil-lit", "0"]])
+    for (const [name, value] of [["--r-x", "0deg"], ["--r-y", "0deg"], ["--s", "1"], ["--g-op", "0"], ["--f-op", "0"]])
       face.style.setProperty(name, value);
   }
 
@@ -76,9 +76,7 @@ export function GlareGroup({
     face.style.setProperty("--bg-x", `${50 + px / 4 - 12.5}%`);
     face.style.setProperty("--bg-y", `${50 + py / 3 - 16.67}%`);
     face.style.setProperty("--g-op", `${settings.glare}`);
-    face.style.setProperty("--foil-x", `${px}%`);
-    face.style.setProperty("--foil-y", `${py}%`);
-    face.style.setProperty("--foil-lit", "1");
+    face.style.setProperty("--f-op", `${settings.foil}`);
   }
 
   return (
@@ -102,6 +100,17 @@ export function GlareGroup({
   );
 }
 
+/* The foil, from the reference: a rainbow and a diagonal sheen, blended by
+   hue, over a shade that brightens toward the pointer. */
+const foil: CSSProperties = {
+  background: [
+    "repeating-linear-gradient(0deg, rgb(255,119,115) 5%, rgba(255,237,95,1) 10%, rgba(168,255,95,1) 15%, rgba(131,255,247,1) 20%, rgba(120,148,255,1) 25%, rgb(216,117,255) 30%, rgb(255,119,115) 35%) 0% var(--bg-y, 50%)/200% 700% no-repeat",
+    "repeating-linear-gradient(128deg, #0e152e 0%, hsl(180,10%,60%) 3.8%, hsl(180,10%,60%) 4.5%, hsl(180,10%,60%) 5.2%, #0e152e 10%, #0e152e 12%) var(--bg-x, 50%) var(--bg-y, 50%)/300% no-repeat",
+    "radial-gradient(farthest-corner circle at var(--m-x, 50%) var(--m-y, 50%), rgba(255,255,255,0.1) 12%, rgba(255,255,255,0.15) 20%, rgba(255,255,255,0.25) 120%) var(--bg-x, 50%) var(--bg-y, 50%)/300% no-repeat",
+  ].join(", "),
+  backgroundBlendMode: "hue, hue, overlay",
+};
+
 /** One face that tilts and catches the glare. Its child should fill it. */
 export function GlareFace({ children, className = "", radius = 16 }: { children: ReactNode; className?: string; radius?: number }) {
   const round = { borderRadius: radius } as CSSProperties;
@@ -117,6 +126,11 @@ export function GlareFace({ children, className = "", radius = 16 }: { children:
           aria-hidden
           className="pointer-events-none absolute inset-0 z-[1] opacity-[var(--g-op,0)] mix-blend-soft-light transition-opacity duration-[var(--g-dur,300ms)] ease-out [background:radial-gradient(farthest-corner_circle_at_var(--m-x,50%)_var(--m-y,50%),rgba(255,255,255,0.8)_10%,rgba(255,255,255,0.65)_20%,rgba(255,255,255,0)_90%)]"
           style={round}
+        />
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-[1] opacity-[var(--f-op,0)] mix-blend-color-dodge transition-opacity duration-[var(--g-dur,300ms)] ease-out"
+          style={{ ...foil, ...round }}
         />
       </div>
     </div>
