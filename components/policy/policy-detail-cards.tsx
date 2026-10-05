@@ -77,7 +77,7 @@ export function PolicySummaryCard({ policy }: { policy: typeof policyDetail }) {
 }
 
 /** A Figma icon frame: the group sits at an inset and its SVG bleeds out. */
-function CoverGlyph({ icon, size }: { icon: CoverIcon; size: number }) {
+export function CoverGlyph({ icon, size }: { icon: CoverIcon; size: number }) {
   return (
     <span aria-hidden className="relative block shrink-0" style={{ width: size, height: size }}>
       <span className="absolute" style={{ inset: icon.group }}>

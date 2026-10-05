@@ -4,7 +4,7 @@ import { MiniPolicyCard } from "@/components/dashboard/health-card";
 import { Chevron } from "@/components/dashboard/policy-pair";
 import { StatusPill } from "@/components/ui/card-bits";
 import { IconClaim } from "@/components/ui/icons";
-import { formatDate, type Claim } from "@/lib/claims";
+import { formatDate, typeLabel, type Claim } from "@/lib/claims";
 
 /**
  * A set of answers as one card, rows split by hairlines (inset to line up
@@ -126,7 +126,7 @@ export function ClaimRow({ claim, href }: { claim: Claim; href: string }) {
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[15px] leading-5 font-medium text-label">
-          Cashless · {claim.treatment}
+          {typeLabel(claim)} · {claim.treatment}
         </span>
         <span className="block truncate text-[13px] leading-[18px] text-label-secondary tabular-nums">
           {claim.id} · {claim.patient.name} · {claim.hospital?.name ?? "Hospital not chosen"}

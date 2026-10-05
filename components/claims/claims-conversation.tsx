@@ -8,7 +8,7 @@ import { defaultSideSheetConfig } from "@/components/ui/frosted-side-sheet/confi
 import { IconBack, IconCheck, IconPhone, IconRestart } from "@/components/ui/icons";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
 import { ChatWidget } from "@/components/claims/chat-widgets";
-import { closingChoices, steps, type Choice, type Outcome, type WidgetId } from "@/lib/claims-flow";
+import { closingChoices, routeQuestion, steps, type Choice, type Outcome, type WidgetId } from "@/lib/claims-flow";
 
 /* The conversation only grows, or is cut back by Back, so an entry's
    position is its key. */
@@ -33,7 +33,8 @@ const TYPING_MS = 550;
  * again. Items there when the sheet opened join its opening stagger; later
  * ones reveal on their own clock.
  */
-export function ClaimsConversation({ start }: { start: string }) {
+export function ClaimsConversation({ start, composer = false }: { start: string; composer?: boolean }) {
+  const [question, setQuestion] = useState("");
   const { reduced } = useSheetReveal();
   const [entries, setEntries] = useState<Entry[]>(() => stepEntries(start));
   const [current, setCurrent] = useState(start);
@@ -174,8 +175,43 @@ export function ClaimsConversation({ start }: { start: string }) {
                 )}
               </div>
             ) : null}
+            {composer ? (
+              <form
+                className="relative mt-3"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  const text = question.trim();
+                  if (!text) return;
+                  setQuestion("");
+                  reply(text, routeQuestion(text));
+                }}
+              >
+                <label htmlFor="buddy-question" className="sr-only">
+                  Ask Ditto Buddy
+                </label>
+                <input
+                  id="buddy-question"
+                  value={question}
+                  onChange={(event) => setQuestion(event.target.value)}
+                  placeholder="Ask about claims, cover or hospitals"
+                  autoComplete="off"
+                  enterKeyHint="send"
+                  className="h-12 w-full rounded-full bg-surface pr-14 pl-4 text-[16px] leading-6 text-label shadow-field placeholder:text-label-tertiary focus:shadow-[0_0_0_2px_var(--color-accent)] focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  aria-label="Send"
+                  disabled={!question.trim()}
+                  className="absolute top-1.5 right-1.5 grid size-9 place-items-center rounded-full bg-accent text-white transition-[opacity,transform] duration-150 active:scale-[0.92] disabled:opacity-30"
+                >
+                  <svg aria-hidden width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M8 13V3m0 0L3.5 7.5M8 3l4.5 4.5" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </button>
+              </form>
+            ) : null}
             {answered ? (
-              <div className={`flex items-center justify-between ${choices.length ? "mt-3 -mx-2" : "-mx-2"}`}>
+              <div className={`flex items-center justify-between ${choices.length || composer ? "mt-3 -mx-2" : "-mx-2"}`}>
                 <Button variant="plain" size="small" onClick={back}>
                   <IconBack size={16} />
                   Back

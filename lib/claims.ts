@@ -9,13 +9,28 @@ import type { Customer } from "@/lib/routes";
  * list, the claim page and the policy page, and gone when deleted.
  */
 
-export type ClaimCategory = "hospitalisation" | "day-care";
+export type ClaimCategory = "hospitalisation" | "day-care" | "pre-post";
 
 export type Stage = { id: string; label: string; hint: string };
 
 export const categories: { id: ClaimCategory; label: string; hint: string }[] = [
   { id: "hospitalisation", label: "Hospitalisation", hint: "A hospital stay of 24 hours or more" },
   { id: "day-care", label: "Day care", hint: "Treatment in under 24 hours that isn't an outpatient visit" },
+];
+
+/** A reimbursement can also be for the costs either side of a stay alone. */
+export const reimbursementCategories: { id: ClaimCategory; label: string; hint: string }[] = [
+  { id: "hospitalisation", label: "Hospitalisation", hint: "A hospital stay of 24 hours or more" },
+  { id: "pre-post", label: "Only before and after a stay", hint: "Costs in the 60 days before admission or 90 days after discharge" },
+  { id: "day-care", label: "Day care", hint: "Treatment in under 24 hours that isn't an outpatient visit" },
+];
+
+export type DocumentKind = "bills" | "discharge" | "reports";
+
+export const documentKinds: { id: DocumentKind; label: string; hint: string }[] = [
+  { id: "bills", label: "Bills and payment receipts", hint: "Hospital bills, pharmacy bills and receipts" },
+  { id: "discharge", label: "Discharge summary", hint: "The summary the hospital gave you when you left" },
+  { id: "reports", label: "Reports", hint: "Investigation and lab reports" },
 ];
 
 export const stages: Record<ClaimCategory, Stage[]> = {
@@ -25,6 +40,7 @@ export const stages: Record<ClaimCategory, Stage[]> = {
     { id: "discharge", label: "Waiting to be discharged", hint: "I've been admitted and need help with cashless approval" },
     { id: "after", label: "Already discharged", hint: "I've left the hospital and need more help" },
   ],
+  "pre-post": [{ id: "after", label: "Costs before or after a stay", hint: "" }],
   "day-care": [
     { id: "planning", label: "Planning treatment", hint: "I need help planning treatment that's coming up" },
     { id: "today", label: "At the hospital today", hint: "Treatment is today and I need help with cashless" },
@@ -55,12 +71,19 @@ export const hospitals: Hospital[] = [
   { id: "lakeside", name: "Powai Lakeside Hospital", address: "9, Hiranandani Gardens, Powai", city: "Mumbai", pin: "400076", network: false },
 ];
 
+/** Hospitals Care Health won't pay claims from; made up for the prototype. */
+export const excludedHospitals = [
+  { name: "Greenfield Nursing Home", city: "Chennai", reason: "Excluded for billing irregularities" },
+  { name: "City Care Clinic", city: "Bengaluru", reason: "Excluded for incomplete records" },
+  { name: "Seaside Medical Centre", city: "Mumbai", reason: "Excluded for billing irregularities" },
+];
+
 export type Patient = { name: string; relation: string; age: number };
 
 export type Claim = {
   id: string;
   policyId: string;
-  type: "cashless";
+  type: "cashless" | "reimbursement";
   patient: Patient;
   category: ClaimCategory;
   treatment: string;
@@ -69,6 +92,11 @@ export type Claim = {
   admission: string | null;
   hospital: { name: string; address: string; network: boolean } | null;
   createdAt: string;
+  /** Reimbursement only: what you're claiming (₹), when you left, and the
+      names of the files you added, by kind. */
+  amount?: number;
+  discharge?: string | null;
+  documents?: Partial<Record<DocumentKind, string[]>>;
 };
 
 /** The policy year a claim's dates must fall in. */
@@ -164,4 +192,9 @@ export const claimHref = (policyId: string, claimId: string, customer?: Customer
 export const stageLabel = (claim: Claim) =>
   stages[claim.category].find((stage) => stage.id === claim.stage)?.label ?? claim.stage;
 export const categoryLabel = (category: ClaimCategory) =>
-  categories.find((item) => item.id === category)?.label ?? category;
+  reimbursementCategories.find((item) => item.id === category)?.label ?? category;
+
+export const typeLabel = (claim: Claim) => (claim.type === "reimbursement" ? "Reimbursement" : "Cashless");
+
+/** ₹ in Indian grouping: 150000 → "₹1,50,000". */
+export const rupees = (amount: number) => `₹${new Intl.NumberFormat("en-IN").format(amount)}`;

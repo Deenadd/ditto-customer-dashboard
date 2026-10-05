@@ -9,13 +9,14 @@ import { Asset } from "@/components/ui/asset";
 import { BackLink } from "@/components/ui/back-link";
 import { Button } from "@/components/ui/buttons";
 import { StatusPill, cardClass } from "@/components/ui/card-bits";
-import { IconCheck } from "@/components/ui/icons";
+import { IconCheck, IconDocuments } from "@/components/ui/icons";
 import { GlareFace, GlareGroup } from "@/components/ui/glare";
 import {
   categoryLabel,
   claimsHref,
   deleteClaim,
   formatDate,
+  rupees,
   stageLabel,
   useClaims,
   useHydrated,
@@ -28,7 +29,14 @@ import { lockScroll, unlockScroll } from "@/lib/use-scroll-lock";
 
 const cardTitle = "text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label";
 
-const journey = [
+const reimbursementJourney = [
+  { title: "Request received", body: "We have your claim and documents." },
+  { title: "Document check", body: "We review your documents within two working days, and tell you if anything's missing." },
+  { title: "Care Health's review", body: "Care Health assesses the claim. You'll courier them the originals at this point." },
+  { title: "Payout", body: "The approved amount goes to your bank account, usually within 30 days of the claim." },
+];
+
+const cashlessJourney = [
   { title: "Request received", body: "We have your request and will share it with the hospital." },
   { title: "Pre-authorisation", body: "The hospital asks Care Health to approve the treatment, ideally 2 to 3 days before admission." },
   { title: "Approval", body: "Care Health approves the request and tells the hospital how much it covers." },
@@ -83,19 +91,35 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
     }
   }
 
-  const details = [
-    { label: "Treatment", value: claim.treatment },
-    { label: "Category", value: categoryLabel(claim.category) },
-    { label: "Stage", value: stageLabel(claim) },
-    { label: "Admission", value: claim.admission ? formatDate(claim.admission) : "Not decided yet" },
-  ];
+  const reimbursement = claim.type === "reimbursement";
+  const journey = reimbursement ? reimbursementJourney : cashlessJourney;
+  const files = Object.values(claim.documents ?? {}).flat();
+  const details = reimbursement
+    ? [
+        { label: "Reason", value: claim.treatment },
+        { label: "For", value: categoryLabel(claim.category) },
+        { label: "Amount", value: rupees(claim.amount ?? 0) },
+        {
+          label: "Stay",
+          value: claim.admission && claim.discharge ? `${formatDate(claim.admission)} to ${formatDate(claim.discharge)}` : "",
+        },
+        { label: "Documents", value: `${files.length} ${files.length === 1 ? "file" : "files"}` },
+      ]
+    : [
+        { label: "Treatment", value: claim.treatment },
+        { label: "Category", value: categoryLabel(claim.category) },
+        { label: "Stage", value: stageLabel(claim) },
+        { label: "Admission", value: claim.admission ? formatDate(claim.admission) : "Not decided yet" },
+      ];
 
   return (
     <>
       <BackLink href={claimsHref(policyDetail.id, customer)}>All claims</BackLink>
 
       <header className="mt-4">
-        <h1 className="text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label">Your cashless claim</h1>
+        <h1 className="text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label">
+          {reimbursement ? "Your reimbursement claim" : "Your cashless claim"}
+        </h1>
         <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
           <StatusPill status="received" />
           <span className="text-[13px] leading-[18px] text-label-secondary tabular-nums">
@@ -116,10 +140,26 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
         </p>
       ) : null}
 
+      {reimbursement ? (
+        <section aria-labelledby="originals-title" className="mt-6 flex gap-3.5 rounded-[18px] bg-fill px-4 py-4">
+          <span aria-hidden className="grid size-10 shrink-0 place-items-center rounded-[11px] bg-surface text-accent shadow-tile">
+            <IconDocuments />
+          </span>
+          <div className="min-w-0">
+            <h2 id="originals-title" className="text-[15px] leading-5 font-semibold text-label">
+              Keep your original documents
+            </h2>
+            <p className="mt-0.5 text-[13px] leading-[18px] text-pretty text-label-secondary">
+              Once we&apos;ve checked the copies, we&apos;ll email you where to courier the originals for Care Health&apos;s review.
+              Quote reference <span className="font-medium text-label tabular-nums">{claim.id}</span>.
+            </p>
+          </div>
+        </section>
+      ) : (
       <section aria-labelledby="card-title" className="mt-6 grid items-center gap-5 sm:grid-cols-[minmax(0,380px)_1fr] sm:gap-7">
         <GlareGroup settings={cardConfig}>
           <GlareFace>
-            <PolicyCardFront policy={card} palette={cardConfig.blue} />
+            <PolicyCardFront policy={card} palette={cardConfig.blue} download />
           </GlareFace>
         </GlareGroup>
         <div>
@@ -150,6 +190,7 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
           </dl>
         </div>
       </section>
+      )}
 
       <div className="mt-8 flex flex-col gap-6">
         <section aria-labelledby="next-title" className={`${cardClass} p-5`}>
@@ -214,13 +255,13 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
               <dt className="shrink-0 text-label-secondary">Hospital</dt>
               <dd className="min-w-0 text-right">
                 <span className="block font-medium break-words text-label">{claim.hospital?.name ?? "Not chosen yet"}</span>
-                {claim.hospital ? (
+                {claim.hospital?.address ? (
                   <span className="block text-[13px] leading-[18px] text-label-secondary">{claim.hospital.address}</span>
                 ) : null}
               </dd>
             </div>
           </dl>
-          {claim.hospital && !claim.hospital.network ? (
+          {!reimbursement && claim.hospital && !claim.hospital.network ? (
             <div className="mt-3">
               <Note tone="warning">
                 This hospital may not be in Care Health&apos;s network. We&apos;ll confirm, and help you claim the costs back if cashless isn&apos;t possible.

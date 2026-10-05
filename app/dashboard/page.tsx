@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { ApplicationCard } from "@/components/dashboard/application-card";
 import { ApplicationTimeline } from "@/components/dashboard/application-timeline";
 import { CardControls } from "@/components/dashboard/card-controls";
+import { DittoBuddy } from "@/components/dashboard/ditto-buddy";
 import { ClaimsSupport } from "@/components/claims/claims-support";
 import { EmptyApplications } from "@/components/dashboard/empty-applications";
 import { PolicyPair } from "@/components/dashboard/policy-pair";
@@ -127,7 +128,8 @@ export default async function DashboardPage({
           />
         </div>
 
-        <div className="self-start [grid-area:claims]">
+        <div className="flex flex-col gap-6 self-start [grid-area:claims]">
+          <DittoBuddy />
           <ClaimsSupport />
         </div>
       </main>

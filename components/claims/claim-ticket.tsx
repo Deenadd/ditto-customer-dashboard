@@ -5,7 +5,7 @@ import { animate, useReducedMotion } from "motion/react";
 import { TicketControls } from "@/components/claims/ticket-controls";
 import { useTicketConfig } from "@/components/claims/ticket-config";
 import { Button } from "@/components/ui/buttons";
-import { categoryLabel, formatDate, type Claim } from "@/lib/claims";
+import { categoryLabel, formatDate, rupees, type Claim } from "@/lib/claims";
 
 /*
  * The claim ticket, printed once a claim is sent, after a receipt-print
@@ -209,13 +209,27 @@ export function ClaimTicket({
     if (done) viewRef.current?.focus({ preventScroll: true });
   }, [done]);
 
-  const rows = [
-    { label: "Patient", value: `${claim.patient.name} (${claim.patient.relation})` },
-    { label: "Treatment", value: claim.treatment },
-    { label: "Type", value: `Cashless · ${categoryLabel(claim.category)}` },
-    { label: "Hospital", value: claim.hospital?.name ?? "Not chosen yet" },
-    { label: "Admission", value: claim.admission ? formatDate(claim.admission) : "Not decided yet" },
-  ];
+  const rows =
+    claim.type === "reimbursement"
+      ? [
+          { label: "Patient", value: `${claim.patient.name} (${claim.patient.relation})` },
+          { label: "Treatment", value: claim.treatment },
+          { label: "Type", value: `Reimbursement · ${categoryLabel(claim.category)}` },
+          { label: "Hospital", value: claim.hospital?.name ?? "" },
+          {
+            label: "Stay",
+            value: claim.admission && claim.discharge ? `${formatDate(claim.admission)} – ${formatDate(claim.discharge)}` : "",
+          },
+          { label: "Amount", value: rupees(claim.amount ?? 0) },
+          { label: "Documents", value: `${Object.values(claim.documents ?? {}).flat().length} files` },
+        ]
+      : [
+          { label: "Patient", value: `${claim.patient.name} (${claim.patient.relation})` },
+          { label: "Treatment", value: claim.treatment },
+          { label: "Type", value: `Cashless · ${categoryLabel(claim.category)}` },
+          { label: "Hospital", value: claim.hospital?.name ?? "Not chosen yet" },
+          { label: "Admission", value: claim.admission ? formatDate(claim.admission) : "Not decided yet" },
+        ];
 
   return (
     <div className="flex flex-col items-center pt-2 pb-[calc(128px+env(safe-area-inset-bottom))]">
@@ -226,7 +240,11 @@ export function ClaimTicket({
         {done ? "Claim request sent" : "Printing your ticket…"}
       </h1>
       <p className="mt-1.5 min-h-10 max-w-[340px] text-center text-[15px] leading-5 text-pretty text-label-secondary">
-        {done ? "Show this ticket at the hospital's insurance desk. We'll keep you posted on every step." : " "}
+        {done
+          ? claim.type === "reimbursement"
+            ? "We'll review your documents within two working days and keep you posted on every step."
+            : "Show this ticket at the hospital's insurance desk. We'll keep you posted on every step."
+          : " "}
       </p>
 
       {/* The printer: a dark slot the ticket feeds out of. */}
@@ -269,7 +287,7 @@ export function ClaimTicket({
                 <p className="mt-1.5 text-center text-[11px] tracking-[0.3em] tabular-nums">{claim.id}</p>
               </div>
               <p className="mt-3 text-center text-[11px] leading-4 text-label-secondary">
-                Requested {formatDate(claim.createdAt)} · Show at the insurance desk
+                Requested {formatDate(claim.createdAt)}{claim.type === "reimbursement" ? " · Keep the originals" : " · Show at the insurance desk"}
               </p>
 
               <div

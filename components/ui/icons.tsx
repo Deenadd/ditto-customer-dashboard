@@ -2,11 +2,15 @@ import {
   Activity,
   ArrowLeft,
   Check,
+  CircleHelp,
+  Hospital,
+  IdCard,
   FilePlus2,
   Files,
   Phone,
   RotateCcw,
   ShieldCheck,
+  ShieldX,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -40,3 +44,7 @@ export const IconCheck = from(Check, 2.25);
 export const IconBack = from(ArrowLeft);
 export const IconRestart = from(RotateCcw);
 export const IconPhone = from(Phone);
+export const IconHospital = from(Hospital);
+export const IconExcluded = from(ShieldX);
+export const IconHelp = from(CircleHelp);
+export const IconHealthCard = from(IdCard);

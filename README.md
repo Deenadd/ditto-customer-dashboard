@@ -124,6 +124,16 @@ returns to the row that opened it; Escape or a click outside closes it.
   foil shifts. Reduced motion keeps the glare and drops the tilt; touch
   screens, with no hover, get none of it.
 
+- **Ditto Buddy** (home page, after Plum's "Ask Plum AI") opens the side
+  sheet with the claims chat from a greeting, plus a text box. Typed
+  questions are matched by keywords to the topic that answers them, and
+  anything else gets an honest "I can't answer that yet" with topics.
+- **Quick actions** on the policy page (after Plum's): network hospitals
+  with search, excluded hospitals, FAQs and the health card, each in the
+  side sheet. The health card, there and on the claim page, has a
+  **Download card** pill that saves the card's front as a PNG, drawn on a
+  canvas at 3×.
+
 ### Mobile
 
 - Edge to edge on iPhones (`viewport-fit=cover`), with safe-area padding on
@@ -212,6 +222,16 @@ page's one filled action, and the open claims once there are any.
   gives the JSON for `components/claims/ticket-config.ts`.
 - **Continue bar** in the claim flow uses the side sheet's material (28px
   blur, #F7F7F7 at 72%), faded in over 40px so it has no top edge.
+- **Reimbursement claims** (after Plum's flow): what you're claiming for
+  (hospitalisation, only before and after a stay, or day care), treatment
+  details (patient, amount, reason, hospital, admission and discharge, with
+  the "check before you continue" tips), the policy, your documents (bills,
+  discharge summary, reports; added files can be removed), and a review with
+  Edit links and a confirmation. Each step checks itself and focuses the
+  field at fault; the amount is capped at the sum insured, and dates must be
+  in the policy year and not in the future. Sending prints the ticket; the
+  claim page shows the amount, stay and documents, and asks you to keep the
+  originals. Only file names are kept, in this browser.
 - **Claims:** Active and Past, with an empty state. After a delete it says
   which claim went.
 

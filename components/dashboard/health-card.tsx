@@ -1,11 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import type { CSSProperties } from "react";
 import { useCardConfig, type CardPalette, type CardTone } from "@/components/dashboard/card-config";
 import { Asset } from "@/components/ui/asset";
 import { GlareFace, GlareGroup } from "@/components/ui/glare";
+import { IconCheck } from "@/components/ui/icons";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
+import { downloadPolicyCard } from "@/lib/download-card";
 import type { ActivePolicy, Member } from "@/lib/dashboard-data";
 import { meshLayers } from "@/lib/mesh";
 
@@ -79,15 +82,29 @@ const captions: Record<CardTone, string> = {
  * health, green for term). Each face tilts and catches a glare on hover, and
  * the whole pair opens the policy when it has a page.
  */
-export function PolicyCardPair({ policy, href, tone }: { policy: ActivePolicy; href?: string; tone: CardTone }) {
+export function PolicyCardPair({
+  policy,
+  href,
+  tone,
+  stacked = false,
+  download = false,
+}: {
+  policy: ActivePolicy;
+  href?: string;
+  tone: CardTone;
+  /** Front above back, for narrow places like a side sheet. */
+  stacked?: boolean;
+  /** Show the Download card pill on the front. */
+  download?: boolean;
+}) {
   const config = useCardConfig();
   const palette = config[tone];
   const frame = frameBackground(palette);
 
   return (
-    <GlareGroup settings={config} className="group relative grid gap-4 sm:grid-cols-2">
+    <GlareGroup settings={config} className={`group relative grid gap-4 ${stacked ? "" : "sm:grid-cols-2"}`}>
       <GlareFace>
-        <PolicyCardFront policy={policy} palette={palette} />
+        <PolicyCardFront policy={policy} palette={palette} download={download} />
       </GlareFace>
 
       <GlareFace>
@@ -126,7 +143,16 @@ export function PolicyCardPair({ policy, href, tone }: { policy: ActivePolicy; h
 }
 
 /** The card's front: the insurer and policy in the frame, its facts in the white inset. */
-export function PolicyCardFront({ policy, palette }: { policy: ActivePolicy; palette: CardPalette }) {
+export function PolicyCardFront({
+  policy,
+  palette,
+  download = false,
+}: {
+  policy: ActivePolicy;
+  palette: CardPalette;
+  /** A "Download card" pill in the corner, after a referral card's Copy. */
+  download?: boolean;
+}) {
   const fields = [
     { label: "Policy number", value: policy.policyNumber },
     { label: "Sum insured", value: policy.sumInsured },
@@ -146,7 +172,7 @@ export function PolicyCardFront({ policy, palette }: { policy: ActivePolicy; pal
         </div>
       </div>
 
-      <div className="flex items-center gap-3 px-4 pt-4">
+      <div className={`flex items-center gap-3 px-4 pt-4 ${download ? "pr-40" : ""}`}>
         <span className="shrink-0 rounded-[12px] border-2 border-white shadow-[0px_6px_24px_0px_rgba(0,0,0,0.07)]">
           <InsurerLogo insurer={policy.insurer} size={40} />
         </span>
@@ -164,8 +190,36 @@ export function PolicyCardFront({ policy, palette }: { policy: ActivePolicy; pal
           </div>
         ))}
       </dl>
+      {download ? <DownloadPill policy={policy} palette={palette} /> : null}
       <Bevel />
     </article>
+  );
+}
+
+/** Saves the card as a PNG. It sits in the frame's header, inside the card so
+    it tilts with it, and says Saved for a moment afterwards. */
+function DownloadPill({ policy, palette }: { policy: ActivePolicy; palette: CardPalette }) {
+  const [saved, setSaved] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={async (event) => {
+        event.stopPropagation();
+        await downloadPolicyCard(policy, palette);
+        setSaved(true);
+        window.setTimeout(() => setSaved(false), 1600);
+      }}
+      className="absolute top-[22px] right-4 z-20 inline-flex h-8 items-center gap-1.5 rounded-full bg-white px-3 text-[13px] font-semibold text-label shadow-[0_0_0_0.5px_rgb(0_0_0_/_0.08),0_2px_6px_rgb(0_0_0_/_0.12),0_8px_20px_-6px_rgb(0_0_0_/_0.18)] transition-transform duration-150 ease-out active:scale-[0.96]"
+    >
+      {saved ? (
+        <IconCheck size={14} className="text-green-text" />
+      ) : (
+        <svg aria-hidden width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2v8.5m0 0L4.75 7.25M8 10.5l3.25-3.25M2.75 13.25h10.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )}
+      {saved ? "Saved" : "Download card"}
+    </button>
   );
 }
 

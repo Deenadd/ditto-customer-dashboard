@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
 import { BackLink } from "@/components/ui/back-link";
 import { PolicyClaimsCard } from "@/components/claims/policy-claims-card";
+import { QuickActions } from "@/components/policy/quick-actions";
 import {
   CoveredCard,
   NotCoveredCard,
@@ -42,14 +43,15 @@ export default async function PolicyPage({
             <CoveredCard items={covered} />
             <NotCoveredCard items={notCovered} />
           </div>
-          {/* Two cards are taller than a short window, so the column only
+          {/* Three cards are taller than most windows, so the column only
               sticks when there's room for all of it. */}
           <aside
             aria-label="Claims and support"
-            className="flex flex-col gap-6 self-start lg:top-24 lg:[@media(min-height:820px)]:sticky"
+            className="flex flex-col gap-6 self-start lg:top-24 lg:[@media(min-height:1080px)]:sticky"
           >
             <ClaimsSupport />
             <PolicyClaimsCard policyId={policyDetail.id} customer={customer} />
+            <QuickActions />
           </aside>
         </div>
       </main>

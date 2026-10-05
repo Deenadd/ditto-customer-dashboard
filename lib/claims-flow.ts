@@ -234,5 +234,46 @@ function booked(when: string): Step {
   };
 }
 
+/* Ditto Buddy, the home page's helper: the same conversation, opened from a
+   greeting, with a text box whose questions are matched to a step. */
+const buddyTopics: Choice[] = [
+  { label: "Make a claim", next: "which-policy" },
+  { label: "Check what's covered", next: "covered" },
+  { label: "Is my hospital in the network?", next: "network-unsure" },
+  { label: "Documents for a claim", next: "documents" },
+  { label: "Track a claim", next: "track" },
+];
+
+steps.buddy = {
+  say: ["Hi, I'm Ditto Buddy.", "Ask me about your policies, claims and cover, or pick a topic."],
+  choices: buddyTopics,
+};
+steps["buddy-unsure"] = {
+  say: [
+    "I can't answer that one yet. I'm a prototype, so I know about claims, cover and hospitals.",
+    "Pick a topic, or talk to a claims expert.",
+  ],
+  choices: [...buddyTopics.slice(0, 3), expert],
+};
+
+/** A typed question to the step that answers it, by keywords. */
+export function routeQuestion(text: string) {
+  const q = text.toLowerCase();
+  const rules: [RegExp, string][] = [
+    [/\b(expert|human|person|agent|call|talk|speak)\b/, "expert"],
+    [/hospital|network/, "network-unsure"],
+    [/document|paper|bill|receipt|report|discharge summary/, "documents"],
+    [/track|status|where is|progress|update/, "track"],
+    [/room|rent/, "covered-room"],
+    [/maternity|pregnan|deliver|baby|newborn/, "covered-maternity"],
+    [/home|domicil/, "covered-home"],
+    [/before|after|pre-|post-|pre |post /, "covered-stay"],
+    [/reimburs|paid|pay back|claim back|refund/, "reimbursement"],
+    [/cover|include|exclu|benefit/, "covered"],
+    [/claim|cashless|admit|surgery|treatment|emergency/, "which-policy"],
+  ];
+  return rules.find(([pattern]) => pattern.test(q))?.[1] ?? "buddy-unsure";
+}
+
 /** Where a conversation can go once a step has nothing more to offer. */
 export const closingChoices: Choice[] = [expert];

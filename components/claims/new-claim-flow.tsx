@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ChoiceCard, ChoiceGroup, ClaimingOn, Note } from "@/components/claims/claim-bits";
 import { ClaimTicket } from "@/components/claims/claim-ticket";
-import { defaultSideSheetConfig, hexToRgb } from "@/components/ui/frosted-side-sheet/config";
+import { ReimbursementFlow } from "@/components/claims/reimbursement-flow";
+import { ErrorLine, FlowBack, FlowBar, flowEase, stepSwap, today } from "@/components/claims/flow-parts";
 import { Chevron } from "@/components/dashboard/policy-pair";
 import { Asset } from "@/components/ui/asset";
 import { BackLink } from "@/components/ui/back-link";
@@ -46,30 +47,10 @@ const steps = [
   { label: "Hospital", title: "Which hospital?", subtitle: "Cashless works at hospitals in Care Health's network." },
 ];
 
-const ease = [0.23, 1, 0.32, 1] as const;
-
-/* The side sheet's material (config: 28px blur, #F7F7F7 at 72%). */
-const sheet = defaultSideSheetConfig;
-const barMask = "linear-gradient(to bottom, transparent, #000 40px)";
-const barBlur: CSSProperties = {
-  WebkitBackdropFilter: `blur(${sheet.blurStrength}px) saturate(180%)`,
-  backdropFilter: `blur(${sheet.blurStrength}px) saturate(180%)`,
-  WebkitMaskImage: barMask,
-  maskImage: barMask,
-};
-const barTint: CSSProperties = {
-  background: `rgb(${Object.values(hexToRgb(sheet.sheetColor)).join(" ")} / ${sheet.sheetTint})`,
-  WebkitMaskImage: barMask,
-  maskImage: barMask,
-};
-
-const today = () => {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-};
 
 /**
- * Making a cashless claim on the health policy: pick the claim type, then
+ * Making a claim on the health policy: pick the claim type. Reimbursement
+ * hands over to its own flow; cashless continues here: 
  * four steps (patient, treatment, dates, hospital) with Continue in a bar at
  * the bottom. Each step checks its answers on Continue and says what's
  * missing beside the question. The last step sends the request and opens
@@ -85,6 +66,8 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
   const [error, setError] = useState<string | null>(null);
   /* Once sent, the flow gives way to the printed claim ticket. */
   const [ticket, setTicket] = useState<Claim | null>(null);
+  /* Reimbursement is its own five-step flow. */
+  const [reimbursing, setReimbursing] = useState(false);
   const [open, setOpen] = useState<"category" | "treatment" | "stage" | null>("category");
   const moved = useRef(false);
 
@@ -172,6 +155,8 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
     setTicket(claim);
   }
 
+  if (reimbursing) return <ReimbursementFlow customer={customer} onExit={() => setReimbursing(false)} />;
+
   if (ticket) {
     return (
       <div className="mx-auto w-full max-w-[640px] px-4 pt-8 sm:px-6 sm:pt-12">
@@ -185,13 +170,7 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
   }
 
   const meta = steps[step - 1];
-  const swap = reduced
-    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
-    : {
-        initial: { opacity: 0, transform: `translateX(${direction * 16}px)` },
-        animate: { opacity: 1, transform: "translateX(0px)" },
-        exit: { opacity: 0, transform: `translateX(${direction * -16}px)` },
-      };
+  const swap = stepSwap(direction, !!reduced);
 
   return (
     <form onSubmit={onContinue} noValidate className="flex min-h-[calc(100dvh-64px)] flex-col">
@@ -199,20 +178,11 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
         {step === 0 ? (
           <BackLink href={claimsHref(policyDetail.id, customer)}>Claims</BackLink>
         ) : (
-          <button
-            type="button"
-            onClick={() => go(step - 1)}
-            className="group -ml-2 inline-flex h-9 items-center gap-1 rounded-control pr-3 pl-2 text-[15px] leading-5 font-medium text-accent-text transition-opacity duration-150 active:opacity-50 [@media(hover:hover)]:hover:opacity-70"
-          >
-            <svg aria-hidden width="9" height="15" viewBox="0 0 9 15" fill="none" className="transition-transform duration-200 ease-out [@media(hover:hover)]:group-hover:-translate-x-0.5">
-              <path d="M7.5 1.5 1.75 7.5l5.75 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Back
-          </button>
+          <FlowBack onClick={() => go(step - 1)} />
         )}
 
         <AnimatePresence mode="wait" initial={false}>
-          <motion.div key={step} {...swap} transition={{ duration: reduced ? 0.12 : 0.2, ease }} className="mt-4">
+          <motion.div key={step} {...swap} transition={{ duration: reduced ? 0.12 : 0.2, ease: flowEase }} className="mt-4">
             <ClaimingOn name={policyDetail.name} />
             <h1
               ref={focusHeading}
@@ -230,71 +200,26 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
             </p>
 
             <div className="mt-6">
-              {step === 0 ? <TypeStep onCashless={() => go(1)} /> : null}
+              {step === 0 ? <TypeStep onCashless={() => go(1)} onReimbursement={() => setReimbursing(true)} /> : null}
               {step === 1 ? <PatientStep draft={draft} set={set} /> : null}
               {step === 2 ? <TreatmentStep draft={draft} set={set} open={open} setOpen={setOpen} /> : null}
               {step === 3 ? <DateStep draft={draft} set={set} /> : null}
               {step === 4 ? <HospitalStep draft={draft} set={set} /> : null}
             </div>
 
-            {error ? (
-              <p role="alert" className="mt-4 flex items-start gap-1.5 text-[13px] leading-[18px] text-red-text">
-                <svg aria-hidden width="16" height="16" viewBox="0 0 16 16" className="mt-px shrink-0">
-                  <circle cx="8" cy="8" r="6.75" fill="none" stroke="currentColor" strokeWidth="1.5" />
-                  <path d="M8 4.75v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-                  <circle cx="8" cy="11.25" r="0.9" fill="currentColor" />
-                </svg>
-                {error}
-              </p>
-            ) : null}
+            {error ? <ErrorLine>{error}</ErrorLine> : null}
           </motion.div>
         </AnimatePresence>
       </div>
 
       {step > 0 ? (
-        /* Above the dashboard's bottom progressive blur (z-20), which would
-           wash it out. Finished like the side sheet: its blur and tint, faded
-           in through a mask over the 40px above the bar, so there's no edge. */
-        <div className="sticky bottom-0 z-30">
-          <div aria-hidden className="bar-blur pointer-events-none absolute inset-x-0 -top-10 bottom-0" style={barBlur} />
-          <div aria-hidden className="bar-tint pointer-events-none absolute inset-x-0 -top-10 bottom-0" style={barTint} />
-          <div className="relative mx-auto flex w-full max-w-[640px] items-center gap-4 px-4 py-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:px-6">
-            <div className="min-w-0 flex-1">
-              <div
-                role="progressbar"
-                aria-label="Claim progress"
-                aria-valuemin={1}
-                aria-valuemax={4}
-                aria-valuenow={step}
-                aria-valuetext={`Step ${step} of 4, ${meta.label}`}
-                className="flex max-w-[220px] gap-1"
-              >
-                {steps.map((item, index) => (
-                  <span key={item.label} className="h-1 flex-1 overflow-hidden rounded-full bg-fill-strong">
-                    <span
-                      className="block h-full origin-left rounded-full bg-accent transition-transform duration-300 ease-[cubic-bezier(0.23,1,0.32,1)]"
-                      style={{ transform: `scaleX(${index < step ? 1 : 0})` }}
-                    />
-                  </span>
-                ))}
-              </div>
-              <p className="mt-1.5 text-[13px] leading-[18px] text-label-secondary">
-                <span className="font-medium text-label">{meta.label}</span>
-                <span aria-hidden> · </span>
-                <span className="tabular-nums">Step {step} of 4</span>
-              </p>
-            </div>
-            <Button type="submit" size="large" className="min-w-[140px]">
-              {step === 4 ? "Send request" : "Continue"}
-            </Button>
-          </div>
-        </div>
+        <FlowBar labels={steps.map((item) => item.label)} step={step} submitLabel={step === 4 ? "Send request" : "Continue"} />
       ) : null}
     </form>
   );
 }
 
-function TypeStep({ onCashless }: { onCashless: () => void }) {
+function TypeStep({ onCashless, onReimbursement }: { onCashless: () => void; onReimbursement: () => void }) {
   return (
     <ul className="overflow-hidden rounded-[18px] bg-surface shadow-soft">
       <li>
@@ -316,20 +241,22 @@ function TypeStep({ onCashless }: { onCashless: () => void }) {
         </button>
       </li>
       <li className="relative before:absolute before:top-0 before:right-0 before:left-[70px] before:h-px before:bg-separator">
-        <div aria-disabled="true" className="flex min-h-[72px] w-full items-center gap-3.5 px-4 py-3.5">
-          <span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-fill text-label-tertiary">
+        <button
+          type="button"
+          onClick={onReimbursement}
+          className="group flex min-h-[72px] w-full items-center gap-3.5 px-4 py-3.5 text-left transition-colors duration-150 ease-out active:bg-fill [@media(hover:hover)]:hover:bg-fill/70"
+        >
+          <span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-accent-tint text-accent">
             <IconDocuments />
           </span>
           <span className="min-w-0 flex-1">
-            <span className="block text-[16px] leading-5 font-semibold tracking-[-0.01em] text-label-secondary">Reimbursement</span>
+            <span className="block text-[16px] leading-5 font-semibold tracking-[-0.01em] text-label">Reimbursement</span>
             <span className="mt-0.5 block text-[13px] leading-[18px] text-pretty text-label-secondary">
               Claim back treatment you&apos;ve already paid for
             </span>
           </span>
-          <span className="shrink-0 rounded-full bg-fill-strong px-2.5 py-1 text-[12px] leading-4 font-medium text-grey-text">
-            Coming soon
-          </span>
-        </div>
+          <Chevron className="text-label-tertiary" />
+        </button>
       </li>
     </ul>
   );

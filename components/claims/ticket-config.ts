@@ -37,16 +37,17 @@ export type TicketConfig = {
   speed: number;
 };
 
+/* Tuned in the print panel on 5 Oct 2026. */
 export const defaultTicketConfig: TicketConfig = {
   feedMode: "pulls",
-  feedDuration: 2100,
-  pulls: 4,
+  feedDuration: 3400,
+  pulls: 7,
   pause: 0.27,
   feedStiffness: 90,
   feedDamping: 18,
   feedMass: 1.4,
   hum: 0.6,
-  humSpeed: 120,
+  humSpeed: 250,
   stampDelay: 150,
   stampFrom: 1.9,
   stampTiltFrom: -22,
@@ -58,7 +59,8 @@ export const defaultTicketConfig: TicketConfig = {
   speed: 1,
 };
 
-const KEY = "ditto.ticket-config.v1";
+/* v2: new defaults, so earlier saved settings don't hide them. */
+const KEY = "ditto.ticket-config.v2";
 const listeners = new Set<() => void>();
 let current: TicketConfig | null = null;
 
