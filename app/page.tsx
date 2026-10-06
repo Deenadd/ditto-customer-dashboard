@@ -12,7 +12,7 @@ export default function LoginPage() {
           colour, which was white over the wash. Behind this page only, the
           background is the wash's colour along its top edge; the page itself
           stays white, so it shows just in the status bar and the overscroll. */}
-      <style>{"html,body{background-color:#b7d5f5}"}</style>
+      <style>{"html,body{background-color:#aed8f4}"}</style>
       <SignInFlow />
     </main>
   );

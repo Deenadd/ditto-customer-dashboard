@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import type { MeshPoint } from "@/lib/mesh";
-import { referenceBase, referenceCore, type GlowStop } from "./glow-ramps";
+import type { GlowStop } from "./glow-ramps";
 
 /**
  * Tuning for the sign-in wash at the top of the screen. Every field is a
@@ -34,28 +34,43 @@ export type GlowConfig = {
   toneDuration: number;
 };
 
-/* Tuned in the glow panel on 1 Oct 2026; on 6 Oct the wash was drawn up
-   higher, reaching 40% of the screen rather than 54%. */
+/* Tuned in the glow panel on 6 Oct 2026: the dome moved left of centre and
+   a little down, bluer at its heart, with a cyan mesh point at the top
+   right; the wash reaches 40% of the screen. */
 export const defaultGlowConfig: GlowConfig = {
   heightVh: 40,
   curve: 1,
-  softness: 90,
-  coreWidth: 62,
-  coreDepth: 50,
-  domeX: 50,
-  domeY: 0,
-  core: referenceCore,
-  base: referenceBase,
-  mesh: [],
-  intensity: 0.4,
+  softness: 66,
+  coreWidth: 48,
+  coreDepth: 53,
+  domeX: 32,
+  domeY: 6,
+  core: [
+    { color: "#2f87da", at: 0 },
+    { color: "#339bdb", at: 20 },
+    { color: "#3f8ae4", at: 38 },
+    { color: "#4497e4", at: 54 },
+    { color: "#4ea1e8", at: 68 },
+  ],
+  base: [
+    { color: "#65c9f1", at: 0 },
+    { color: "#62c2f5", at: 24 },
+    { color: "#60c3f1", at: 44 },
+    { color: "#c0e6f9", at: 64 },
+    { color: "#f2f9fc", at: 100 },
+    { color: "#ffffff", at: 94 },
+  ],
+  mesh: [{ id: "1tf29p", x: 95, y: 0, color: "#62d6fa", size: 45, strength: 0.8 }],
+  intensity: 0.45,
   toneDuration: 1950,
 };
 
 /* A tiny store so the glow and the panel share one config, it survives a
    reload in this browser, and the server render always uses the defaults. */
 /* v2: the wash replaced the moving circle, so v1 settings no longer apply.
-   v3: the wash sits higher; settings saved before would hold it low. */
-const KEY = "ditto.glow-config.v3";
+   v3: the wash sits higher; settings saved before would hold it low.
+   v4: the 6 Oct tuning is the default; older saves would hide it. */
+const KEY = "ditto.glow-config.v4";
 const listeners = new Set<() => void>();
 let current: GlowConfig | null = null;
 
