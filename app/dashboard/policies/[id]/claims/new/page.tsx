@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { NewClaimFlow } from "@/components/claims/new-claim-flow";
+import { ClaimFlow } from "@/components/claims/claim-flow";
 import { SiteHeader } from "@/components/site-header";
 import { policyDetail } from "@/lib/policy-detail";
 import { readDashboardState } from "@/lib/routes";
 
 export const metadata: Metadata = { title: "Make a claim — Ditto" };
 
-/** The cashless claim flow, on its own page so nothing competes with it. */
+/** Making a claim, on its own page so nothing competes with it. */
 export default async function NewClaimPage({
   params,
   searchParams,
@@ -23,7 +23,7 @@ export default async function NewClaimPage({
     <>
       <SiteHeader customerState={customer} />
       <main id="main">
-        <NewClaimFlow customer={customer} />
+        <ClaimFlow customer={customer} />
       </main>
     </>
   );

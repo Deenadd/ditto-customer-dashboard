@@ -1,3 +1,4 @@
+import { cardFields } from "@/lib/card-fields";
 import type { ActivePolicy } from "@/lib/dashboard-data";
 
 /*
@@ -25,7 +26,7 @@ function loadImage(src: string) {
   });
 }
 
-export async function downloadPolicyCard(policy: ActivePolicy) {
+export async function downloadPolicyCard(policy: ActivePolicy, claims: number) {
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
@@ -72,7 +73,7 @@ export async function downloadPolicyCard(policy: ActivePolicy) {
   ctx.font = `600 ${17 * S}px ${FONT}`;
   ctx.fillText(policy.name, 74 * S, 35 * S, W - 90 * S);
   ctx.font = `400 ${13 * S}px ${FONT}`;
-  ctx.fillText(policy.kind, 74 * S, 53 * S);
+  ctx.fillText(policy.coverageType, 74 * S, 53 * S);
 
   /* The outlined panel and its facts. */
   const ix = 8 * S;
@@ -88,12 +89,7 @@ export async function downloadPolicyCard(policy: ActivePolicy) {
   ctx.lineWidth = 1 * S;
   ctx.stroke();
 
-  const fields = [
-    { label: "Policy number", value: policy.policyNumber },
-    { label: "Sum insured", value: policy.sumInsured },
-    { label: "Coverage type", value: policy.coverageType },
-    policy.term,
-  ];
+  const fields = cardFields(policy, claims);
   fields.forEach((f, i) => {
     const x = (i % 2 === 0 ? 28 : 199) * S;
     const y = (i < 2 ? 110 : 174) * S;

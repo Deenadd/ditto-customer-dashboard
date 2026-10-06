@@ -116,7 +116,18 @@ returns to the row that opened it; Escape or a click outside closes it.
 - **Active policies are cards** as in the Figma active-policies screen: the
   policy on the front and its people on the back, white cards with the blue
   contour lines and glow, a blue dot, and an outlined white panel. A card
-  with a policy page opens it from anywhere on the card.
+  with a policy page opens it from anywhere on the card. Under the name is
+  the coverage type (the section heading already says health or term).
+  The facts: policy number, sum insured, then the total claims count on a
+  health card (read from this browser) or the yearly premium on a term
+  card, and the validity as a month and year (Aug 2043).
+- **Pending applications** sit their facts on a lighter panel
+  (`--color-fill-soft`, #fafafb, with a faint hairline). The welcome card
+  counts them as Pending applications.
+- **Help on WhatsApp** is in the header on every page: a small panel says
+  where you're going, then Open WhatsApp opens Ditto's line (the number
+  joinditto.in uses) in a new tab with a first message filled in. On phones
+  header panels span the screen, 16px from each edge.
 - **Glare and tilt** on hover, after Aceternity's glare card: the face under
   the pointer tilts toward it, a white glare follows it and a faint rainbow
   foil shifts. Reduced motion keeps the glare and drops the tilt; touch
@@ -126,17 +137,20 @@ returns to the row that opened it; Escape or a click outside closes it.
   sheet with the claims chat from a greeting, plus a text box. Typed
   questions are matched by keywords to the topic that answers them, and
   anything else gets an honest "I can't answer that yet" with topics.
-- **Policy page:** the insurer and name, then the policy card (with
+- **Policy page:** the name, then the policy card (with
   its download icon), and what's covered and not. The card carries the policy's
   facts and members, so there's no separate summary. On phones the
   two cover sections fold to a title and a count. Beside them, one Claims
   card holds the open claims, Start a claim and the claims questions
   (Which kind of claim?, Documents you'll need, Check what's covered).
 - **Quick actions** on the policy page (after Plum's): network hospitals
-  with search, excluded hospitals, FAQs and the health card, each in the
-  side sheet. The health card, there and on the claim page, has a
-  small download icon (top right) that saves the card's front as a PNG, drawn on a
-  canvas at 3×.
+  with search, excluded hospitals and FAQs, each in the side sheet. Tap a
+  network hospital and it opens in place, one at a time, like a Maps place
+  card: hours, address and number, then Directions (Google Maps), Call and
+  Website (a search, as the sample hospitals are made up, numbers too).
+- The policy card, on the policy and claim pages, has a small download
+  icon (top right) that saves the card's front as a PNG, drawn on a canvas
+  at 3×.
 
 ### Mobile
 
@@ -203,7 +217,15 @@ Buttons with no destination yet: Chat now, Talk to our team and Download policy.
 The health policy page has a **Claims** card under Claims support, with **Start a claim**, the
 page's one filled action, and the open claims once there are any.
 
-- **Make a claim:** Cashless, or Reimbursement (marked Coming soon).
+- **Two versions**, switched at the foot of the first page (Claim flow:
+  v1 · Hospital first, v2 · Claim type first) and remembered in this
+  browser; v2 by default.
+  - **v1, one flow** (`one-claim-flow.tsx`): Hospital > Cashless or
+    Reimbursement > Member (who, and the treatment) > for a reimbursement,
+    the amount and documents > the claim ticket. A hospital outside the
+    network greys out Cashless and says why.
+  - **v2**, below: the claim type first, then its own steps.
+- **Make a claim:** Cashless, or Reimbursement.
 - **Four steps**, with progress and Continue in a bar at the bottom. Each step
   checks its answers on Continue and says what's missing beside the question;
   focus moves to each new step's heading.
@@ -221,8 +243,10 @@ page's one filled action, and the open claims once there are any.
      you haven't chosen yet.
 - **Your cashless claim:** status and request date; the health card itself,
   with its glare, to show at the hospital, beside the patient and a reference
-  to copy; what happens next; the claim's details; and, quietly at the foot,
-  Delete claim (with a confirmation that focuses Cancel).
+  to copy; what happens next; the claim's details; and, set apart in its own
+  card as iOS does, a red Delete claim row that says what deleting does. Its
+  alert names the claim and who it's for, with Delete claim and Keep claim;
+  focus starts on Keep claim.
 - **Look:** each step opens with a small picture of the policy card and the
   policy's name. Answers are one card with hairline rows (inset grouped, as
   on iOS); the chosen row is tinted and its radio filled. People get the

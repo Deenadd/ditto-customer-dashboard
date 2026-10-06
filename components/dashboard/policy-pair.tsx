@@ -74,7 +74,7 @@ function PolicyCard({
         <StatusPill status={muted ? "expired" : "active"} />
       </div>
 
-      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4 rounded-[14px] bg-fill/90 px-4 py-3.5 backdrop-blur-sm">
+      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4 rounded-[14px] bg-fill-soft px-4 py-3.5 shadow-[inset_0_0_0_1px_rgb(0_0_0_/_0.04)]">
         <FieldItem field={{ label: "Policy number", value: policy.policyNumber }} />
         <FieldItem field={{ label: "Sum insured", value: policy.sumInsured }} />
         <FieldItem field={{ label: "Coverage type", value: policy.coverageType }} />

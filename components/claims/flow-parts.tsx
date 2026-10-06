@@ -3,6 +3,7 @@
 import type { CSSProperties } from "react";
 import { Button } from "@/components/ui/buttons";
 import { defaultSideSheetConfig } from "@/components/ui/frosted-side-sheet/config";
+import { setClaimFlowVersion, useClaimFlowVersion, type ClaimFlowVersion } from "@/lib/claim-flow-version";
 
 /** The parts both claim flows share: back, the error line, the bottom bar. */
 
@@ -115,6 +116,41 @@ export function FlowBar({
         <Button type="submit" size="large" className="min-w-[140px]">
           {submitLabel}
         </Button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Switch between the two Make a claim flows, at the foot of each flow's
+ * first page: v1 starts with the hospital, v2 with the claim type. Two
+ * toggle buttons in a segmented track; the choice is remembered.
+ */
+export function FlowVersionSwitch() {
+  const version = useClaimFlowVersion();
+  const options: { value: ClaimFlowVersion; label: string }[] = [
+    { value: "v1", label: "v1 · Hospital first" },
+    { value: "v2", label: "v2 · Claim type first" },
+  ];
+  return (
+    <div className="mt-14 flex flex-col items-center gap-2 text-center">
+      <p id="flow-version-label" className="text-[12px] leading-4 font-medium text-label-secondary">
+        Claim flow
+      </p>
+      <div role="group" aria-labelledby="flow-version-label" className="inline-flex h-9 rounded-control bg-fill-strong p-[3px]">
+        {options.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            aria-pressed={version === option.value}
+            onClick={() => setClaimFlowVersion(option.value)}
+            className={`touch-hit flex items-center rounded-control-inner px-3.5 text-[13px] font-medium whitespace-nowrap transition-[color,background-color,box-shadow] duration-150 ease-out ${
+              version === option.value ? "bg-surface text-label shadow-thumb" : "text-label-secondary [@media(hover:hover)]:hover:text-label"
+            }`}
+          >
+            {option.label}
+          </button>
+        ))}
       </div>
     </div>
   );

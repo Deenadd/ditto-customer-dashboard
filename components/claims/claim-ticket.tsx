@@ -274,7 +274,7 @@ export function ClaimTicket({
               <p className="mt-1 text-[11px] leading-4 text-label-secondary">{policyName}</p>
               <div className="mt-4 border-t border-dashed border-black/20" />
               <dl className="mt-3 flex flex-col gap-1.5">
-                {rows.map((row) => (
+                {rows.filter((row) => row.value).map((row) => (
                   <div key={row.label} className="flex justify-between gap-4">
                     <dt className="shrink-0 text-label-secondary">{row.label}</dt>
                     <dd className="min-w-0 text-right break-words">{row.value}</dd>

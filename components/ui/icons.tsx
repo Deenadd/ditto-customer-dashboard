@@ -3,14 +3,19 @@ import {
   ArrowLeft,
   Check,
   CircleHelp,
+  Clock,
+  Globe,
   Hospital,
   IdCard,
   FilePlus2,
   Files,
+  MapPin,
+  Navigation,
   Phone,
   RotateCcw,
   ShieldCheck,
   ShieldX,
+  Trash2,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -48,3 +53,8 @@ export const IconHospital = from(Hospital);
 export const IconExcluded = from(ShieldX);
 export const IconHelp = from(CircleHelp);
 export const IconHealthCard = from(IdCard);
+export const IconTrash = from(Trash2);
+export const IconDirections = from(Navigation);
+export const IconWebsite = from(Globe);
+export const IconClock = from(Clock);
+export const IconPin = from(MapPin);

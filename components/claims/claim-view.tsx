@@ -9,7 +9,7 @@ import { Asset } from "@/components/ui/asset";
 import { BackLink } from "@/components/ui/back-link";
 import { Button } from "@/components/ui/buttons";
 import { StatusPill, cardClass } from "@/components/ui/card-bits";
-import { IconCheck, IconDocuments } from "@/components/ui/icons";
+import { IconCheck, IconDocuments, IconTrash } from "@/components/ui/icons";
 import { GlareFace, GlareGroup } from "@/components/ui/glare";
 import {
   categoryLabel,
@@ -81,6 +81,7 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
   const cardConfig = useCardConfig();
   const [copied, setCopied] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const keepRef = useRef<HTMLButtonElement>(null);
 
   async function copy() {
     try {
@@ -252,7 +253,7 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
             </div>
           </div>
           <dl className="mt-4 divide-y divide-separator">
-            {details.map((row) => (
+            {details.filter((row) => row.value).map((row) => (
               <div key={row.label} className="flex items-baseline justify-between gap-4 py-3 text-[15px] leading-5">
                 <dt className="shrink-0 text-label-secondary">{row.label}</dt>
                 <dd className="min-w-0 text-right font-medium break-words text-label tabular-nums">{row.value}</dd>
@@ -279,19 +280,32 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
 
       </div>
 
-      <div className="mt-8 flex flex-col items-center gap-1 text-center">
-        <p className="text-[13px] leading-[18px] text-label-secondary">Didn&apos;t mean to make this claim?</p>
-        <Button
-          variant="plain"
-          className="text-red-text"
+      {/* Deleting is set apart in its own card, as iOS sets apart a
+          destructive row: it reads as an action, not a footnote, and the
+          line under it says what happens before anyone commits. */}
+      <section aria-label="Delete claim" className={`${cardClass} mt-6 p-2`}>
+        <button
+          type="button"
           onClick={() => {
             lockScroll();
             dialogRef.current?.showModal();
+            /* The dialog would focus its first button, Delete; start on the
+               safe choice instead. */
+            keepRef.current?.focus();
           }}
+          className="group flex w-full items-center gap-3 rounded-[14px] px-3 py-3 text-left transition-colors duration-150 ease-out active:bg-red-tint [@media(hover:hover)]:hover:bg-red-tint/60"
         >
-          Delete claim
-        </Button>
-      </div>
+          <span className="grid size-11 shrink-0 place-items-center rounded-[11px] bg-red-tint text-red-text">
+            <IconTrash size={20} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[15px] leading-5 font-medium text-red-text">Delete claim</span>
+            <span className="block text-[13px] leading-[18px] text-pretty text-label-secondary">
+              Made it by mistake? The request is withdrawn and removed from your claims.
+            </span>
+          </span>
+        </button>
+      </section>
 
       <dialog
         ref={dialogRef}
@@ -300,18 +314,20 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
         onClose={unlockScroll}
         className="m-auto w-[min(400px,calc(100vw-32px))] rounded-[22px] bg-surface p-0 text-label shadow-raised backdrop:bg-black/30 open:animate-pop"
       >
-        <div className="p-6">
-          <h2 id="delete-dialog-title" className="text-[20px] leading-6 font-semibold tracking-[-0.02em]">
-            Delete this claim?
+        {/* An alert, Apple style: centred, the consequence in the title and
+            the body, and buttons that say what they do. */}
+        <div className="flex flex-col items-center px-6 pt-7 pb-6 text-center">
+          <span aria-hidden className="grid size-12 place-items-center rounded-full bg-red-tint text-red-text">
+            <IconTrash size={22} />
+          </span>
+          <h2 id="delete-dialog-title" className="mt-4 text-[20px] leading-6 font-semibold tracking-[-0.02em]">
+            Delete claim {claim.id}?
           </h2>
           <p id="delete-dialog-body" className="mt-2 text-[15px] leading-5 text-pretty text-label-secondary">
-            {claim.id} for {claim.treatment} will be deleted. You can&apos;t undo this.
+            The request for {claim.patient.name}
+            {claim.hospital ? ` at ${claim.hospital.name}` : ""} is withdrawn. You can&apos;t undo this.
           </p>
-          <div className="mt-6 grid grid-cols-2 gap-2">
-            {/* Cancel comes first, so it has focus when the dialog opens. */}
-            <Button variant="tinted" size="large" onClick={() => dialogRef.current?.close()} autoFocus>
-              Cancel
-            </Button>
+          <div className="mt-6 flex w-full flex-col gap-2">
             <Button
               variant="destructive"
               size="large"
@@ -322,6 +338,9 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
               }}
             >
               Delete claim
+            </Button>
+            <Button ref={keepRef} variant="tinted" size="large" onClick={() => dialogRef.current?.close()}>
+              Keep claim
             </Button>
           </div>
         </div>

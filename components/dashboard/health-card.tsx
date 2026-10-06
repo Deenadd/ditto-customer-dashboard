@@ -10,6 +10,8 @@ import { GlareFace, GlareGroup } from "@/components/ui/glare";
 import { IconCheck } from "@/components/ui/icons";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
 import { downloadPolicyCard } from "@/lib/download-card";
+import { useClaims, useHydrated } from "@/lib/claims";
+import { cardFields } from "@/lib/card-fields";
 import type { ActivePolicy, Member } from "@/lib/dashboard-data";
 
 export type CardTone = "blue" | "green";
@@ -95,12 +97,9 @@ export function PolicyCardPair({
 
 /** The card's front: the insurer and policy, its facts in the outlined panel. */
 export function PolicyCardFront({ policy, download = false }: { policy: ActivePolicy; download?: boolean }) {
-  const fields = [
-    { label: "Policy number", value: policy.policyNumber },
-    { label: "Sum insured", value: policy.sumInsured },
-    { label: "Coverage type", value: policy.coverageType },
-    policy.term,
-  ];
+  const claims = useClaims(policy.id).length;
+  const hydrated = useHydrated();
+  const fields = cardFields(policy, hydrated ? claims : null);
   return (
     <article aria-label={policy.name} className={`${face} min-h-[237px]`}>
       <div aria-hidden className="absolute inset-0 -z-10">
@@ -116,7 +115,8 @@ export function PolicyCardFront({ policy, download = false }: { policy: ActivePo
           <h3 className="truncate text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label">
             {policy.name}
           </h3>
-          <p className="mt-0.5 text-[13px] leading-[18px] text-label">{policy.kind}</p>
+          {/* The section above already says which kind of cover it is. */}
+          <p className="mt-0.5 text-[13px] leading-[18px] text-label">{policy.coverageType}</p>
         </div>
       </div>
 
@@ -138,6 +138,7 @@ export function PolicyCardFront({ policy, download = false }: { policy: ActivePo
     afterwards. */
 function DownloadPill({ policy }: { policy: ActivePolicy }) {
   const [saved, setSaved] = useState(false);
+  const claims = useClaims(policy.id).length;
   return (
     <button
       type="button"
@@ -145,7 +146,7 @@ function DownloadPill({ policy }: { policy: ActivePolicy }) {
       title="Download card"
       onClick={async (event) => {
         event.stopPropagation();
-        await downloadPolicyCard(policy);
+        await downloadPolicyCard(policy, claims);
         setSaved(true);
         window.setTimeout(() => setSaved(false), 1600);
       }}

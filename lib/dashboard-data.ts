@@ -34,6 +34,9 @@ export type ActivePolicy = {
   policyNumber: string;
   sumInsured: string;
   coverageType: string;
+  /** Term cover only: what it costs a year. The health card shows its
+      claims count in this place instead. */
+  premium?: string;
   /** "Valid Till" for health cover, "Coverage till" for term cover. */
   term: Field;
   /** Health cards list everyone covered; term cards split member and nominee. */
@@ -191,8 +194,10 @@ export const activePolicyGroups: { title: string; items: ActivePolicy[] }[] = [
         kind: "Health insurance",
         policyNumber: "417734634188200",
         sumInsured: "₹15,00,000",
-        coverageType: "Protection plan",
-        term: { label: "Valid till", value: "17 Aug 2043" },
+        /* Four people share the one sum insured. */
+        coverageType: "Family floater",
+        /* Month and year only, as the card shows it. */
+        term: { label: "Valid till", value: "Aug 2043" },
         people: { layout: "members", members: familyMembers },
         hasDetail: true,
       },
@@ -209,6 +214,7 @@ export const activePolicyGroups: { title: string; items: ActivePolicy[] }[] = [
         policyNumber: "892145367201933",
         sumInsured: "₹2,50,00,000",
         coverageType: "Protection plan",
+        premium: "₹18,450",
         term: { label: "Cover till", value: "Age 65" },
         people: {
           layout: "member-nominee",
@@ -224,6 +230,7 @@ export const activePolicyGroups: { title: string; items: ActivePolicy[] }[] = [
         policyNumber: "574309218765432",
         sumInsured: "₹2,50,00,000",
         coverageType: "Super Protection",
+        premium: "₹22,900",
         term: { label: "Cover till", value: "Age 72" },
         people: {
           layout: "member-nominee",

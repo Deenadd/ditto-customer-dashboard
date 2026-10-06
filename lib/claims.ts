@@ -56,19 +56,23 @@ export type Hospital = {
   pin: string;
   /** In Care Health's network, so cashless is available. */
   network: boolean;
+  /** The desk to call, as dialled from India, and opening hours. */
+  phone: string;
+  hours: string;
 };
 
-/** A sample network list for the prototype; the names are made up. */
+/** A sample network list for the prototype; the names, numbers and hours
+    are made up. */
 export const hospitals: Hospital[] = [
-  { id: "lakeview", name: "Lakeview Hospital", address: "12, 100 Feet Road, Velachery", city: "Chennai", pin: "600042", network: true },
-  { id: "riverside", name: "Riverside Multispeciality", address: "4, Gandhi Nagar, Adyar", city: "Chennai", pin: "600020", network: true },
-  { id: "guindy", name: "Guindy Care Hospital", address: "88, Mount Road, Guindy", city: "Chennai", pin: "600032", network: true },
-  { id: "family", name: "T. Nagar Family Hospital", address: "21, Usman Road, T. Nagar", city: "Chennai", pin: "600017", network: false },
-  { id: "sunrise", name: "Sunrise Hospital", address: "5, 12th Main, Indiranagar", city: "Bengaluru", pin: "560038", network: true },
-  { id: "cityview", name: "Cityview Hospital", address: "40, 80 Feet Road, Koramangala", city: "Bengaluru", pin: "560034", network: true },
-  { id: "meadows", name: "Meadows Hospital", address: "2, ITPL Main Road, Whitefield", city: "Bengaluru", pin: "560066", network: true },
-  { id: "harbour", name: "Harbour Hospital", address: "17, Link Road, Andheri West", city: "Mumbai", pin: "400053", network: true },
-  { id: "lakeside", name: "Powai Lakeside Hospital", address: "9, Hiranandani Gardens, Powai", city: "Mumbai", pin: "400076", network: false },
+  { id: "lakeview", name: "Lakeview Hospital", address: "12, 100 Feet Road, Velachery", city: "Chennai", pin: "600042", network: true, phone: "044 4000 1200", hours: "Open 24 hours" },
+  { id: "riverside", name: "Riverside Multispeciality", address: "4, Gandhi Nagar, Adyar", city: "Chennai", pin: "600020", network: true, phone: "044 4211 3300", hours: "Open 24 hours" },
+  { id: "guindy", name: "Guindy Care Hospital", address: "88, Mount Road, Guindy", city: "Chennai", pin: "600032", network: true, phone: "044 4590 2200", hours: "Open 24 hours" },
+  { id: "family", name: "T. Nagar Family Hospital", address: "21, Usman Road, T. Nagar", city: "Chennai", pin: "600017", network: false, phone: "044 4313 7700", hours: "Open 8 am to 10 pm" },
+  { id: "sunrise", name: "Sunrise Hospital", address: "5, 12th Main, Indiranagar", city: "Bengaluru", pin: "560038", network: true, phone: "080 4110 5500", hours: "Open 24 hours" },
+  { id: "cityview", name: "Cityview Hospital", address: "40, 80 Feet Road, Koramangala", city: "Bengaluru", pin: "560034", network: true, phone: "080 4290 6600", hours: "Open 24 hours" },
+  { id: "meadows", name: "Meadows Hospital", address: "2, ITPL Main Road, Whitefield", city: "Bengaluru", pin: "560066", network: true, phone: "080 4370 8800", hours: "Open 24 hours" },
+  { id: "harbour", name: "Harbour Hospital", address: "17, Link Road, Andheri West", city: "Mumbai", pin: "400053", network: true, phone: "022 4020 9900", hours: "Open 24 hours" },
+  { id: "lakeside", name: "Powai Lakeside Hospital", address: "9, Hiranandani Gardens, Powai", city: "Mumbai", pin: "400076", network: false, phone: "022 4150 4400", hours: "Open 8 am to 10 pm" },
 ];
 
 /** Hospitals Care Health won't pay claims from; made up for the prototype. */
@@ -198,3 +202,14 @@ export const typeLabel = (claim: Claim) => (claim.type === "reimbursement" ? "Re
 
 /** ₹ in Indian grouping: 150000 → "₹1,50,000". */
 export const rupees = (amount: number) => `₹${new Intl.NumberFormat("en-IN").format(amount)}`;
+
+/** Where a hospital's actions go. Directions open Google Maps to its
+    address; the website is a search, since the sample hospitals have none. */
+export const hospitalLinks = (h: Hospital) => {
+  const place = `${h.name}, ${h.address}, ${h.city} ${h.pin}`;
+  return {
+    directions: `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(place)}`,
+    call: `tel:+91${h.phone.replace(/\D/g, "").replace(/^0/, "")}`,
+    website: `https://www.google.com/search?q=${encodeURIComponent(`${h.name} ${h.city}`)}`,
+  };
+};

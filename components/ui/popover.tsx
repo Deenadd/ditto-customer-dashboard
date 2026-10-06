@@ -43,6 +43,9 @@ export function useDismiss({
   }, [open, panelRef, triggerRef]);
 }
 
-/** Frosted panel shared by the header popovers; grows from the top-right. */
+/** Frosted panel shared by the header popovers; grows from the top-right.
+    On phones it spans the screen 16px in from each edge, just under the
+    header, since a panel hung from an icon that isn't the last one would
+    run off the left side. */
 export const popoverPanelClass =
-  "material-bar absolute top-[calc(100%+10px)] right-0 z-40 max-w-[calc(100vw-32px)] origin-top-right rounded-[18px] shadow-raised motion-safe:animate-pop";
+  "material-bar absolute top-[calc(100%+10px)] right-0 z-40 max-w-[calc(100vw-32px)] origin-top-right rounded-[18px] shadow-raised motion-safe:animate-pop max-sm:fixed max-sm:inset-x-4 max-sm:top-[calc(env(safe-area-inset-top)+60px)] max-sm:w-auto max-sm:max-w-none";

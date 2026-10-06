@@ -202,7 +202,9 @@ export function ReimbursementFlow({ customer, onExit }: { customer: Customer; on
               {step === 1 ? <CategoryStep draft={draft} set={set} /> : null}
               {step === 2 ? <DetailsStep draft={draft} set={set} invalid={error?.field} /> : null}
               {step === 3 ? <PolicyStep draft={draft} set={set} /> : null}
-              {step === 4 ? <DocumentsStep draft={draft} set={set} /> : null}
+              {step === 4 ? (
+                <DocumentsStep documents={draft.documents} category={draft.category} onChange={(documents) => set({ documents })} />
+              ) : null}
               {step === 5 ? <ReviewStep draft={draft} set={set} edit={go} /> : null}
             </div>
             {error ? <ErrorLine>{error.text}</ErrorLine> : null}
@@ -391,21 +393,31 @@ function PolicyStep({ draft, set }: StepProps) {
   );
 }
 
-function DocumentsStep({ draft, set }: StepProps) {
+/** The documents a reimbursement needs, each with Add. Shared with the
+    hospital-first flow (one-claim-flow.tsx). */
+export function DocumentsStep({
+  documents,
+  category,
+  onChange,
+}: {
+  documents: Record<DocumentKind, string[]>;
+  category?: ClaimCategory;
+  onChange: (documents: Record<DocumentKind, string[]>) => void;
+}) {
   const add = (kind: DocumentKind, files: FileList | null) => {
     if (!files?.length) return;
     const names = [...files].map((file) => file.name);
-    set({ documents: { ...draft.documents, [kind]: [...draft.documents[kind], ...names] } });
+    onChange({ ...documents, [kind]: [...documents[kind], ...names] });
   };
   const remove = (kind: DocumentKind, index: number) =>
-    set({ documents: { ...draft.documents, [kind]: draft.documents[kind].filter((_, i) => i !== index) } });
+    onChange({ ...documents, [kind]: documents[kind].filter((_, i) => i !== index) });
 
   return (
     <div className="flex flex-col gap-4">
       <ul className="overflow-hidden rounded-[18px] bg-surface shadow-soft">
         {documentKinds.map((kind, index) => {
-          const files = draft.documents[kind.id];
-          const required = kind.id === "bills" || (kind.id === "discharge" && draft.category !== "pre-post");
+          const files = documents[kind.id];
+          const required = kind.id === "bills" || (kind.id === "discharge" && category !== "pre-post");
           return (
             <li
               key={kind.id}

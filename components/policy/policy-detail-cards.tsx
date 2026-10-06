@@ -3,23 +3,17 @@
 import { useState, type ReactNode } from "react";
 import { Asset } from "@/components/ui/asset";
 import { cardClass } from "@/components/ui/card-bits";
-import { InsurerLogo } from "@/components/ui/insurer-logo";
 import type { CoverIcon, CoverItem, Exclusion } from "@/lib/policy-detail";
 import { policyDetail } from "@/lib/policy-detail";
 
 const cardTitle = "text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label";
 
-/** Large-title header for the policy page: the insurer and the name. */
+/** Large-title header for the policy page: just the name. The insurer's
+    mark is on the card right below it. */
 export function PolicyHeader({ policy }: { policy: typeof policyDetail }) {
   return (
-    /* The logo's top lines up with the title's first line. */
-    <header className="flex flex-wrap items-start gap-x-4 gap-y-4">
-      <InsurerLogo insurer={policy.insurer} size={56} />
-      <div className="min-w-0 flex-[1_1_240px]">
-        <h1 className="text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label">
-          {policy.name}
-        </h1>
-      </div>
+    <header>
+      <h1 className="text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label">{policy.name}</h1>
     </header>
   );
 }

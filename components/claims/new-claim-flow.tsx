@@ -6,7 +6,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ChoiceCard, ChoiceGroup, ClaimingOn, Note } from "@/components/claims/claim-bits";
 import { ClaimTicket } from "@/components/claims/claim-ticket";
 import { ReimbursementFlow } from "@/components/claims/reimbursement-flow";
-import { ErrorLine, FlowBack, FlowBar, flowEase, stepSwap, today } from "@/components/claims/flow-parts";
+import { ErrorLine, FlowBack, FlowBar, FlowVersionSwitch, flowEase, stepSwap, today } from "@/components/claims/flow-parts";
 import { Chevron } from "@/components/dashboard/policy-pair";
 import { Asset } from "@/components/ui/asset";
 import { BackLink } from "@/components/ui/back-link";
@@ -37,8 +37,11 @@ type Draft = {
   stage?: string;
   knowsDate?: boolean;
   admission: string;
-  hospital?: { name: string; address: string; network: boolean; id?: string } | "undecided";
+  hospital?: HospitalChoice;
 };
+
+/** A hospital from the list (with its id), one typed in, or not chosen yet. */
+export type HospitalChoice = { name: string; address: string; network: boolean; id?: string } | "undecided";
 
 const steps = [
   { label: "Patient", title: "Who is the claim for?", subtitle: "Choose the person being treated." },
@@ -204,10 +207,11 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
               {step === 1 ? <PatientStep draft={draft} set={set} /> : null}
               {step === 2 ? <TreatmentStep draft={draft} set={set} open={open} setOpen={setOpen} /> : null}
               {step === 3 ? <DateStep draft={draft} set={set} /> : null}
-              {step === 4 ? <HospitalStep draft={draft} set={set} /> : null}
+              {step === 4 ? <HospitalStep hospital={draft.hospital} onChange={(hospital) => set({ hospital })} /> : null}
             </div>
 
             {error ? <ErrorLine>{error}</ErrorLine> : null}
+            {step === 0 ? <FlowVersionSwitch /> : null}
           </motion.div>
         </AnimatePresence>
       </div>
@@ -528,7 +532,15 @@ function DateStep({ draft, set }: StepProps) {
   );
 }
 
-function HospitalStep({ draft, set }: StepProps) {
+/** Search the network list, pick a hospital, or enter one. Shared with the
+    hospital-first flow (one-claim-flow.tsx). */
+export function HospitalStep({
+  hospital: chosen,
+  onChange,
+}: {
+  hospital?: HospitalChoice;
+  onChange: (hospital: HospitalChoice) => void;
+}) {
   const [query, setQuery] = useState("");
   const [manual, setManual] = useState("");
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -536,18 +548,15 @@ function HospitalStep({ draft, set }: StepProps) {
   const results = hospitals.filter((hospital) =>
     [hospital.name, hospital.address, hospital.city, hospital.pin].some((field) => field.toLowerCase().includes(q)),
   );
-  const chosen = draft.hospital;
   const chosenId = chosen && chosen !== "undecided" ? chosen.id : undefined;
   const entered = chosen && chosen !== "undecided" && !chosen.id ? chosen : undefined;
 
   const pick = (hospital: Hospital) =>
-    set({
-      hospital: {
-        id: hospital.id,
-        name: hospital.name,
-        address: `${hospital.address}, ${hospital.city} ${hospital.pin}`,
-        network: hospital.network,
-      },
+    onChange({
+      id: hospital.id,
+      name: hospital.name,
+      address: `${hospital.address}, ${hospital.city} ${hospital.pin}`,
+      network: hospital.network,
     });
 
   return (
@@ -695,7 +704,7 @@ function HospitalStep({ draft, set }: StepProps) {
             <Button
               variant="plain"
               onClick={() => {
-                set({ hospital: "undecided" });
+                onChange("undecided");
                 dialogRef.current?.close();
               }}
             >
@@ -704,7 +713,7 @@ function HospitalStep({ draft, set }: StepProps) {
             <Button
               onClick={() => {
                 if (!manual.trim()) return;
-                set({ hospital: { name: manual.trim(), address: "Entered by you", network: false } });
+                onChange({ name: manual.trim(), address: "Entered by you", network: false });
                 dialogRef.current?.close();
               }}
               aria-disabled={!manual.trim()}

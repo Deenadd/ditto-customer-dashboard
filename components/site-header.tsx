@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { WhatsAppHelp } from "@/components/ui/whatsapp-help";
 import { AccountMenu } from "@/components/ui/account-menu";
 import { Notifications, type Update } from "@/components/ui/notifications";
 import { applicationCount, applicationTimeline, customer } from "@/lib/dashboard-data";
@@ -48,7 +49,8 @@ export function SiteHeader({ customerState = "default" }: { customerState?: Cust
           />
         </Link>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 sm:gap-3">
+          <WhatsAppHelp />
           {updates.length ? (
             <Notifications
               updates={updates}

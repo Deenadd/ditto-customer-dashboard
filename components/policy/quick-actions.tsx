@@ -3,23 +3,28 @@
 import { useRef, useState, type ReactNode } from "react";
 import { Note } from "@/components/claims/claim-bits";
 import { Chevron } from "@/components/dashboard/policy-pair";
-import { PolicyCardPair } from "@/components/dashboard/health-card";
 import { cardClass } from "@/components/ui/card-bits";
 import { FrostedSideSheet } from "@/components/ui/frosted-side-sheet/frosted-side-sheet";
-import { IconExcluded, IconHealthCard, IconHelp, IconHospital, type Icon } from "@/components/ui/icons";
-import { excludedHospitals, hospitals } from "@/lib/claims";
-import { activePolicyGroups } from "@/lib/dashboard-data";
+import {
+  IconClock,
+  IconDirections,
+  IconExcluded,
+  IconHelp,
+  IconHospital,
+  IconPhone,
+  IconPin,
+  IconWebsite,
+  type Icon,
+} from "@/components/ui/icons";
+import { excludedHospitals, hospitalLinks, hospitals, type Hospital } from "@/lib/claims";
 
-type ActionId = "network" | "excluded" | "faqs" | "card";
+type ActionId = "network" | "excluded" | "faqs";
 
 const actions: { id: ActionId; label: string; hint: string; icon: Icon }[] = [
   { id: "network", label: "Network hospitals", hint: "Where cashless works", icon: IconHospital },
   { id: "excluded", label: "Excluded hospitals", hint: "Where claims aren't paid", icon: IconExcluded },
   { id: "faqs", label: "FAQs", hint: "Claims, cover and payouts", icon: IconHelp },
-  { id: "card", label: "Health card", hint: "Show or download it", icon: IconHealthCard },
 ];
-
-const healthPolicy = activePolicyGroups.flatMap((group) => group.items).find((item) => item.kind === "Health insurance")!;
 
 /**
  * Quick actions for the policy, after Plum's: each opens the frosted side
@@ -72,7 +77,6 @@ export function QuickActions() {
           {shown === "network" ? <NetworkList /> : null}
           {shown === "excluded" ? <ExcludedList /> : null}
           {shown === "faqs" ? <Faqs /> : null}
-          {shown === "card" ? <PolicyCardPair policy={healthPolicy} tone="blue" stacked download /> : null}
         </div>
       </FrostedSideSheet>
     </section>
@@ -81,6 +85,7 @@ export function QuickActions() {
 
 function NetworkList() {
   const [query, setQuery] = useState("");
+  const [openId, setOpenId] = useState<string | null>(null);
   const q = query.trim().toLowerCase();
   const results = hospitals.filter((h) => [h.name, h.address, h.city, h.pin].some((f) => f.toLowerCase().includes(q)));
   return (
@@ -102,16 +107,104 @@ function NetworkList() {
       </p>
       <Rows>
         {results.map((h) => (
-          <Row
+          <HospitalRow
             key={h.id}
-            title={h.name}
-            hint={`${h.address}, ${h.city} ${h.pin}`}
-            tag={h.network ? "Cashless" : "Not in network"}
-            tone={h.network ? "good" : "plain"}
+            hospital={h}
+            open={openId === h.id}
+            onToggle={() => setOpenId((current) => (current === h.id ? null : h.id))}
           />
         ))}
       </Rows>
     </div>
+  );
+}
+
+/**
+ * A hospital that opens in place, one at a time, like a place card in
+ * Maps: when it's open, where it is and its number, then Directions, Call
+ * and Website. The details fold with a grid-rows transition, so the rows
+ * below slide rather than jump.
+ */
+function HospitalRow({ hospital: h, open, onToggle }: { hospital: Hospital; open: boolean; onToggle: () => void }) {
+  const links = hospitalLinks(h);
+  const bodyId = `hospital-${h.id}`;
+  const action =
+    "flex h-14 flex-col items-center justify-center gap-1 rounded-[12px] text-[12px] leading-4 font-medium transition-[transform,background-color] duration-150 ease-out active:scale-[0.96]";
+  return (
+    <li className="relative [&+&]:before:absolute [&+&]:before:top-0 [&+&]:before:right-0 [&+&]:before:left-4 [&+&]:before:h-px [&+&]:before:bg-separator">
+      <button
+        type="button"
+        aria-expanded={open}
+        aria-controls={bodyId}
+        onClick={onToggle}
+        className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors duration-150 ease-out active:bg-fill [@media(hover:hover)]:hover:bg-fill/60"
+      >
+        <span className="min-w-0 flex-1">
+          <span className="block text-[15px] leading-5 font-medium text-pretty text-label">{h.name}</span>
+          <span className="block text-[12px] leading-4 text-pretty text-label-secondary">
+            {h.address}, {h.city} {h.pin}
+          </span>
+        </span>
+        <span
+          className={`shrink-0 rounded-full px-2 py-0.5 text-[12px] leading-4 font-medium ${
+            h.network ? "bg-green-tint text-green-text" : "bg-grey-tint text-grey-text"
+          }`}
+        >
+          {h.network ? "Cashless" : "Not in network"}
+        </span>
+        <svg
+          aria-hidden
+          width="12"
+          height="8"
+          viewBox="0 0 12 8"
+          fill="none"
+          className={`shrink-0 text-label-tertiary transition-transform duration-200 ease-out ${open ? "rotate-180" : ""}`}
+        >
+          <path d="M1.25 1.5 6 6.25l4.75-4.75" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      </button>
+      <div
+        id={bodyId}
+        className={`grid transition-[grid-template-rows,visibility] duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] ${
+          open ? "grid-rows-[1fr]" : "invisible grid-rows-[0fr]"
+        }`}
+      >
+        <div className="min-h-0 overflow-hidden">
+          <div className="px-4 pb-4">
+            <ul className="flex flex-col gap-2 text-[13px] leading-[18px] text-label">
+              <li className="flex items-center gap-2.5">
+                <IconClock size={16} className="shrink-0 text-label-secondary" />
+                <span className={h.hours === "Open 24 hours" ? "font-medium text-green-text" : ""}>{h.hours}</span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <IconPin size={16} className="shrink-0 text-label-secondary" />
+                <span className="text-pretty">
+                  {h.address}, {h.city} {h.pin}
+                </span>
+              </li>
+              <li className="flex items-center gap-2.5">
+                <IconPhone size={16} className="shrink-0 text-label-secondary" />
+                <span className="tabular-nums">{h.phone}</span>
+              </li>
+            </ul>
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              <a href={links.directions} target="_blank" rel="noopener noreferrer" className={`${action} bg-accent text-white`}>
+                <IconDirections size={18} />
+                Directions
+              </a>
+              <a href={links.call} className={`${action} bg-accent-tint text-accent-text`}>
+                <IconPhone size={18} />
+                Call
+              </a>
+              <a href={links.website} target="_blank" rel="noopener noreferrer" className={`${action} bg-accent-tint text-accent-text`}>
+                <IconWebsite size={18} />
+                Website
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </li>
   );
 }
 

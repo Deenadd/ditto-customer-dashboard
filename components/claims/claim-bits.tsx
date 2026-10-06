@@ -51,6 +51,7 @@ export function ChoiceCard({
   hint,
   leading,
   trailing,
+  disabled = false,
 }: {
   name: string;
   checked: boolean;
@@ -59,11 +60,17 @@ export function ChoiceCard({
   hint?: string;
   leading?: ReactNode;
   trailing?: ReactNode;
+  /** Shown but not choosable; the hint should say why. */
+  disabled?: boolean;
 }) {
   return (
     <label
-      className={`choice-row relative flex min-h-[60px] cursor-pointer items-center gap-3 px-4 py-3 transition-colors duration-150 ease-out has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-accent ${
-        checked ? "bg-accent-tint/60" : "[@media(hover:hover)]:hover:bg-fill/70"
+      className={`choice-row relative flex min-h-[60px] items-center gap-3 px-4 py-3 transition-colors duration-150 ease-out has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-accent ${
+        disabled
+          ? "cursor-not-allowed [&>*:not(input)]:opacity-50"
+          : checked
+            ? "cursor-pointer bg-accent-tint/60"
+            : "cursor-pointer [@media(hover:hover)]:hover:bg-fill/70"
       }`}
     >
       {leading}
@@ -77,7 +84,8 @@ export function ChoiceCard({
         name={name}
         checked={checked}
         onChange={onChange}
-        className="size-5 shrink-0 cursor-pointer appearance-none rounded-full border-[1.5px] border-label-tertiary/70 bg-surface transition-[border-width,border-color] duration-150 ease-out checked:border-[6px] checked:border-accent focus-visible:outline-none"
+        disabled={disabled}
+        className="size-5 shrink-0 cursor-pointer appearance-none disabled:cursor-not-allowed disabled:opacity-40 rounded-full border-[1.5px] border-label-tertiary/70 bg-surface transition-[border-width,border-color] duration-150 ease-out checked:border-[6px] checked:border-accent focus-visible:outline-none"
       />
     </label>
   );

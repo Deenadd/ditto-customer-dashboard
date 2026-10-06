@@ -22,7 +22,7 @@ export function ApplicationCard({ application }: { application: Application }) {
         </div>
       </header>
 
-      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4 rounded-[14px] bg-fill px-4 py-3.5 @min-[600px]:grid-cols-4">
+      <dl className="mt-4 grid grid-cols-2 gap-x-4 gap-y-4 rounded-[14px] bg-fill-soft px-4 py-3.5 shadow-[inset_0_0_0_1px_rgb(0_0_0_/_0.04)] @min-[600px]:grid-cols-4">
         {application.fields.map((field) => (
           <FieldItem key={field.label} field={field} />
         ))}
