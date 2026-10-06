@@ -177,12 +177,12 @@ export function OneClaimFlow({ customer }: { customer: Customer }) {
         )}
 
         <AnimatePresence mode="wait" initial={false}>
-          <motion.div key={step} {...swap} transition={{ duration: reduced ? 0.12 : 0.2, ease: flowEase }} className="mt-4">
+          <motion.div key={step} {...swap} transition={{ duration: reduced ? 0.12 : 0.2, ease: flowEase }} className="mt-7">
             <ClaimingOn name={policyDetail.name} />
             <h1
               ref={focusHeading}
               tabIndex={-1}
-              className="mt-5 text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label focus:outline-none"
+              className="mt-8 text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label focus:outline-none"
             >
               {title}
             </h1>

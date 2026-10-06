@@ -187,12 +187,12 @@ export function ReimbursementFlow({ customer, onExit }: { customer: Customer; on
       <div className="mx-auto w-full max-w-[640px] flex-1 px-3.5 pt-5 pb-10 sm:px-6 sm:pt-8">
         <FlowBack onClick={() => (step === 1 ? onExit() : go(step - 1))} />
         <AnimatePresence mode="wait" initial={false}>
-          <motion.div key={step} {...stepSwap(direction, reduced)} transition={{ duration: reduced ? 0.12 : 0.2, ease: flowEase }} className="mt-4">
+          <motion.div key={step} {...stepSwap(direction, reduced)} transition={{ duration: reduced ? 0.12 : 0.2, ease: flowEase }} className="mt-7">
             <ClaimingOn name={policyDetail.name} />
             <h1
               ref={focusHeading}
               tabIndex={-1}
-              className="mt-5 text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label focus:outline-none"
+              className="mt-8 text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label focus:outline-none"
             >
               {meta.title}
             </h1>
