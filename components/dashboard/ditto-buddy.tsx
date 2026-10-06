@@ -23,8 +23,10 @@ export function DittoBuddy() {
           alt=""
           width={799}
           height={786}
-          sizes="120px"
-          className="absolute top-3 right-[-10px] h-[118px] w-[120px] object-cover"
+          sizes="148px"
+          /* Peeks in from the bottom-right corner, cut off by the card's
+             edge, as the mascots on the welcome card do. */
+          className="absolute right-[-13px] bottom-[-33px] h-[145px] w-[148px] object-cover"
         />
       </div>
       <span className="inline-flex h-6 items-center rounded-full bg-accent-tint px-2.5 text-[12px] leading-none font-semibold text-accent-text">

@@ -11,10 +11,10 @@ import { IconCheck } from "@/components/ui/icons";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
 import { downloadPolicyCard } from "@/lib/download-card";
 import { useClaims, useHydrated } from "@/lib/claims";
-import { cardFields } from "@/lib/card-fields";
+import { cardFields, toneOf, type CardTone } from "@/lib/card-fields";
 import type { ActivePolicy, Member } from "@/lib/dashboard-data";
 
-export type CardTone = "blue" | "green";
+export type { CardTone } from "@/lib/card-fields";
 
 const art = (name: string) => `/dashboard/health-card/${name}`;
 
@@ -68,15 +68,15 @@ export function PolicyCardPair({
       <GlareFace radius={22}>
         <article aria-label={`People on ${policy.name}`} className={face}>
           <div aria-hidden className="absolute inset-0 -z-10">
-            <Topography variant="members" />
+            <Topography variant="members" tone={tone} />
           </div>
           <div className={`${panel} m-2 mb-0 flex flex-1 flex-col gap-5 px-5 pt-5 pb-5`}>
             {policy.people.layout === "members" ? (
-              <PeopleGroup label="Member details" members={policy.people.members} />
+              <PeopleGroup label="Member details" members={policy.people.members} tone={tone} />
             ) : (
               <>
-                <PeopleGroup label="Life assured" members={[policy.people.member]} />
-                <PeopleGroup label="Nominee" members={[policy.people.nominee]} />
+                <PeopleGroup label="Life assured" members={[policy.people.member]} tone={tone} />
+                <PeopleGroup label="Nominee" members={[policy.people.nominee]} tone={tone} />
               </>
             )}
           </div>
@@ -100,14 +100,17 @@ export function PolicyCardFront({ policy, download = false }: { policy: ActivePo
   const claims = useClaims(policy.id).length;
   const hydrated = useHydrated();
   const fields = cardFields(policy, hydrated ? claims : null);
+  const tone = toneOf(policy);
   return (
     <article aria-label={policy.name} className={`${face} min-h-[237px]`}>
       <div aria-hidden className="absolute inset-0 -z-10">
-        <Topography variant="policy" />
-        <Glow src="/dashboard/glow-card.svg" style={{ left: "86%", top: -107 }} />
+        <Topography variant="policy" tone={tone} />
+        <Glow src={tone === "green" ? "/dashboard/glow-card-green.svg" : "/dashboard/glow-card.svg"} style={{ left: "86%", top: -107 }} />
       </div>
       {/* The Figma's blue dot: this card is current. */}
-      {download ? null : <span aria-hidden className="absolute top-5 right-5 size-2 rounded-full bg-accent" />}
+      {download ? null : (
+        <span aria-hidden className={`absolute top-5 right-5 size-2 rounded-full ${tone === "green" ? "bg-green-dot" : "bg-accent"}`} />
+      )}
 
       <div className={`flex items-center gap-3.5 px-4 pt-4 ${download ? "pr-14" : "pr-10"}`}>
         <InsurerLogo insurer={policy.insurer} size={44} />
@@ -178,24 +181,27 @@ export function MiniPolicyCard() {
   );
 }
 
-function PeopleGroup({ label, members }: { label: string; members: Member[] }) {
+function PeopleGroup({ label, members, tone }: { label: string; members: Member[]; tone: CardTone }) {
   return (
     <div>
       <h4 className="text-[13px] leading-[18px] text-label-secondary">{label}</h4>
       <ul className="mt-3 flex flex-col gap-[15px]">
         {members.map((member) => (
-          <MemberRow key={member.name} member={member} />
+          <MemberRow key={member.name} member={member} tone={tone} />
         ))}
       </ul>
     </div>
   );
 }
 
-function MemberRow({ member }: { member: Member }) {
+function MemberRow({ member, tone }: { member: Member; tone: CardTone }) {
   return (
     <li className="flex min-h-5 items-center justify-between gap-3">
       <span className="flex min-w-0 items-center gap-2">
-        <Asset src={art(member.primary ? "member-primary.svg" : "member.svg")} className="size-[18px] shrink-0" />
+        <Asset
+          src={art(member.primary ? (tone === "green" ? "member-primary-green.svg" : "member-primary.svg") : "member.svg")}
+          className="size-[18px] shrink-0"
+        />
         <span className="truncate text-[15px] leading-5 font-medium text-label">{member.name}</span>
       </span>
       <span className="flex h-6 shrink-0 items-center gap-1.5 rounded-full bg-fill px-2.5">

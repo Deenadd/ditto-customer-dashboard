@@ -32,8 +32,12 @@ const smallest = {
   height: "hypot(-76.7518cqw, 24.6932cqh)",
 };
 
-function policyLayers(muted: boolean): Layer[] {
-  const tone = muted ? "-inactive" : "";
+/* The art comes in three inks: blue (health), green (term, made from the
+   blue by moving its hue to the green dot's) and grey for a lapsed card. */
+const ink = (muted: boolean, tone: "blue" | "green") => (muted ? "-inactive" : tone === "green" ? "-green" : "");
+
+function policyLayers(muted: boolean, toneName: "blue" | "green"): Layer[] {
+  const tone = ink(muted, toneName);
   return [
     {
       src: `/dashboard/topo/policy-base${tone}.png`,
@@ -54,8 +58,8 @@ function policyLayers(muted: boolean): Layer[] {
   ];
 }
 
-function memberLayers(muted: boolean): Layer[] {
-  const tone = muted ? "-inactive" : "";
+function memberLayers(muted: boolean, toneName: "blue" | "green"): Layer[] {
+  const tone = ink(muted, toneName);
   return [
     {
       src: `/dashboard/topo/members-base${tone}.png`,
@@ -84,11 +88,13 @@ function memberLayers(muted: boolean): Layer[] {
 export function Topography({
   variant,
   muted = false,
+  tone = "blue",
 }: {
   variant: "policy" | "members";
   muted?: boolean;
+  tone?: "blue" | "green";
 }) {
-  const layers = variant === "policy" ? policyLayers(muted) : memberLayers(muted);
+  const layers = variant === "policy" ? policyLayers(muted, tone) : memberLayers(muted, tone);
 
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0">

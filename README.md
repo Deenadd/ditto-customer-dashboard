@@ -126,6 +126,10 @@ returns to the row that opened it; Escape or a click outside closes it.
   The facts: policy number, sum insured, then the total claims count on a
   health card (read from this browser) or the yearly premium on a term
   card, and the validity as a month and year (Aug 2043).
+- **Term cards are green** where health cards are blue: the contour lines,
+  glow, dot and life-assured icon. The green art (`*-green.*` in
+  `public/dashboard`) is the blue moved to the green dot's hue, at the same
+  lightness; `toneOf()` in `lib/card-fields.ts` picks the ink by cover type.
 - **Pending applications** sit their facts on a lighter panel
   (`--color-fill-soft`, #fafafb, with a faint hairline). The welcome card
   counts them as Pending applications.
