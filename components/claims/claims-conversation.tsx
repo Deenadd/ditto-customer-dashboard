@@ -8,7 +8,7 @@ import { defaultSideSheetConfig } from "@/components/ui/frosted-side-sheet/confi
 import { IconBack, IconCheck, IconPhone, IconRestart } from "@/components/ui/icons";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
 import { ChatWidget } from "@/components/claims/chat-widgets";
-import { closingChoices, routeQuestion, steps, type Choice, type Outcome, type WidgetId } from "@/lib/claims-flow";
+import { closingChoices, routeQuestion, steps, withinPolicy, type Choice, type Outcome, type WidgetId } from "@/lib/claims-flow";
 
 /* The conversation only grows, or is cut back by Back, so an entry's
    position is its key. */
@@ -33,7 +33,18 @@ const TYPING_MS = 550;
  * again. Items there when the sheet opened join its opening stagger; later
  * ones reveal on their own clock.
  */
-export function ClaimsConversation({ start, composer = false }: { start: string; composer?: boolean }) {
+export function ClaimsConversation({
+  start: opening,
+  composer = false,
+  policyKnown = false,
+}: {
+  start: string;
+  composer?: boolean;
+  /** Opened from inside a policy: making a claim skips "which policy?". */
+  policyKnown?: boolean;
+}) {
+  const resolve = (step: string) => (policyKnown ? withinPolicy(step) : step);
+  const start = resolve(opening);
   const [question, setQuestion] = useState("");
   const { reduced } = useSheetReveal();
   const [entries, setEntries] = useState<Entry[]>(() => stepEntries(start));
@@ -65,7 +76,8 @@ export function ClaimsConversation({ start, composer = false }: { start: string;
     return (index - batchFrom - 1) * STEP;
   };
 
-  function reply(label: string, next: string) {
+  function reply(label: string, to: string) {
+    const next = resolve(to);
     window.clearTimeout(timer.current);
     setHistory((list) => [...list, { length: entries.length, step: current }]);
     setBatchFrom(entries.length);

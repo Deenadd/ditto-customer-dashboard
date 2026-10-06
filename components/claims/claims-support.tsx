@@ -110,7 +110,9 @@ export function ClaimsTopics({
         title={topic?.label ?? "Claims support"}
         returnFocusRef={triggerRef}
       >
-        {topic ? <ClaimsConversation key={`${topic.id}-${session}`} start={topic.start} /> : null}
+        {/* Every claims topic lives inside the health policy, so its
+            conversation never asks which policy. */}
+        {topic ? <ClaimsConversation key={`${topic.id}-${session}`} start={topic.start} policyKnown /> : null}
       </FrostedSideSheet>
     </>
   );

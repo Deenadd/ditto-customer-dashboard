@@ -8,6 +8,9 @@ import type { Insurer } from "@/lib/dashboard-data";
  * and written for this prototype; the policy wording has the exact terms.
  */
 
+/** Inside a policy, "which policy?" is already answered: go to its claim. */
+export const withinPolicy = (step: string) => (step === "which-policy" ? "this-policy" : step);
+
 export type TopicId = "make-claim" | "documents" | "covered" | "track";
 
 export type Choice = {
@@ -61,6 +64,16 @@ export const steps: Record<string, Step> = {
     choices: [
       { label: HEALTH, hint: "Health insurance · 474-981-34EDH20", insurer: "care", next: "treatment" },
       { label: "Max Life Smart Secure Plus", hint: "Term insurance", insurer: "maxlife", next: "term" },
+    ],
+  },
+  /* Making a claim from inside the health policy (its page, its claims,
+     a claim): the policy is known, so it isn't asked again. */
+  "this-policy": {
+    say: [`Let's get your claim on ${HEALTH} started.`, "Has the treatment happened yet?"],
+    choices: [
+      { label: "It's planned", next: "network" },
+      { label: "It's an emergency", next: "emergency" },
+      { label: "I've been discharged", next: "reimbursement" },
     ],
   },
   term: {
