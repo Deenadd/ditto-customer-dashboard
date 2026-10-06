@@ -5,7 +5,8 @@ type Variant = "filled" | "tinted" | "plain" | "destructive";
 type Size = "small" | "medium" | "large";
 
 const variants: Record<Variant, string> = {
-  filled: "bg-accent text-white [@media(hover:hover)]:hover:bg-accent-hover",
+  /* The one primary action: blue, with a blue shadow that tightens on press. */
+  filled: "bg-accent text-white shadow-accent active:shadow-accent-pressed [@media(hover:hover)]:hover:bg-accent-hover",
   tinted: "bg-accent-tint text-accent-text [@media(hover:hover)]:hover:bg-[#dcebfb]",
   /* Ghost: no fill, ever. It dims on hover and press instead. */
   plain: "text-accent-text active:opacity-50 [@media(hover:hover)]:hover:opacity-70",
@@ -21,7 +22,7 @@ const sizes: Record<Size, string> = {
 
 /** Class list for anything that should look like a button, links too. */
 export function buttonClass(variant: Variant = "filled", size: Size = "medium") {
-  return `touch-hit inline-flex shrink-0 items-center justify-center rounded-control font-medium leading-none tracking-[-0.01em] whitespace-nowrap select-none transition-[transform,background-color,opacity] duration-150 ease-out active:scale-[0.96] ${variants[variant]} ${sizes[size]}`;
+  return `touch-hit inline-flex shrink-0 items-center justify-center rounded-control font-medium leading-none tracking-[-0.01em] whitespace-nowrap select-none transition-[transform,background-color,opacity,box-shadow] duration-150 ease-out active:scale-[0.96] ${variants[variant]} ${sizes[size]}`;
 }
 
 /**

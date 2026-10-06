@@ -93,6 +93,16 @@
     0 3px 8px rgb(0 0 0 / 0.12),
     0 3px 1px rgb(0 0 0 / 0.04);
   --shadow-logo: 0 1px 2px rgb(0 0 0 / 0.06);
+  /* The filled (primary) button: the same stacked falloff, tinted with the
+     accent itself (#0071e3), so it glows blue rather than greying the page.
+     Pressed, it settles closer, as if pushed into the card. */
+  --shadow-accent:
+    0 1px 2px rgb(0 113 227 / 0.24),
+    0 4px 8px -2px rgb(0 113 227 / 0.24),
+    0 10px 20px -8px rgb(0 113 227 / 0.36);
+  --shadow-accent-pressed:
+    0 1px 1px rgb(0 113 227 / 0.24),
+    0 2px 4px -1px rgb(0 113 227 / 0.2);
 
   /* System font first: SF Pro on Apple devices, Inter everywhere else. */
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font-inter),
