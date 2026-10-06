@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/site-header";
-import { BackLink } from "@/components/ui/back-link";
+import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { PolicyClaimsCard } from "@/components/claims/policy-claims-card";
 import { QuickActions } from "@/components/policy/quick-actions";
 import {
@@ -37,7 +37,7 @@ export default async function PolicyPage({
     <>
       <SiteHeader customerState={customer} />
       <main id="main" className="mx-auto max-w-[1112px] px-4 pt-5 pb-20 sm:px-6 sm:pt-8 xl:px-0">
-        <BackLink href={dashboardHref({ tab: "active", customer })}>Active policies</BackLink>
+        <Breadcrumbs items={[{ label: "Active policies", href: dashboardHref({ tab: "active", customer }) }, { label: policyDetail.name }]} />
 
         <div className="mt-4 grid gap-x-8 gap-y-6 lg:grid-cols-[minmax(0,750px)_330px] lg:justify-between">
           <div className="flex min-w-0 flex-col gap-6">

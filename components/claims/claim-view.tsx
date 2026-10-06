@@ -1,13 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Note } from "@/components/claims/claim-bits";
 import { useCardConfig } from "@/components/dashboard/card-config";
 import { PolicyCardFront } from "@/components/dashboard/health-card";
 import { Asset } from "@/components/ui/asset";
-import { BackLink } from "@/components/ui/back-link";
-import { Button } from "@/components/ui/buttons";
+import { Breadcrumbs } from "@/components/ui/breadcrumb";
+import { Button, buttonClass } from "@/components/ui/buttons";
 import { StatusPill, cardClass } from "@/components/ui/card-bits";
 import { IconCheck, IconDocuments, IconTrash } from "@/components/ui/icons";
 import { GlareFace, GlareGroup } from "@/components/ui/glare";
@@ -25,7 +26,7 @@ import {
 } from "@/lib/claims";
 import { activePolicyGroups } from "@/lib/dashboard-data";
 import { policyDetail } from "@/lib/policy-detail";
-import type { Customer } from "@/lib/routes";
+import { dashboardHref, policyHref, type Customer } from "@/lib/routes";
 import { lockScroll, unlockScroll } from "@/lib/use-scroll-lock";
 
 const cardTitle = "text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label";
@@ -58,15 +59,27 @@ export function ClaimView({ claimId, customer, created }: { claimId: string; cus
 
   if (!claim) {
     return (
-      <div className={`${cardClass} mx-auto mt-6 max-w-[520px] px-6 py-10 text-center`}>
-        <h1 className="text-[22px] leading-7 font-semibold tracking-[-0.02em] text-label">This claim isn&apos;t here</h1>
-        <p className="mt-2 text-[15px] leading-5 text-pretty text-label-secondary">
-          It may have been deleted, or made in another browser. Claims in this prototype stay in the browser they were made in.
-        </p>
-        <div className="mt-5">
-          <BackLink href={claimsHref(policyDetail.id, customer)}>All claims</BackLink>
+      <>
+        <Breadcrumbs
+          items={[
+            { label: "Active policies", href: dashboardHref({ tab: "active", customer }) },
+            { label: policyDetail.name, href: policyHref(policyDetail.id, customer) },
+            { label: "Claims", href: claimsHref(policyDetail.id, customer) },
+            { label: "Claim not found" },
+          ]}
+        />
+        <div className={`${cardClass} mx-auto mt-6 max-w-[520px] px-6 py-10 text-center`}>
+          <h1 className="text-[22px] leading-7 font-semibold tracking-[-0.02em] text-label">This claim isn&apos;t here</h1>
+          <p className="mt-2 text-[15px] leading-5 text-pretty text-label-secondary">
+            It may have been deleted, or made in another browser. Claims in this prototype stay in the browser they were made in.
+          </p>
+          <div className="mt-5">
+            <Link href={claimsHref(policyDetail.id, customer)} className={buttonClass("tinted", "medium")}>
+              See all claims
+            </Link>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -116,7 +129,14 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
 
   return (
     <>
-      <BackLink href={claimsHref(policyDetail.id, customer)}>All claims</BackLink>
+      <Breadcrumbs
+        items={[
+          { label: "Active policies", href: dashboardHref({ tab: "active", customer }) },
+          { label: policyDetail.name, href: policyHref(policyDetail.id, customer) },
+          { label: "Claims", href: claimsHref(policyDetail.id, customer) },
+          { label: `Claim ${claim.id}` },
+        ]}
+      />
 
       <header className="mt-4">
         {/* Named for who and where, so claims tell apart at a glance. */}

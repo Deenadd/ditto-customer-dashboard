@@ -9,7 +9,7 @@ import { ErrorLine, FlowBack, FlowBar, FlowVersionSwitch, flowEase, stepSwap } f
 import { HospitalStep, type HospitalChoice } from "@/components/claims/new-claim-flow";
 import { DocumentsStep } from "@/components/claims/reimbursement-flow";
 import { Asset } from "@/components/ui/asset";
-import { BackLink } from "@/components/ui/back-link";
+import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { IconClaim, IconDocuments } from "@/components/ui/icons";
 import {
   addClaim,
@@ -21,7 +21,7 @@ import {
   type DocumentKind,
 } from "@/lib/claims";
 import { policyDetail } from "@/lib/policy-detail";
-import type { Customer } from "@/lib/routes";
+import { dashboardHref, policyHref, type Customer } from "@/lib/routes";
 
 type ClaimType = "cashless" | "reimbursement";
 
@@ -163,7 +163,18 @@ export function OneClaimFlow({ customer }: { customer: Customer }) {
   return (
     <form onSubmit={onContinue} noValidate className="flex min-h-[calc(100dvh-64px)] flex-col">
       <div className="mx-auto w-full max-w-[640px] flex-1 px-4 pt-5 pb-10 sm:px-6 sm:pt-8">
-        {step === 1 ? <BackLink href={claimsHref(policyDetail.id, customer)}>Claims</BackLink> : <FlowBack onClick={() => go(step - 1)} />}
+        {step === 1 ? (
+          <Breadcrumbs
+            items={[
+              { label: "Active policies", href: dashboardHref({ tab: "active", customer }) },
+              { label: policyDetail.name, href: policyHref(policyDetail.id, customer) },
+              { label: "Claims", href: claimsHref(policyDetail.id, customer) },
+              { label: "New claim" },
+            ]}
+          />
+        ) : (
+          <FlowBack onClick={() => go(step - 1)} />
+        )}
 
         <AnimatePresence mode="wait" initial={false}>
           <motion.div key={step} {...swap} transition={{ duration: reduced ? 0.12 : 0.2, ease: flowEase }} className="mt-4">

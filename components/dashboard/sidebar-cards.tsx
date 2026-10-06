@@ -144,7 +144,7 @@ export function WelcomeCard({
 
         <dl className="mt-5 grid grid-cols-2 gap-2">
           <Stat label="Active policies" value={activePolicies} />
-          <Stat label="Pending applications" value={requirementRequests} />
+          <Stat label={requirementRequests === 1 ? "Pending app" : "Pending apps"} value={requirementRequests} />
         </dl>
       </div>
 

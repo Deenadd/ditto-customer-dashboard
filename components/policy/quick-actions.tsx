@@ -137,7 +137,11 @@ function HospitalRow({ hospital: h, open, onToggle }: { hospital: Hospital; open
         aria-expanded={open}
         aria-controls={bodyId}
         onClick={onToggle}
-        className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors duration-150 ease-out active:bg-fill [@media(hover:hover)]:hover:bg-fill/60"
+        // The hover tint is for rows you can open. On an open row it would sit behind the
+        // header only and cut the card in two, gray header over white details.
+        className={`flex w-full items-center gap-3 px-4 py-3 text-left transition-colors duration-150 ease-out active:bg-fill ${
+          open ? "" : "[@media(hover:hover)]:hover:bg-fill/60"
+        }`}
       >
         <span className="min-w-0 flex-1">
           <span className="block text-[15px] leading-5 font-medium text-pretty text-label">{h.name}</span>

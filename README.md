@@ -208,7 +208,10 @@ colour points layer over the wash.
   them read; each opens the timeline.
 - **Avatar menu** switches between the customer with pending applications and
   the one with none, and logs out.
-- **Active health policy** opens the policy page; the back link returns.
+- **Active health policy** opens the policy page. Pages below the dashboard
+  carry breadcrumbs (Active policies › policy › Claims › claim), in the label
+  greys so they read as wayfinding. On phones the middle crumbs fold into a
+  … link so the trail stays on one line, each link with a 44px tap area.
 
 Buttons with no destination yet: Chat now, Talk to our team and Download policy.
 

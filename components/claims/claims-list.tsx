@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { ClaimRow } from "@/components/claims/claim-bits";
-import { BackLink } from "@/components/ui/back-link";
+import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { buttonClass } from "@/components/ui/buttons";
 import { cardClass } from "@/components/ui/card-bits";
 import { IconClaim } from "@/components/ui/icons";
 import { SegmentedLinks } from "@/components/ui/segmented";
 import { claimHref, claimsHref, newClaimHref, useClaims, useHydrated } from "@/lib/claims";
 import { policyDetail } from "@/lib/policy-detail";
-import { policyHref, type Customer } from "@/lib/routes";
+import { dashboardHref, policyHref, type Customer } from "@/lib/routes";
 
 /**
  * Every claim on the health policy. Open claims are under Active; Past is
@@ -23,7 +23,13 @@ export function ClaimsList({ customer, view, deleted }: { customer: Customer; vi
 
   return (
     <>
-      <BackLink href={policyHref(policyDetail.id, customer)}>Policy</BackLink>
+      <Breadcrumbs
+        items={[
+          { label: "Active policies", href: dashboardHref({ tab: "active", customer }) },
+          { label: policyDetail.name, href: policyHref(policyDetail.id, customer) },
+          { label: "Claims" },
+        ]}
+      />
 
       <header className="mt-4 flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">

@@ -9,7 +9,7 @@ import { ReimbursementFlow } from "@/components/claims/reimbursement-flow";
 import { ErrorLine, FlowBack, FlowBar, FlowVersionSwitch, flowEase, stepSwap, today } from "@/components/claims/flow-parts";
 import { Chevron } from "@/components/dashboard/policy-pair";
 import { Asset } from "@/components/ui/asset";
-import { BackLink } from "@/components/ui/back-link";
+import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/buttons";
 import { IconClaim, IconDocuments } from "@/components/ui/icons";
 import {
@@ -27,7 +27,7 @@ import {
   type Hospital,
 } from "@/lib/claims";
 import { policyDetail } from "@/lib/policy-detail";
-import type { Customer } from "@/lib/routes";
+import { dashboardHref, policyHref, type Customer } from "@/lib/routes";
 import { lockScroll, unlockScroll } from "@/lib/use-scroll-lock";
 
 type Draft = {
@@ -179,7 +179,14 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
     <form onSubmit={onContinue} noValidate className="flex min-h-[calc(100dvh-64px)] flex-col">
       <div className="mx-auto w-full max-w-[640px] flex-1 px-4 pt-5 pb-10 sm:px-6 sm:pt-8">
         {step === 0 ? (
-          <BackLink href={claimsHref(policyDetail.id, customer)}>Claims</BackLink>
+          <Breadcrumbs
+            items={[
+              { label: "Active policies", href: dashboardHref({ tab: "active", customer }) },
+              { label: policyDetail.name, href: policyHref(policyDetail.id, customer) },
+              { label: "Claims", href: claimsHref(policyDetail.id, customer) },
+              { label: "New claim" },
+            ]}
+          />
         ) : (
           <FlowBack onClick={() => go(step - 1)} />
         )}

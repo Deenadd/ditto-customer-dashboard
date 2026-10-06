@@ -2,6 +2,7 @@ import {
   Activity,
   ArrowLeft,
   Check,
+  ChevronRight,
   CircleHelp,
   Clock,
   Globe,
@@ -47,6 +48,7 @@ export const IconTrack = from(Activity);
 export const IconClose = from(X);
 export const IconCheck = from(Check, 2.25);
 export const IconBack = from(ArrowLeft);
+export const IconChevronRight = from(ChevronRight);
 export const IconRestart = from(RotateCcw);
 export const IconPhone = from(Phone);
 export const IconHospital = from(Hospital);
