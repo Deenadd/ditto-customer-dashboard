@@ -2,9 +2,8 @@ import Link from "next/link";
 import type { CSSProperties, ReactNode } from "react";
 import { MiniPolicyCard } from "@/components/dashboard/health-card";
 import { Chevron } from "@/components/dashboard/policy-pair";
-import { StatusPill } from "@/components/ui/card-bits";
 import { IconClaim } from "@/components/ui/icons";
-import { formatDate, typeLabel, type Claim } from "@/lib/claims";
+import { formatShortDate, type Claim } from "@/lib/claims";
 
 /**
  * A set of answers as one card, rows split by hairlines (inset to line up
@@ -122,7 +121,11 @@ export function Note({ children, tone = "info" }: { children: ReactNode; tone?: 
   );
 }
 
-/** A claim in a list: what, who and where, its status, and the way in. */
+/**
+ * A claim in a list, named for who and where, as the claim page is: the
+ * patient and hospital, then when it was asked for and where it stands, the
+ * status as green text rather than a pill so the row stays quiet.
+ */
 export function ClaimRow({ claim, href }: { claim: Claim; href: string }) {
   return (
     <Link
@@ -134,14 +137,10 @@ export function ClaimRow({ claim, href }: { claim: Claim; href: string }) {
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[15px] leading-5 font-medium text-label">
-          {typeLabel(claim)} · {claim.treatment}
+          {claim.patient.name} · {claim.hospital?.name ?? "Hospital not chosen"}
         </span>
-        <span className="block truncate text-[13px] leading-[18px] text-label-secondary tabular-nums">
-          {claim.id} · {claim.patient.name} · {claim.hospital?.name ?? "Hospital not chosen"}
-        </span>
-        <span className="mt-1.5 flex items-center gap-2">
-          <StatusPill status="received" />
-          <span className="text-[12px] leading-4 text-label-tertiary tabular-nums">{formatDate(claim.createdAt)}</span>
+        <span className="mt-0.5 block truncate text-[13px] leading-[18px] text-label-secondary tabular-nums">
+          {formatShortDate(claim.createdAt)} · <span className="font-medium text-green-text">Request received</span>
         </span>
       </span>
       <Chevron className="text-label-tertiary" />

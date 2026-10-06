@@ -186,6 +186,12 @@ export function formatDate(iso: string) {
   );
 }
 
+/** A short date for lists: 6 Oct 26. */
+export function formatShortDate(iso: string) {
+  const date = new Date(iso);
+  return `${date.getDate()} ${date.toLocaleString("en-GB", { month: "short" })} ${String(date.getFullYear()).slice(-2)}`;
+}
+
 export function claimsHref(policyId: string, customer: Customer = "default", extra = "") {
   const base = `/dashboard/policies/${encodeURIComponent(policyId)}/claims${extra}`;
   return customer === "new" ? `${base}${base.includes("?") ? "&" : "?"}customer=new` : base;

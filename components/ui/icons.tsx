@@ -1,4 +1,14 @@
 import {
+  Sun,
+  Leaf,
+  HousePlus,
+  House,
+  FlaskConical,
+  CalendarClock,
+  CalendarCheck,
+  BedSingle,
+  Bandage,
+  Baby,
   Activity,
   ArrowLeft,
   Check,
@@ -21,6 +31,7 @@ import {
   X,
   type LucideIcon,
 } from "lucide-react";
+import type { CoverIcon } from "@/lib/policy-detail";
 
 /**
  * Every interface icon comes from here, so the set can change in one place.
@@ -62,3 +73,18 @@ export const IconDirections = from(Navigation);
 export const IconWebsite = from(Globe);
 export const IconClock = from(Clock);
 export const IconPin = from(MapPin);
+
+/** The policy page's benefits and exclusions, one simple line icon each. */
+export const coverIcons: Record<CoverIcon, Icon> = {
+  hospital: from(Hospital),
+  room: from(BedSingle),
+  before: from(CalendarClock),
+  after: from(CalendarCheck),
+  maternity: from(Baby),
+  "day-care": from(Sun),
+  home: from(HousePlus),
+  ayush: from(Leaf),
+  "self-harm": from(Bandage),
+  "home-by-choice": from(House),
+  experimental: from(FlaskConical),
+};

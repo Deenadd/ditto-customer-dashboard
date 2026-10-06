@@ -146,7 +146,8 @@ returns to the row that opened it; Escape or a click outside closes it.
   sheet with the claims chat from a greeting, plus a text box. Typed
   questions are matched by keywords to the topic that answers them, and
   anything else gets an honest "I can't answer that yet" with topics.
-- **Policy page:** the name, then the policy card (with
+- **Policy page:** the name, then the policy card (benefits and exclusions
+  drawn with simple line icons, exclusions in red without dividers) (with
   its download icon), and what's covered and not. The card carries the policy's
   facts and members, so there's no separate summary. On phones the
   two cover sections fold to a title and a count. Beside them, one Claims
@@ -287,7 +288,9 @@ page's one filled action, and the open claims once there are any.
   in the policy year and not in the future. Sending prints the ticket; the
   claim page shows the amount, stay and documents, and asks you to keep the
   originals. Only file names are kept, in this browser.
-- **Claims:** Active and Past, with an empty state. After a delete it says
+- **Claims:** Active and Past, each claim its own card, titled for who and
+  where (Arjun Raghavan · Lakeview Hospital) with the date (6 Oct 26) and
+  its status as green text; an empty state when there are none. After a delete it says
   which claim went.
 
 There's no backend, so claims are kept in the browser they were made in. The

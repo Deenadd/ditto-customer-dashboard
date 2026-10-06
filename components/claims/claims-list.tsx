@@ -58,19 +58,21 @@ export function ClaimsList({ customer, view, deleted }: { customer: Customer; vi
         />
       </div>
 
-      <section aria-label={view === "active" ? "Active claims" : "Past claims"} className={`${cardClass} mt-4 p-2`}>
+      <section aria-label={view === "active" ? "Active claims" : "Past claims"} className="mt-4">
         {!hydrated ? (
           <div className="h-[180px]" />
         ) : shown.length ? (
-          <ul className="flex flex-col gap-0.5">
+          /* Each claim is its own card. The row inside keeps an 8px inset, so
+             its 14px hover corners sit concentric with the card's 22px. */
+          <ul className="flex flex-col gap-3">
             {shown.map((claim) => (
-              <li key={claim.id}>
+              <li key={claim.id} className={`${cardClass} p-2`}>
                 <ClaimRow claim={claim} href={claimHref(policyDetail.id, claim.id, customer)} />
               </li>
             ))}
           </ul>
         ) : (
-          <div className="flex flex-col items-center px-6 py-12 text-center">
+          <div className={`${cardClass} flex flex-col items-center px-6 py-12 text-center`}>
             <span className="grid size-14 place-items-center rounded-[14px] bg-accent-tint text-accent">
               <IconClaim size={26} />
             </span>

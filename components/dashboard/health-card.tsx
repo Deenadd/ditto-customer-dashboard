@@ -20,7 +20,7 @@ const art = (name: string) => `/dashboard/health-card/${name}`;
 
 /* A white card face, as in the Figma active-policies screen: the contour
    lines and a soft blue glow sit behind the content. */
-const face = `relative isolate flex h-full flex-col overflow-hidden ${cardClass} transition-shadow duration-200 ease-out [@media(hover:hover)]:group-has-[a:hover]:shadow-raised`;
+const face = `relative isolate flex h-full flex-col overflow-hidden ${cardClass} transition-shadow duration-200 ease-out in-data-active:shadow-raised`;
 
 /* The outlined white panel inside each face. */
 const panel =

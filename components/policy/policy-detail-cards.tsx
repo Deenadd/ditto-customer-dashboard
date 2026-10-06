@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, type ReactNode } from "react";
-import { Asset } from "@/components/ui/asset";
 import { cardClass } from "@/components/ui/card-bits";
+import { coverIcons } from "@/components/ui/icons";
 import type { CoverIcon, CoverItem, Exclusion } from "@/lib/policy-detail";
 import { policyDetail } from "@/lib/policy-detail";
 
@@ -18,17 +18,10 @@ export function PolicyHeader({ policy }: { policy: typeof policyDetail }) {
   );
 }
 
-/** A Figma icon frame: the group sits at an inset and its SVG bleeds out. */
-export function CoverGlyph({ icon, size }: { icon: CoverIcon; size: number }) {
-  return (
-    <span aria-hidden className="relative block shrink-0" style={{ width: size, height: size }}>
-      <span className="absolute" style={{ inset: icon.group }}>
-        <span className="absolute" style={{ inset: icon.bleed }}>
-          <Asset src={icon.src} className="size-full" />
-        </span>
-      </span>
-    </span>
-  );
+/** A benefit's or exclusion's line icon, in the colour of its tile. */
+export function CoverGlyph({ icon, size, className = "" }: { icon: CoverIcon; size: number; className?: string }) {
+  const Glyph = coverIcons[icon];
+  return <Glyph size={size} className={`shrink-0 ${className}`} />;
 }
 
 /** What's covered: two columns of benefits, each on its own icon tile. */
@@ -38,8 +31,8 @@ export function CoveredCard({ items }: { items: CoverItem[] }) {
       <ul className="mt-4 grid gap-x-6 gap-y-5 sm:grid-cols-2">
         {items.map((item) => (
           <li key={item.title} className="flex items-start gap-3.5">
-            <span className="grid size-11 shrink-0 place-items-center rounded-[11px] bg-accent-tint">
-              <CoverGlyph icon={item.icon} size={24} />
+            <span className="grid size-11 shrink-0 place-items-center rounded-[11px] bg-accent-tint text-accent">
+              <CoverGlyph icon={item.icon} size={22} />
             </span>
             <div className="min-w-0 pt-0.5">
               <h3 className="text-[15px] leading-5 font-semibold text-label">{item.title}</h3>
@@ -58,13 +51,11 @@ export function CoveredCard({ items }: { items: CoverItem[] }) {
 export function NotCoveredCard({ items }: { items: Exclusion[] }) {
   return (
     <Collapsible id="not-covered" title="What’s not covered" summary={`${items.length} exclusions`}>
-      <ul className="mt-2">
-        {items.map((item, index) => (
-          <li key={item.label} className="relative flex items-center gap-3 py-3">
-            {index > 0 ? (
-              <span aria-hidden className="absolute top-0 right-0 left-8 h-px bg-separator" />
-            ) : null}
-            <CoverGlyph icon={item.icon} size={20} />
+      {/* Spaced rows, no dividers: each line is short and its icon marks it. */}
+      <ul className="mt-3 flex flex-col gap-3.5">
+        {items.map((item) => (
+          <li key={item.label} className="flex items-center gap-3">
+            <CoverGlyph icon={item.icon} size={20} className="text-red-text" />
             <span className="text-[14px] leading-5 text-label">{item.label}</span>
           </li>
         ))}

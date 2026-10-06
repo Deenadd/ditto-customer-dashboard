@@ -230,8 +230,8 @@ function CategoryStep({ draft, set }: StepProps) {
           title={item.label}
           hint={item.hint}
           leading={
-            <span className="grid size-10 shrink-0 place-items-center rounded-[11px] bg-accent-tint">
-              <CoverGlyph icon={categoryIcons[item.id]} size={22} />
+            <span className="grid size-10 shrink-0 place-items-center rounded-[11px] bg-accent-tint text-accent">
+              <CoverGlyph icon={categoryIcons[item.id]} size={20} />
             </span>
           }
         />
