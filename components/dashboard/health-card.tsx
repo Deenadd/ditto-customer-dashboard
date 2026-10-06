@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useSyncExternalStore, type CSSProperties } from "react";
+import { useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { useCardConfig } from "@/components/dashboard/card-config";
 import { Topography } from "@/components/dashboard/topography";
 import { Asset, Glow } from "@/components/ui/asset";
@@ -97,9 +97,9 @@ export function PolicyCardPair({
         onClick={flip && phone ? turnOver : undefined}
         inert={flip && phone && flipped}
       >
-        <GlareFace radius={22} className="h-full">
+        <Face plain={flip && phone}>
           <PolicyCardFront policy={policy} download={download} />
-        </GlareFace>
+        </Face>
       </div>
 
       <div
@@ -107,7 +107,7 @@ export function PolicyCardPair({
         onClick={flip && phone ? turnOver : undefined}
         inert={flip && phone && !flipped}
       >
-      <GlareFace radius={22} className="h-full">
+      <Face plain={flip && phone}>
         <article aria-label={`People on ${policy.name}`} className={face}>
           <div aria-hidden className="absolute inset-0 -z-10">
             <Topography variant="members" tone={tone} />
@@ -124,7 +124,7 @@ export function PolicyCardPair({
           </div>
           <p className="px-5 py-3 text-[12px] leading-4 text-label-secondary">{captions[tone]}</p>
         </article>
-      </GlareFace>
+      </Face>
       </div>
 
       {/* The way to turn it over that a keyboard and a screen reader can use,
@@ -151,6 +151,21 @@ export function PolicyCardPair({
         />
       ) : null}
     </GlareGroup>
+  );
+}
+
+/**
+ * A face with the glare and tilt, or plain. The one-card flip layout uses it
+ * plain: its own 3D turn and the hover tilt can't share a face (the turned
+ * away side showed through, mirrored), and the hover lift grew the card past
+ * the page's gutter in a narrow window used with a mouse.
+ */
+function Face({ plain, children }: { plain: boolean; children: ReactNode }) {
+  if (plain) return <div className="h-full">{children}</div>;
+  return (
+    <GlareFace radius={22} className="h-full">
+      {children}
+    </GlareFace>
   );
 }
 
