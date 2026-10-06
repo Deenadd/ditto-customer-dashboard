@@ -31,18 +31,20 @@ function NetworkCheck({ active, onAnswer }: WidgetProps) {
   const [picked, setPicked] = useState<Hospital | null>(null);
   const id = useId();
   const verdictRef = useRef<HTMLDivElement>(null);
+  const nextRef = useRef<HTMLDivElement>(null);
   const q = query.trim().toLowerCase();
 
-  /* On a phone the verdict lands below the fold; bring it into view. */
+  /* The verdict and the way on land below the fold; bring them into view. */
   useEffect(() => {
-    if (picked) verdictRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    if (picked) (nextRef.current ?? verdictRef.current)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
   }, [picked]);
   const results = q
     ? hospitals.filter((h) => [h.name, h.address, h.city, h.pin].some((f) => f.toLowerCase().includes(q))).slice(0, 4)
     : hospitals.slice(0, 4);
 
   return (
-    <section aria-labelledby={`${id}-title`} className={card} inert={!active}>
+    <div className="flex flex-col gap-3" inert={!active}>
+    <section aria-labelledby={`${id}-title`} className={card}>
       <h3 id={`${id}-title`} className="text-[15px] leading-5 font-semibold text-label">
         Check a hospital
       </h3>
@@ -112,23 +114,34 @@ function NetworkCheck({ active, onAnswer }: WidgetProps) {
                 ? `${picked.name} is in Care Health's network, so cashless works there.`
                 : `${picked.name} isn't in Care Health's network. You'll pay first and claim the costs back.`}
             </p>
-            <Button
-              size="small"
-              className="mt-3"
-              onClick={() =>
-                onAnswer(
-                  picked.network ? `${picked.name}, in the network` : `${picked.name}, not in the network`,
-                  picked.network ? "cashless" : "reimbursement",
-                )
-              }
-            >
-              {picked.network ? "Continue with cashless" : "Continue with reimbursement"}
-            </Button>
           </div>
         ) : null}
       </div>
       <p className="mt-3 text-[12px] leading-4 text-label-tertiary">A sample list for this prototype.</p>
     </section>
+
+    {/* The way on sits under the card, lined up with its left edge, and
+        names where the pick leads: cashless at a network hospital,
+        reimbursement anywhere else. Only once a hospital is picked, and only
+        while this is the conversation's current step. */}
+    {picked && active ? (
+      <div ref={nextRef} className="ml-10 scroll-mb-6 max-[380px]:ml-0">
+        <Button
+          key={picked.id}
+          size="medium"
+          className="motion-safe:animate-pop"
+          onClick={() =>
+            onAnswer(
+              picked.network ? `${picked.name}, in the network` : `${picked.name}, not in the network`,
+              picked.network ? "cashless" : "reimbursement",
+            )
+          }
+        >
+          {picked.network ? "Continue with cashless" : "Continue with reimbursement"}
+        </Button>
+      </div>
+    ) : null}
+    </div>
   );
 }
 
