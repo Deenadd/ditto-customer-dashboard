@@ -1,8 +1,10 @@
 /**
  * Everything the dashboard shows, copied from the Figma page (file
- * kalCtplJimHm1xtOJGC60d, page 5:5). There is no backend: one customer, Peter
- * Parker, in two states: with pending applications, and with none.
+ * kalCtplJimHm1xtOJGC60d, page 5:5). There is no backend: one customer, Arjun
+ * Raghavan (see people.ts), in two states: with pending applications, and with none.
  */
+
+import { ownFamily, parents, self, wife, type Person } from "@/lib/people";
 
 export type Insurer = "maxlife" | "care";
 
@@ -66,8 +68,8 @@ export type SavedDocument = {
 };
 
 export const customer = {
-  firstName: "Peter",
-  name: "Peter Parker",
+  firstName: self.name.split(" ")[0],
+  name: self.name,
   memberSince: "2 Jan 2024",
 };
 
@@ -75,7 +77,7 @@ const termFields = (): Field[] => [
   { label: "Sum insured", value: "₹5,00,00,000" },
   { label: "Coverage type", value: "Protection plan" },
   { label: "Cover till", value: "Age 70" },
-  { label: "Nominee", value: "Pavithra Luthra" },
+  { label: "Nominee", value: wife.name },
 ];
 
 const healthFields = (): Field[] => [
@@ -175,12 +177,11 @@ export const applicationCount = applicationGroups.reduce(
   0,
 );
 
-const familyMembers: Member[] = [
-  { name: "Bhanu Harish", dob: "17 Nov 1990", primary: true },
-  { name: "Kanya Parameswari", dob: "2 Jan 1998" },
-  { name: "Venkata Ramesh", dob: "22 Feb 2001" },
-  { name: "Sanya Gupta", dob: "19 Oct 2003" },
-];
+/* As the cards list people; the first is the policyholder's own icon. */
+const member = (person: Person, primary = false): Member => ({ name: person.name, dob: person.dob, primary });
+const familyMembers: Member[] = ownFamily.map((person) => member(person, person === self));
+/* Arjun pays for his parents' cover but isn't on it, so neither is marked. */
+const parentMembers: Member[] = parents.map((person) => member(person));
 
 /** Active policies, node 149:9845. */
 export const activePolicyGroups: { title: string; items: ActivePolicy[] }[] = [
@@ -201,6 +202,18 @@ export const activePolicyGroups: { title: string; items: ActivePolicy[] }[] = [
         people: { layout: "members", members: familyMembers },
         hasDetail: true,
       },
+      {
+        id: "528-190-47SNR36",
+        insurer: "care",
+        name: "Care Senior",
+        kind: "Health insurance",
+        policyNumber: "528190473625118",
+        sumInsured: "₹10,00,000",
+        /* Arjun's parents, sharing one sum insured. */
+        coverageType: "Family floater",
+        term: { label: "Valid till", value: "Mar 2027" },
+        people: { layout: "members", members: parentMembers },
+      },
     ],
   },
   {
@@ -218,28 +231,8 @@ export const activePolicyGroups: { title: string; items: ActivePolicy[] }[] = [
         term: { label: "Cover till", value: "Age 65" },
         people: {
           layout: "member-nominee",
-          member: { name: "Bhanu Harish", dob: "17 Nov 1990", primary: true },
-          nominee: { name: "Kanya Parameswari", dob: "2 Jan 1998" },
-        },
-      },
-      {
-        id: "574309218765432",
-        insurer: "maxlife",
-        name: "Smart Secure Plus",
-        kind: "Term insurance",
-        policyNumber: "574309218765432",
-        sumInsured: "₹2,50,00,000",
-        coverageType: "Super Protection",
-        premium: "₹22,900",
-        term: { label: "Cover till", value: "Age 72" },
-        people: {
-          layout: "member-nominee",
-          member: {
-            name: "Kanya Parameswari",
-            dob: "2 Jan 1998",
-            primary: true,
-          },
-          nominee: { name: "Bhanu Harish", dob: "17 Nov 1990" },
+          member: member(self, true),
+          nominee: member(wife),
         },
       },
     ],
@@ -298,16 +291,16 @@ export const savedDocuments: SavedDocument[] = [
   {
     id: "income",
     title: "Income proof",
-    owner: "Peter Parker",
+    owner: self.name,
     type: "Salary slip",
     multiPage: true,
   },
-  { id: "photo", title: "Photo ID", owner: "Sanya Gupta", type: "Aadhaar card" },
+  { id: "photo", title: "Photo ID", owner: wife.name, type: "Aadhaar card" },
   {
     id: "address",
     title: "Address proof",
-    owner: "Peter Parker",
+    owner: self.name,
     type: "Aadhaar card",
   },
-  { id: "age", title: "Age proof", owner: "Peter Parker", type: "Aadhaar card" },
+  { id: "age", title: "Age proof", owner: self.name, type: "Aadhaar card" },
 ];

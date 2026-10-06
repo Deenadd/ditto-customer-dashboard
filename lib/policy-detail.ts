@@ -3,6 +3,8 @@
  * "customer dashboard / home screen / active policies / policy view".
  */
 
+import { ownFamily } from "@/lib/people";
+
 export type CoverIcon = {
   src: string;
   /** Where the icon's group sits inside its 28px frame, as Figma exports it. */
@@ -37,12 +39,8 @@ export const policyDetail = {
     { label: "Booked on", value: "24 Sep 2021" },
     { label: "Valid till", value: "19 Aug 2027" },
   ],
-  family: [
-    { name: "Pavithra Luthra", relation: "You", dob: "14 Jul 1995" },
-    { name: "Kelly Williams", relation: "Wife", dob: "25 Oct 1998" },
-    { name: "Rich Wilson", relation: "Son", dob: "19 Oct 2010" },
-    { name: "Mason Phillips", relation: "Father", dob: "7 Sep 1970" },
-  ],
+  /* Arjun's own family floater: him, his wife and their two children. */
+  family: ownFamily,
   addOns: ["Personal accident cover", "Room rent waiver", "Top-up cover", "OPD care"],
 };
 

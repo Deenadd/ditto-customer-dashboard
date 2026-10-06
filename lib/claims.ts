@@ -106,7 +106,9 @@ export type Claim = {
 /** The policy year a claim's dates must fall in. */
 export const policyPeriod = { start: "2026-08-20", end: "2027-08-19" };
 
-const KEY = "ditto.claims.v1";
+/* v2: the family was renamed (people.ts); claims made under the old names
+   would name people the policy no longer has. */
+const KEY = "ditto.claims.v2";
 const NONE: Claim[] = [];
 const listeners = new Set<() => void>();
 let current: Claim[] | null = null;

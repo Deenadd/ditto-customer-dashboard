@@ -113,6 +113,11 @@ returns to the row that opened it; Escape or a click outside closes it.
   30-second resend timer and Change number.
 - **Segmented controls** are links, so every view has its own URL. The
   policy tabs run Active, Pending, Inactive, and Active opens by default.
+- **The family** (`lib/people.ts`), placeholder names for a Chennai family:
+  Arjun Raghavan (the customer), his wife Kavya and their children Aditya and
+  Meera on his family floater, and his parents Raghavan Srinivasan and
+  Lakshmi Raghavan on their own Care Senior policy. Every card, claim and
+  application reads names from there.
 - **Active policies are cards** as in the Figma active-policies screen: the
   policy on the front and its people on the back, white cards with the blue
   contour lines and glow, a blue dot, and an outlined white panel. A card
