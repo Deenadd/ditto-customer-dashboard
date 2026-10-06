@@ -34,13 +34,14 @@ export type GlowConfig = {
   toneDuration: number;
 };
 
-/* Tuned in the glow panel on 1 Oct 2026. */
+/* Tuned in the glow panel on 1 Oct 2026; on 6 Oct the wash was drawn up
+   higher, reaching 40% of the screen rather than 54%. */
 export const defaultGlowConfig: GlowConfig = {
-  heightVh: 54,
+  heightVh: 40,
   curve: 1,
   softness: 90,
   coreWidth: 62,
-  coreDepth: 56,
+  coreDepth: 50,
   domeX: 50,
   domeY: 0,
   core: referenceCore,
@@ -52,8 +53,9 @@ export const defaultGlowConfig: GlowConfig = {
 
 /* A tiny store so the glow and the panel share one config, it survives a
    reload in this browser, and the server render always uses the defaults. */
-/* v2: the wash replaced the moving circle, so v1 settings no longer apply. */
-const KEY = "ditto.glow-config.v2";
+/* v2: the wash replaced the moving circle, so v1 settings no longer apply.
+   v3: the wash sits higher; settings saved before would hold it low. */
+const KEY = "ditto.glow-config.v3";
 const listeners = new Set<() => void>();
 let current: GlowConfig | null = null;
 

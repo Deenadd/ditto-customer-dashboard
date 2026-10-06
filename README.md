@@ -109,7 +109,13 @@ returns to the row that opened it; Escape or a click outside closes it.
 - **Sign in**: a 10-digit mobile number, or a policy number (letters, digits
   and hyphens, 8 to 20 characters). Either leads to **Verify your number**. The
   prototype sends no SMS: **2168** signs in; any other code turns the wash red,
-  explains, and clears the boxes. A full code verifies itself. There's a
+  explains, and clears the boxes. A full code verifies itself. The boxes
+  move like iOS's passcode screen: one focus ring glides between them on a
+  spring, digits rise in out of a blur and sink out when deleted, they
+  breathe while the code is checked, a wrong code shakes the row and a
+  right one turns the boxes green in a wave (`components/otp-field.tsx`).
+  Errors sit under the field's left edge; the switch to a policy number is
+  quieter, at 15px. There's a
   30-second resend timer and Change number.
 - **Segmented controls** are links, so every view has its own URL. The
   policy tabs run Active, Pending, Inactive, and Active opens by default.

@@ -176,7 +176,8 @@ function ErrorLine({ id, children }: { id: string; children: ReactNode }) {
     <p
       id={id}
       role="alert"
-      className="mt-2.5 flex items-start justify-center gap-1.5 text-center text-[13px] leading-[18px] text-red-text"
+      /* Aligned to the field's left edge, under what it's about. */
+      className="mt-2.5 flex items-start gap-1.5 text-left text-[13px] leading-[18px] text-red-text"
     >
       <svg aria-hidden width="16" height="16" viewBox="0 0 16 16" className="mt-px shrink-0">
         <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" strokeWidth="1.4" />
@@ -265,10 +266,12 @@ function NumberStep({
         <Button type="submit" size="large" className="mt-4 w-full">
           Continue
         </Button>
+        {/* The way round, quieter than Continue: smaller text, the same
+            full-width row to tap. */}
         <Button
           variant="plain"
-          size="large"
-          className="mt-2 w-full"
+          size="medium"
+          className="mt-3 w-full"
           onClick={() => {
             onModeChange(mode === "mobile" ? "policy" : "mobile");
             onValueChange("");
@@ -365,6 +368,7 @@ function CodeStep({
           length={CODE_LENGTH}
           value={code}
           invalid={Boolean(error)}
+          status={state}
           disabled={state !== "idle"}
           describedBy={error ? "otp-error" : "otp-hint"}
           onChange={(next) => {
@@ -387,7 +391,7 @@ function CodeStep({
         <Button type="submit" size="large" className="mt-4 w-full" aria-busy={state === "checking"}>
           {state === "checking" ? "Checking…" : state === "verified" ? "Verified" : "Verify code"}
         </Button>
-        <Button variant="plain" size="large" className="mt-2 w-full" onClick={onChangeNumber}>
+        <Button variant="plain" size="medium" className="mt-3 w-full" onClick={onChangeNumber}>
           Change number
         </Button>
 
