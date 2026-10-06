@@ -69,7 +69,7 @@ export default async function DashboardPage({
             Your policies
           </h1>
 
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 max-sm:empty:hidden">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 max-sm:mt-3">
             {/* On a phone the bottom nav switches tabs instead. */}
             <div className="max-sm:hidden">
             <SegmentedLinks
@@ -127,7 +127,7 @@ export default async function DashboardPage({
             ) : null}
           </div>
 
-          <div className="mt-8">
+          <div className="mt-8 max-sm:mt-5">
             <TabPanel state={state} hasPending={hasPending} />
           </div>
         </div>
