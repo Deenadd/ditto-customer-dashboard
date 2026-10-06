@@ -26,8 +26,21 @@ function WhatsAppGlyph({ size = 22 }: { size?: number }) {
   );
 }
 
+/** A headset: help, in the header beside the bell. Stroked in the current
+    colour at the bell's weight. */
+function SupportGlyph({ size = 22 }: { size?: number }) {
+  return (
+    <svg aria-hidden width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5.75 9.75H4.25C3.42157 9.75 2.75 10.4216 2.75 11.25V14.75C2.75 15.5784 3.42157 16.25 4.25 16.25H5.75V9.75Z" />
+      <path d="M19.75 9.75H18.25V16.25H19.75C20.5784 16.25 21.25 15.5784 21.25 14.75V11.25C21.25 10.4216 20.5784 9.75 19.75 9.75Z" />
+      <path d="M19.25 9.75V9.5C19.25 5.77208 16.0041 2.75 12 2.75C7.99594 2.75 4.75 5.77208 4.75 9.5V9.75" />
+      <path d="M12 19.6429V20.25C12 20.8023 12.4477 21.25 13 21.25H15C17.4853 21.25 19.5 19.2353 19.5 16.75" />
+    </svg>
+  );
+}
+
 /**
- * Help on WhatsApp, in the header on every page. The button opens a small
+ * Help on WhatsApp, in the header on every page: a headset button that opens a small
  * panel that says where you're going before you leave the site, then
  * Open WhatsApp hands over in a new tab with a first message ready.
  */
@@ -50,7 +63,7 @@ export function WhatsAppHelp() {
         onClick={() => setOpen((value) => !value)}
         className="grid size-10 place-items-center rounded-full text-label transition-[background-color,transform] duration-150 ease-out active:scale-[0.92] [@media(hover:hover)]:hover:bg-black/[0.04]"
       >
-        <WhatsAppGlyph />
+        <SupportGlyph />
       </button>
 
       {open ? (
