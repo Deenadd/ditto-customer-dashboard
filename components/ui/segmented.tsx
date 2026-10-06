@@ -95,7 +95,7 @@ export function SegmentedLinks({
                   }
                   setPressed(segment.value);
                 }}
-                className={`relative flex items-center gap-1.5 rounded-control-inner font-medium whitespace-nowrap transition-colors duration-150 ${
+                className={`touch-hit relative flex items-center gap-1.5 rounded-control-inner font-medium whitespace-nowrap transition-colors duration-150 ${
                   small ? "px-3 text-[13px]" : "px-4 text-[14px]"
                 } ${
                   current

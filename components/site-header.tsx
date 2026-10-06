@@ -36,7 +36,7 @@ export function SiteHeader({ customerState = "default" }: { customerState?: Cust
       <div className="mx-auto flex h-14 max-w-[1112px] items-center justify-between px-5 sm:h-16 xl:px-0">
         <Link
           href={dashboardHref({ customer: customerState })}
-          className="flex shrink-0 items-center rounded-lg"
+          className="touch-hit flex shrink-0 items-center rounded-lg"
         >
           <Image
             src="/brand/ditto-logo.png"

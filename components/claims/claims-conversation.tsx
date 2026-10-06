@@ -156,7 +156,7 @@ export function ClaimsConversation({ start, composer = false }: { start: string;
               <div
                 role="group"
                 aria-label="Your answer"
-                className={asRows ? "flex flex-col gap-2" : "flex flex-wrap gap-2"}
+                className={`[--hit:40px] ${asRows ? "flex flex-col gap-2" : "flex flex-wrap gap-2"}`}
               >
                 {choices.map((choice) =>
                   asRows ? (
@@ -202,7 +202,7 @@ export function ClaimsConversation({ start, composer = false }: { start: string;
                   type="submit"
                   aria-label="Send"
                   disabled={!question.trim()}
-                  className="absolute top-1.5 right-1.5 grid size-9 place-items-center rounded-full bg-accent text-white transition-[opacity,transform] duration-150 active:scale-[0.92] disabled:opacity-30"
+                  className="touch-hit absolute top-1.5 right-1.5 grid size-9 place-items-center rounded-full bg-accent text-white transition-[opacity,transform] duration-150 active:scale-[0.92] disabled:opacity-30"
                 >
                   <svg aria-hidden width="16" height="16" viewBox="0 0 16 16" fill="none">
                     <path d="M8 13V3m0 0L3.5 7.5M8 3l4.5 4.5" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />

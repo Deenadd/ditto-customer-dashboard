@@ -15,9 +15,12 @@ export const metadata: Metadata = {
 };
 
 /* Edge to edge on iPhones: the page runs under the status bar and home
-   indicator, and fixed chrome pads itself with env(safe-area-inset-*). */
+   indicator, and fixed chrome pads itself with env(safe-area-inset-*).
+   On Android the keyboard shrinks the layout, as it does on iOS, so a
+   composer pinned to the bottom of a sheet stays above it. */
 export const viewport: Viewport = {
   viewportFit: "cover",
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({

@@ -105,10 +105,49 @@
   --animate-caret: caret 1.1s step-end infinite;
 }
 
+/* On touch screens a small control keeps its look but takes a bigger hit
+   area: an invisible ::after reaches out to --hit (44px, Apple's minimum)
+   on any side that is shorter, and never shrinks a side that is longer.
+   Rows of chips set --hit lower so neighbouring hit areas never overlap.
+   An element that is already positioned keeps its position. */
+@utility touch-hit {
+  &:where(:not(.absolute, .fixed, .sticky)) {
+    position: relative;
+  }
+  @media (pointer: coarse) {
+    &::after {
+      content: "";
+      position: absolute;
+      inset: min(0px, calc((100% - var(--hit, 44px)) / 2)) min(0px, calc((100% - var(--hit, 44px)) / 2));
+    }
+  }
+}
+
 @layer base {
   html {
     -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
     background-color: var(--color-page);
+  }
+
+  /* Taps fire at once (no wait to see if it's a double-tap zoom), and
+     holding a control doesn't select its label or pop the link callout.
+     Content text stays selectable. */
+  a,
+  button,
+  label,
+  summary,
+  [role="button"],
+  [role="tab"] {
+    touch-action: manipulation;
+  }
+  button,
+  summary,
+  [role="button"],
+  [role="tab"] {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
   }
 
   body {

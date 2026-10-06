@@ -1,5 +1,6 @@
 import type { ComponentPropsWithRef } from "react";
 
+export type ButtonVariant = Variant;
 type Variant = "filled" | "tinted" | "plain" | "destructive";
 type Size = "small" | "medium" | "large";
 
@@ -20,7 +21,7 @@ const sizes: Record<Size, string> = {
 
 /** Class list for anything that should look like a button, links too. */
 export function buttonClass(variant: Variant = "filled", size: Size = "medium") {
-  return `inline-flex shrink-0 items-center justify-center rounded-control font-medium leading-none tracking-[-0.01em] whitespace-nowrap select-none transition-[transform,background-color,opacity] duration-150 ease-out active:scale-[0.96] ${variants[variant]} ${sizes[size]}`;
+  return `touch-hit inline-flex shrink-0 items-center justify-center rounded-control font-medium leading-none tracking-[-0.01em] whitespace-nowrap select-none transition-[transform,background-color,opacity] duration-150 ease-out active:scale-[0.96] ${variants[variant]} ${sizes[size]}`;
 }
 
 /**

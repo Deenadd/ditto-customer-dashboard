@@ -106,7 +106,7 @@ export function SignInFlow() {
           rather than on whichever is showing. Both sit within 32px of true
           centre, and the logo, heading and inputs stay put between steps and
           when an error line appears; extra lines grow downward. */}
-      <div className="flex w-full flex-col items-center px-6 pt-[max(40px,calc((100dvh-424px)/2))] pb-12">
+      <div className="flex w-full flex-col items-center px-6 pt-[max(40px,calc((100svh-424px)/2))] pb-12">
         <Image
           src="/brand/ditto-logo.png"
           alt="Ditto"

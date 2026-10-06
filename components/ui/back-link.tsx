@@ -5,7 +5,7 @@ export function BackLink({ href, children }: { href: string; children: string })
   return (
     <Link
       href={href}
-      className="group -ml-2 inline-flex h-9 items-center gap-1 rounded-control pr-3 pl-2 text-[15px] leading-5 font-medium text-accent-text transition-opacity duration-150 active:opacity-50 [@media(hover:hover)]:hover:opacity-70"
+      className="group touch-hit -ml-2 inline-flex h-9 items-center gap-1 rounded-control pr-3 pl-2 text-[15px] leading-5 font-medium text-accent-text transition-opacity duration-150 active:opacity-50 [@media(hover:hover)]:hover:opacity-70"
     >
       <svg
         aria-hidden

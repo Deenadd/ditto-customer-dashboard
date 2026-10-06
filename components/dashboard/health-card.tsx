@@ -53,7 +53,12 @@ export function PolicyCardPair({
   const config = useCardConfig();
 
   return (
-    <GlareGroup settings={config} className={`group relative grid gap-4 [&>*]:min-w-0 ${stacked ? "" : "sm:grid-cols-2"}`}>
+    /* On touch there's no hover, so the pair gives a little under the
+       finger while its link is held, like a pressed row. */
+    <GlareGroup
+      settings={config}
+      className={`group relative grid gap-4 transition-transform duration-150 ease-out [&>*]:min-w-0 [@media(pointer:coarse)]:has-[>a:active]:scale-[0.98] ${stacked ? "" : "sm:grid-cols-2"}`}
+    >
       <GlareFace radius={22}>
         <PolicyCardFront policy={policy} download={download} />
       </GlareFace>
@@ -144,7 +149,7 @@ function DownloadPill({ policy }: { policy: ActivePolicy }) {
         setSaved(true);
         window.setTimeout(() => setSaved(false), 1600);
       }}
-      className="absolute top-3 right-3 z-20 grid size-9 place-items-center rounded-full text-label-secondary transition-[background-color,color,transform] duration-150 ease-out hover:bg-black/[0.05] hover:text-label active:scale-[0.92]"
+      className="touch-hit absolute top-3 right-3 z-20 grid size-9 place-items-center rounded-full text-label-secondary transition-[background-color,color,transform] duration-150 ease-out hover:bg-black/[0.05] hover:text-label active:scale-[0.92]"
     >
       {saved ? (
         <IconCheck size={16} className="text-green-text" />

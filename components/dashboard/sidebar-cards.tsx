@@ -1,8 +1,8 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
 import { Asset, Glow, Sparkles, type Sparkle } from "@/components/ui/asset";
-import { Button } from "@/components/ui/buttons";
 import { cardClass } from "@/components/ui/card-bits";
+import { BuddyButton } from "@/components/dashboard/ditto-buddy";
 
 const star = (name: string) => `/dashboard/${name}.svg`;
 
@@ -101,9 +101,9 @@ export function HelpBlock({
         {title}
       </h3>
       <p className="mt-1 max-w-[200px] text-[14px] leading-5 text-balance text-label-secondary">{body}</p>
-      <Button variant="tinted" size="small" className="mt-4">
+      <BuddyButton variant="tinted" className="mt-4">
         Chat now
-      </Button>
+      </BuddyButton>
     </div>
   );
 }

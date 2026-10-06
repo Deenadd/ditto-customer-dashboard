@@ -155,7 +155,15 @@ returns to the row that opened it; Escape or a click outside closes it.
 - The page is scroll-locked behind the side sheet and dialogs
   (`lib/use-scroll-lock.ts`), on iOS too, while the chat itself scrolls.
 - Touch screens get the cards without the glare layers, which they can't
-  use and Safari composites at a cost.
+  use and Safari composites at a cost. Instead the card pair gives a
+  little (scale 0.98) while it's held.
+- Small controls keep their look but take a 44px hit area on touch screens
+  (`touch-hit` in `app/globals.css`); chip rows use 40px so neighbours
+  don't overlap. Taps fire at once (`touch-action: manipulation`), holding
+  a control doesn't select its label, and there's no grey tap flash.
+- The sign-in block centres on the small viewport (`svh`), so it doesn't
+  shift when Safari's toolbar collapses. On Android the keyboard resizes
+  the page (`interactive-widget=resizes-content`), so composers stay above it.
 
 ### Card controls
 

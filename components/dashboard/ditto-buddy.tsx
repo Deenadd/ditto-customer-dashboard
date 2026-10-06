@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useRef, useState, type ReactNode } from "react";
 import { ClaimsConversation } from "@/components/claims/claims-conversation";
 import { Glow } from "@/components/ui/asset";
-import { Button } from "@/components/ui/buttons";
+import { Button, type ButtonVariant } from "@/components/ui/buttons";
 import { cardClass } from "@/components/ui/card-bits";
 import { FrostedSideSheet } from "@/components/ui/frosted-side-sheet/frosted-side-sheet";
 
@@ -14,10 +14,6 @@ import { FrostedSideSheet } from "@/components/ui/frosted-side-sheet/frosted-sid
  * plus a text box: what you type is matched to the topic that answers it.
  */
 export function DittoBuddy() {
-  const [open, setOpen] = useState(false);
-  const [session, setSession] = useState(0);
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
-
   return (
     <section aria-labelledby="buddy-title" className={`relative isolate overflow-hidden ${cardClass} px-5 pt-5 pb-5`}>
       <div aria-hidden className="absolute inset-0 -z-10">
@@ -40,11 +36,38 @@ export function DittoBuddy() {
       <p className="mt-1 max-w-[190px] text-[14px] leading-5 text-pretty text-label-secondary">
         Ask anything about your policies, claims and cover.
       </p>
+      <BuddyButton variant="filled" className="mt-4">
+        Ask Ditto Buddy
+      </BuddyButton>
+    </section>
+  );
+}
+
+/**
+ * A small button that opens Ditto Buddy in the frosted sheet (a bottom
+ * sheet on phones). Each opening starts a fresh conversation. Used by the
+ * Buddy card and by Chat now on the welcome card.
+ */
+export function BuddyButton({
+  variant,
+  className = "",
+  children,
+}: {
+  variant: ButtonVariant;
+  className?: string;
+  children: ReactNode;
+}) {
+  const [open, setOpen] = useState(false);
+  const [session, setSession] = useState(0);
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
+
+  return (
+    <>
       <Button
         ref={triggerRef}
-        variant="filled"
+        variant={variant}
         size="small"
-        className="mt-4"
+        className={className}
         data-sheet-trigger
         aria-haspopup="dialog"
         aria-expanded={open}
@@ -53,12 +76,11 @@ export function DittoBuddy() {
           setOpen(true);
         }}
       >
-        Ask Ditto Buddy
+        {children}
       </Button>
-
       <FrostedSideSheet open={open} onClose={() => setOpen(false)} title="Ditto Buddy" returnFocusRef={triggerRef}>
         <ClaimsConversation key={session} start="buddy" composer />
       </FrostedSideSheet>
-    </section>
+    </>
   );
 }
