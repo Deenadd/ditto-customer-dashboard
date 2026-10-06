@@ -263,7 +263,8 @@ page's one filled action, and the open claims once there are any.
   member icons from the policy card.
 - **Claim ticket:** sending the claim prints a ticket (after msbr_dev's
   receipt animation): it feeds out of a printer slot in short pulls, torn
-  edge and barcode first, then a "Request received" stamp lands. View claim
+  edge and barcode first, then the round green "Request received" stamp
+  (`public/claims/stamp-received.svg`, inked with multiply) lands. View claim
   opens it; Print again replays it. Reduced motion shows it finished.
   On the ticket, **Shift+Option+C** opens print controls: feed as pulls
   (duration, count, pause) or a spring (stiffness, damping, mass), the

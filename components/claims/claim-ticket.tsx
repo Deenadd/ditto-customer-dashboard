@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { animate, useReducedMotion } from "motion/react";
 import { TicketControls } from "@/components/claims/ticket-controls";
 import { useTicketConfig } from "@/components/claims/ticket-config";
+import { Asset } from "@/components/ui/asset";
 import { Button } from "@/components/ui/buttons";
 import { categoryLabel, formatDate, rupees, type Claim } from "@/lib/claims";
 
@@ -11,7 +12,8 @@ import { categoryLabel, formatDate, rupees, type Claim } from "@/lib/claims";
  * The claim ticket, printed once a claim is sent, after a receipt-print
  * animation (msbr_dev on X). A printer slot sits on top; the ticket feeds
  * down out of it in a few quick pulls, as a thermal printer does, so its
- * foot shows first; then a "Request received" stamp lands on it.
+ * foot shows first; then the round "Request received" stamp
+ * (public/claims/stamp-received.svg) lands on it.
  *
  * It runs once per claim and on Print again, a rare moment, so it can take
  * its time (about 2.6s) and carry a little bounce on the stamp. Every value
@@ -290,15 +292,15 @@ export function ClaimTicket({
                 Requested {formatDate(claim.createdAt)}{claim.type === "reimbursement" ? " · Keep the originals" : " · Show at the insurance desk"}
               </p>
 
+              {/* The round Request received stamp, inked: it multiplies
+                  into the paper, so the print shows through where it's thin. */}
               <div
                 ref={stampRef}
                 aria-hidden
-                className="pointer-events-none absolute top-[84px] right-4 rounded-[8px] border-[2.5px] border-[#1d7a3a] px-2.5 py-1 text-center font-sans text-[12px] leading-4 font-bold tracking-[0.1em] text-[#1d7a3a] uppercase opacity-0 mix-blend-multiply"
+                className="pointer-events-none absolute top-[68px] right-2 opacity-0 mix-blend-multiply"
                 style={{ transform: "rotate(-10deg)" }}
               >
-                Request
-                <br />
-                received
+                <Asset src="/claims/stamp-received.svg" className="size-[112px]" />
               </div>
             </div>
           </div>
