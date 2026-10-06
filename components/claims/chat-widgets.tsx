@@ -18,7 +18,7 @@ export type WidgetProps = {
 };
 
 const card =
-  "ml-12 rounded-[14px] bg-surface p-4 shadow-tile max-[380px]:ml-0";
+  "ml-10 rounded-[14px] bg-surface p-4 shadow-tile max-[380px]:ml-0";
 
 export function ChatWidget({ widget, ...props }: WidgetProps & { widget: WidgetId }) {
   if (widget === "network-check") return <NetworkCheck {...props} />;

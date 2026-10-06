@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { Chevron, Monogram } from "@/components/dashboard/policy-pair";
+import { Chevron } from "@/components/dashboard/policy-pair";
 import { Button } from "@/components/ui/buttons";
 import { SheetItem, SheetReveal, useSheetReveal } from "@/components/ui/frosted-side-sheet/frosted-side-sheet";
 import { defaultSideSheetConfig } from "@/components/ui/frosted-side-sheet/config";
@@ -139,10 +139,15 @@ export function ClaimsConversation({
               <SheetItem
                 key={index}
                 delay={delayFor(index)}
-                /* Lines in one turn sit closer than one turn to the next. */
+                /* Lines in one turn sit 8px apart, as shadcn's MessageGroup. */
                 className={entry.kind === "ditto" && !entry.first ? "-mt-3" : undefined}
               >
-                <EntryView entry={entry} active={!typing && index > lastAnswer} onAnswer={reply} />
+                <EntryView
+                  entry={entry}
+                  last={!(entries[index + 1]?.kind === "ditto" && !(entries[index + 1] as { first?: boolean }).first)}
+                  active={!typing && index > lastAnswer}
+                  onAnswer={reply}
+                />
               </SheetItem>
             ))}
           </div>
@@ -269,12 +274,33 @@ function ChoiceRow({ choice, onChoose }: { choice: Choice; onChoose: () => void 
   );
 }
 
+/*
+ * Messages after shadcn's Message and Bubble: Ditto's lines are bubbles on
+ * the leading side, a turn's lines 8px apart under one "Ditto" label, with
+ * the avatar at the foot of the turn; yours are filled accent bubbles on the
+ * trailing side. Bubbles are at most 80% wide with 12px corners. Ditto's
+ * grey is translucent, so it reads on the white phone sheet and on the
+ * frosted desktop one alike.
+ */
+const bubble = "w-fit max-w-[80%] rounded-[12px] px-3 py-2 text-[15px] leading-[21px] text-pretty";
+const theirs = `${bubble} bg-black/[0.05] text-label`;
+
+/** Ditto's avatar in the chat: a 32px monogram, as shadcn's MessageAvatar. */
+function ChatAvatar({ shown }: { shown: boolean }) {
+  if (!shown) return <span aria-hidden className="w-8 shrink-0" />;
+  return (
+    <span aria-hidden className="grid size-8 shrink-0 place-items-center self-end rounded-full bg-accent-tint text-[12px] font-semibold text-accent-text">
+      D
+    </span>
+  );
+}
+
 /** Three dots in Ditto's bubble, while the reply is on its way. */
 function Typing() {
   return (
-    <div aria-hidden className="flex items-center gap-3">
-      <Monogram name="Ditto" primary />
-      <span className="flex h-9 items-center gap-1 rounded-[18px] bg-fill-strong px-3.5">
+    <div aria-hidden className="flex items-end gap-2">
+      <ChatAvatar shown />
+      <span className={`${theirs} flex h-9 items-center gap-1`}>
         {[0, 1, 2].map((dot) => (
           <span
             key={dot}
@@ -289,10 +315,13 @@ function Typing() {
 
 function EntryView({
   entry,
+  last,
   active,
   onAnswer,
 }: {
   entry: Entry;
+  /** The last of Ditto's lines in a turn, which carries the avatar. */
+  last: boolean;
   active: boolean;
   onAnswer: (label: string, next: string) => void;
 }) {
@@ -300,7 +329,7 @@ function EntryView({
   if (entry.kind === "you") {
     return (
       <div className="flex justify-end">
-        <p className="max-w-[85%] rounded-[18px] bg-accent px-3.5 py-2 text-[15px] leading-5 text-pretty text-white">
+        <p className={`${bubble} bg-accent text-white`}>
           <span className="sr-only">You: </span>
           {entry.text}
         </p>
@@ -311,20 +340,21 @@ function EntryView({
   if (entry.kind === "outcome") return <OutcomeCard outcome={entry.outcome} />;
 
   return (
-    <div className="flex items-start gap-3">
-      {entry.first ? <Monogram name="Ditto" primary /> : <span aria-hidden className="w-9 shrink-0" />}
-      <div className="min-w-0 flex-1">
-        {entry.first ? (
-          <p className="mb-0.5 text-[12px] leading-4 font-semibold text-label-secondary">Ditto</p>
-        ) : null}
-        <p className="text-[15px] leading-[22px] text-pretty text-label">{entry.text}</p>
+    <div className="flex items-end gap-2">
+      <ChatAvatar shown={last} />
+      <div className="flex min-w-0 flex-1 flex-col gap-1">
+        {entry.first ? <p className="px-3 text-[12px] leading-4 font-medium text-label-secondary">Ditto</p> : null}
+        <p className={theirs}>
+          {entry.first ? <span className="sr-only">Ditto: </span> : null}
+          {entry.text}
+        </p>
       </div>
     </div>
   );
 }
 
 const outcomeCard =
-  "ml-12 rounded-[14px] bg-surface px-4 py-4 shadow-tile";
+  "ml-10 rounded-[14px] bg-surface px-4 py-4 shadow-tile";
 
 function OutcomeCard({ outcome }: { outcome: Outcome }) {
   if (outcome.kind === "documents") return <DocumentChecklist outcome={outcome} />;
