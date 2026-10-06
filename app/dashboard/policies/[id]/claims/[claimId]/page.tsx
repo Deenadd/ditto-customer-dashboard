@@ -24,7 +24,7 @@ export default async function ClaimPage({
   return (
     <>
       <SiteHeader customerState={customer} />
-      <main id="main" className="mx-auto max-w-[1112px] px-4 pt-5 pb-20 sm:px-6 sm:pt-8 xl:px-0">
+      <main id="main" className="mx-auto max-w-[1112px] px-3.5 pt-5 pb-20 sm:px-6 sm:pt-8 xl:px-0">
         <div className="grid gap-x-8 gap-y-6 lg:grid-cols-[minmax(0,750px)_330px] lg:justify-between">
           <div className="min-w-0">
             <ClaimView claimId={decodeURIComponent(claimId)} customer={customer} created={query.created === "1"} />

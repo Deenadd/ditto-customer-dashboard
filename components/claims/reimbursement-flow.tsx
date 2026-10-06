@@ -174,7 +174,7 @@ export function ReimbursementFlow({ customer, onExit }: { customer: Customer; on
 
   if (ticket) {
     return (
-      <div className="mx-auto w-full max-w-[640px] px-4 pt-8 sm:px-6 sm:pt-12">
+      <div className="mx-auto w-full max-w-[640px] px-3.5 pt-8 sm:px-6 sm:pt-12">
         <ClaimTicket claim={ticket} policyName={policyDetail.name} onView={() => router.replace(claimHref(policyDetail.id, ticket.id, customer))} />
       </div>
     );
@@ -184,7 +184,7 @@ export function ReimbursementFlow({ customer, onExit }: { customer: Customer; on
 
   return (
     <form onSubmit={onContinue} noValidate className="flex min-h-[calc(100dvh-64px)] flex-col">
-      <div className="mx-auto w-full max-w-[640px] flex-1 px-4 pt-5 pb-10 sm:px-6 sm:pt-8">
+      <div className="mx-auto w-full max-w-[640px] flex-1 px-3.5 pt-5 pb-10 sm:px-6 sm:pt-8">
         <FlowBack onClick={() => (step === 1 ? onExit() : go(step - 1))} />
         <AnimatePresence mode="wait" initial={false}>
           <motion.div key={step} {...stepSwap(direction, reduced)} transition={{ duration: reduced ? 0.12 : 0.2, ease: flowEase }} className="mt-4">

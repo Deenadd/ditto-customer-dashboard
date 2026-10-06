@@ -85,7 +85,7 @@ export function FlowBar({
     <div className="sticky bottom-0 z-30">
       <div aria-hidden className="bar-blur pointer-events-none absolute inset-x-0 -top-10 bottom-0" style={barBlur} />
       <div aria-hidden className="bar-tint pointer-events-none absolute inset-x-0 -top-10 bottom-0" style={barTint} />
-      <div className={`relative mx-auto flex w-full ${width} items-center gap-4 px-4 py-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:px-6`}>
+      <div className={`relative mx-auto flex w-full ${width} items-center gap-4 px-3.5 py-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:px-6`}>
         <div className="min-w-0 flex-1">
           <div
             role="progressbar"

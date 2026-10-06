@@ -33,10 +33,12 @@ const subscribe = (listener: () => void) => {
 export function GlareGroup({
   settings,
   className,
+  style,
   children,
 }: {
   settings: GlareSettings;
   className?: string;
+  style?: CSSProperties;
   children: ReactNode;
 }) {
   const reduced = !!useReducedMotion();
@@ -82,7 +84,7 @@ export function GlareGroup({
   return (
     <div
       className={className}
-      style={{ "--g-persp": `${settings.perspective}px` } as CSSProperties}
+      style={{ ...style, "--g-persp": `${settings.perspective}px` } as CSSProperties}
       onPointerMove={(event) => {
         if (!fine) return;
         for (const face of faces(event.currentTarget)) {

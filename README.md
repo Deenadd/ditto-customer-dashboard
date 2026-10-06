@@ -195,6 +195,22 @@ returns to the row that opened it; Escape or a click outside closes it.
   shift when Safari's toolbar collapses. On Android the keyboard resizes
   the page (`interactive-widget=resizes-content`), so composers stay above it.
 
+- **Phone layout** (under 640px):
+  - 14px side padding on every page, in the header and in the claim flows.
+  - The welcome card is a **top sheet**: a slim "Hi, Arjun 👋" bar under the
+    header; tap it and the card slides down from under the header over a
+    dimmed page. The round ⌃ at its foot (tap or drag up), the page, or
+    Escape folds it away (`welcome-sheet.tsx`).
+  - A **bottom nav** (Figma 158:3693) replaces the policy tabs: Pending,
+    Active, Inactive, and Search, which opens a sheet that finds any policy
+    or application by name or number. The current tab is blue with a filled
+    icon; tapping it again scrolls to the top (`bottom-nav.tsx`).
+  - Bottom sheets float as white cards, 8px in from the sides and bottom.
+  - On the policy page the card is one card that turns over on a tap (or
+    Show who's covered) to show its members, and the Claims card follows it.
+  - The sign-in status bar takes the wash's colour (Safari on iOS 26 fills it
+    from the page background), fading into the wash below.
+
 ### Card controls
 
 On the dashboard, **Shift+Option+C** opens a panel for the cards' glare,

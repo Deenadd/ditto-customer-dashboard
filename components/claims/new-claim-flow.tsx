@@ -162,7 +162,7 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
 
   if (ticket) {
     return (
-      <div className="mx-auto w-full max-w-[640px] px-4 pt-8 sm:px-6 sm:pt-12">
+      <div className="mx-auto w-full max-w-[640px] px-3.5 pt-8 sm:px-6 sm:pt-12">
         <ClaimTicket
           claim={ticket}
           policyName={policyDetail.name}
@@ -177,7 +177,7 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
 
   return (
     <form onSubmit={onContinue} noValidate className="flex min-h-[calc(100dvh-64px)] flex-col">
-      <div className="mx-auto w-full max-w-[640px] flex-1 px-4 pt-5 pb-10 sm:px-6 sm:pt-8">
+      <div className="mx-auto w-full max-w-[640px] flex-1 px-3.5 pt-5 pb-10 sm:px-6 sm:pt-8">
         {step === 0 ? (
           <Breadcrumbs
             items={[

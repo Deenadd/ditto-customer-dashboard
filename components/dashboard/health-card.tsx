@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useSyncExternalStore, type CSSProperties } from "react";
 import { useCardConfig } from "@/components/dashboard/card-config";
 import { Topography } from "@/components/dashboard/topography";
 import { Asset, Glow } from "@/components/ui/asset";
@@ -17,6 +17,15 @@ import type { ActivePolicy, Member } from "@/lib/dashboard-data";
 export type { CardTone } from "@/lib/card-fields";
 
 const art = (name: string) => `/dashboard/health-card/${name}`;
+
+/* Whether the card pair is in its one-card, flip-over phone layout. */
+const phoneQuery = "(max-width: 639.98px)";
+const subscribePhone = (listener: () => void) => {
+  const query = window.matchMedia(phoneQuery);
+  query.addEventListener("change", listener);
+  return () => query.removeEventListener("change", listener);
+};
+const isPhone = () => window.matchMedia(phoneQuery).matches;
 
 /* A white card face, as in the Figma active-policies screen: the contour
    lines and a soft blue glow sit behind the content. */
@@ -43,6 +52,7 @@ export function PolicyCardPair({
   tone,
   stacked = false,
   download = false,
+  flip = false,
 }: {
   policy: ActivePolicy;
   href?: string;
@@ -51,21 +61,53 @@ export function PolicyCardPair({
   stacked?: boolean;
   /** Show the Download card pill on the front. */
   download?: boolean;
+  /** On a phone, one card that turns over to show its back (see below). */
+  flip?: boolean;
 }) {
   const config = useCardConfig();
+  const [flipped, setFlipped] = useState(false);
+  const phone = useSyncExternalStore(subscribePhone, isPhone, () => false);
+  const turnOver = () => setFlipped((value) => !value);
+
+  /*
+   * Flip, phones only (below 640px; wider, the two faces sit side by side as
+   * ever): both faces share one spot, the back turned away, and a tap turns
+   * the card over in 3D, like turning a real card in your hand. The layout is
+   * all CSS, so nothing jumps when the page hydrates; JS only marks the face
+   * that's turned away as inert. Reduced motion cross-fades the faces.
+   */
+  const face3d =
+    "max-sm:[grid-area:1/1] max-sm:[backface-visibility:hidden] max-sm:transition-[transform,opacity] max-sm:duration-[600ms] max-sm:ease-[cubic-bezier(0.32,0.72,0,1)] max-sm:motion-reduce:duration-200";
+  const flipStyle = {
+    "--flip": flipped ? "180deg" : "0deg",
+    "--front-o": flipped ? 0 : 1,
+    "--back-o": flipped ? 1 : 0,
+  } as CSSProperties;
 
   return (
     /* On touch there's no hover, so the pair gives a little under the
        finger while its link is held, like a pressed row. */
     <GlareGroup
       settings={config}
-      className={`group relative grid gap-4 transition-transform duration-150 ease-out [&>*]:min-w-0 [@media(pointer:coarse)]:has-[>a:active]:scale-[0.98] ${stacked ? "" : "sm:grid-cols-2"}`}
+      className={`group relative grid gap-4 transition-transform duration-150 ease-out [&>*]:min-w-0 [@media(pointer:coarse)]:has-[>a:active]:scale-[0.98] ${stacked ? "" : "sm:grid-cols-2"} ${flip ? "max-sm:[perspective:1400px]" : ""}`}
+      style={flip ? flipStyle : undefined}
     >
-      <GlareFace radius={22}>
-        <PolicyCardFront policy={policy} download={download} />
-      </GlareFace>
+      <div
+        className={flip ? `${face3d} max-sm:[transform:rotateY(var(--flip))] max-sm:motion-reduce:[transform:none] max-sm:motion-reduce:[opacity:var(--front-o)]` : "contents"}
+        onClick={flip && phone ? turnOver : undefined}
+        inert={flip && phone && flipped}
+      >
+        <GlareFace radius={22} className="h-full">
+          <PolicyCardFront policy={policy} download={download} />
+        </GlareFace>
+      </div>
 
-      <GlareFace radius={22}>
+      <div
+        className={flip ? `${face3d} max-sm:[transform:rotateY(calc(var(--flip)+180deg))] max-sm:motion-reduce:[transform:none] max-sm:motion-reduce:[opacity:var(--back-o)]` : "contents"}
+        onClick={flip && phone ? turnOver : undefined}
+        inert={flip && phone && !flipped}
+      >
+      <GlareFace radius={22} className="h-full">
         <article aria-label={`People on ${policy.name}`} className={face}>
           <div aria-hidden className="absolute inset-0 -z-10">
             <Topography variant="members" tone={tone} />
@@ -83,6 +125,23 @@ export function PolicyCardPair({
           <p className="px-5 py-3 text-[12px] leading-4 text-label-secondary">{captions[tone]}</p>
         </article>
       </GlareFace>
+      </div>
+
+      {/* The way to turn it over that a keyboard and a screen reader can use,
+          and the hint that it turns at all. */}
+      {flip ? (
+        <button
+          type="button"
+          onClick={turnOver}
+          aria-pressed={flipped}
+          className="touch-hit -mt-1 inline-flex items-center justify-center gap-1.5 justify-self-center text-[13px] leading-[18px] font-medium text-accent-text transition-opacity duration-150 active:opacity-50 sm:hidden"
+        >
+          <svg aria-hidden width="14" height="14" viewBox="0 0 16 16" fill="none">
+            <path d="M2.5 8a5.5 5.5 0 0 1 9.4-3.9L13.5 5.7M13.5 2.5v3.2h-3.2M13.5 8a5.5 5.5 0 0 1-9.4 3.9L2.5 10.3M2.5 13.5v-3.2h3.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+          {flipped ? "Show the policy details" : "Show who’s covered"}
+        </button>
+      ) : null}
 
       {href ? (
         <Link

@@ -227,8 +227,10 @@ export function FrostedSideSheet({
    * flick dismisses it; otherwise it springs back. The content scrolls on
    * its own, so dragging is only from the header.
    */
+  /* On a phone it floats as a white card, 8px in from the sides and the
+     bottom (clear of the home indicator) and rounded all round, rather than
+     a frosted slab pinned to the edges. */
   if (phone) {
-    const tint = `rgba(${r},${g},${b},${Math.max(config.sheetTint, 0.86)})`;
     return createPortal(
       <AnimatePresence initial={false}>
         {open ? (
@@ -249,9 +251,9 @@ export function FrostedSideSheet({
             aria-modal="true"
             aria-labelledby={titleId}
             tabIndex={-1}
-            initial={reduced ? { opacity: 0 } : { y: "100%" }}
+            initial={reduced ? { opacity: 0 } : { y: "110%" }}
             animate={reduced ? { opacity: 1, transition: { duration: 0.2 } } : { y: 0, transition: buildSheetTransition(config, "in") }}
-            exit={reduced ? { opacity: 0, transition: { duration: 0.16 } } : { y: "100%", transition: buildSheetTransition(config, "out") }}
+            exit={reduced ? { opacity: 0, transition: { duration: 0.16 } } : { y: "110%", transition: buildSheetTransition(config, "out") }}
             drag={reduced ? false : "y"}
             dragControls={drag}
             dragListener={false}
@@ -260,8 +262,7 @@ export function FrostedSideSheet({
             onDragEnd={(_, info) => {
               if (info.offset.y > DISMISS_DISTANCE || info.velocity.y > DISMISS_VELOCITY) onClose();
             }}
-            className="fixed inset-x-0 bottom-0 z-50 flex h-[88dvh] flex-col overflow-hidden rounded-t-[28px] shadow-[0_-1px_0_rgb(255_255_255_/_0.6)_inset,0_-8px_32px_rgb(0_0_0_/_0.12)] focus-visible:outline-none"
-            style={{ background: tint, backdropFilter: blur, WebkitBackdropFilter: blur }}
+            className="fixed inset-x-2 bottom-[max(8px,env(safe-area-inset-bottom))] z-50 flex h-[calc(88dvh-8px)] flex-col overflow-hidden rounded-[32px] bg-surface shadow-[0_0_0_0.5px_rgb(0_0_0_/_0.06),0_12px_40px_-8px_rgb(0_0_0_/_0.25)] focus-visible:outline-none"
           >
             {header}
             {body}
