@@ -215,8 +215,10 @@ colour points layer over the wash.
   the one with none, and logs out.
 - **Active health policy** opens the policy page. Pages below the dashboard
   carry breadcrumbs (Active policies › policy › Claims › claim), in the label
-  greys so they read as wayfinding. On phones the middle crumbs fold into a
-  … link so the trail stays on one line, each link with a 44px tap area.
+  greys so they read as wayfinding. A long trail folds its middle crumbs into
+  ••• (shadcn's BreadcrumbEllipsis), e.g. Active policies › ••• › Claims ›
+  New claim, so it stays on one line; the ••• links to the policy and is named
+  for it. Each link has a 44px tap area on touch screens.
 
 Buttons with no destination yet: Chat now, Talk to our team and Download policy.
 

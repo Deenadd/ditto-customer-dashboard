@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Fragment, type ComponentProps } from "react";
-import { IconChevronRight } from "@/components/ui/icons";
+import { IconChevronRight, IconMore } from "@/components/ui/icons";
 
 /**
  * Where you are, as a trail of links back up: Active policies › Care health
@@ -11,30 +11,24 @@ import { IconChevronRight } from "@/components/ui/icons";
 export type Crumb = { label: string; href?: string };
 
 export function Breadcrumbs({ items, className = "" }: { items: Crumb[]; className?: string }) {
-  /* On phones the trail stays on one line: the crumbs between the first and
-     the parent fold into a … link (to the nearest of them), as shadcn's
-     BreadcrumbEllipsis does. Wrapped, two lines of 44px tap areas overlap. */
+  /* A long trail keeps its first crumb, the parent and the current page,
+     and folds the ones between into ••• (shadcn's BreadcrumbEllipsis):
+     Active policies › ••• › Claims › New claim. It stays on one line on a
+     phone, where two wrapped lines of 44px tap areas would overlap. The •••
+     goes to the nearest folded page and is named for it. */
   const folded = items.length >= 4 ? items.slice(1, -2) : [];
   const via = folded.at(-1);
+  const shown = items.filter((item) => !folded.includes(item));
   return (
     <Breadcrumb className={className}>
       <BreadcrumbList>
-        {items.map((item, index) => {
-          const isLast = index === items.length - 1;
-          const isFolded = folded.includes(item);
+        {shown.map((item, index) => {
+          const isLast = index === shown.length - 1;
           return (
             <Fragment key={`${index}-${item.label}`}>
-              {via && isFolded && item === folded[0] ? (
-                <BreadcrumbItem className="sm:hidden">
-                  <BreadcrumbLink href={via.href ?? "#"} aria-label={via.label}>
-                    …
-                  </BreadcrumbLink>
-                  <BreadcrumbSeparator />
-                </BreadcrumbItem>
-              ) : null}
               {/* Only the current page gives way when the line is short;
                   the links above it keep their width and their chevrons. */}
-              <BreadcrumbItem className={`${isFolded ? "max-sm:hidden" : ""} ${isLast ? "min-w-0" : "shrink-0"}`}>
+              <BreadcrumbItem className={isLast ? "min-w-0" : "shrink-0"}>
                 {isLast || !item.href ? (
                   <BreadcrumbPage>{item.label}</BreadcrumbPage>
                 ) : (
@@ -44,6 +38,12 @@ export function Breadcrumbs({ items, className = "" }: { items: Crumb[]; classNa
                   </>
                 )}
               </BreadcrumbItem>
+              {via && index === 0 ? (
+                <BreadcrumbItem className="shrink-0">
+                  <BreadcrumbEllipsis href={via.href ?? "#"} label={via.label} />
+                  <BreadcrumbSeparator />
+                </BreadcrumbItem>
+              ) : null}
             </Fragment>
           );
         })}
@@ -85,6 +85,21 @@ export function BreadcrumbLink({ className = "", children, ...props }: Component
 /** The page you're on: not a link, and announced as the current page. */
 export function BreadcrumbPage({ className = "", ...props }: ComponentProps<"span">) {
   return <span aria-current="page" className={`truncate text-label ${className}`} {...props} />;
+}
+
+/** The folded crumbs: three dots in a small square, a link to the nearest
+    of them, with its name for screen readers and as a tooltip. */
+export function BreadcrumbEllipsis({ href, label }: { href: string; label: string }) {
+  return (
+    <Link
+      href={href}
+      aria-label={label}
+      title={label}
+      className="touch-hit grid h-5 w-6 place-items-center rounded-[6px] transition-colors duration-150 ease-out [@media(hover:hover)]:hover:bg-black/[0.04] [@media(hover:hover)]:hover:text-label"
+    >
+      <IconMore size={16} />
+    </Link>
+  );
 }
 
 /** Inside the item it follows, so the chevron wraps with its link. */

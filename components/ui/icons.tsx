@@ -5,6 +5,7 @@ import {
   ChevronRight,
   CircleHelp,
   Clock,
+  Ellipsis,
   Globe,
   Hospital,
   IdCard,
@@ -49,6 +50,7 @@ export const IconClose = from(X);
 export const IconCheck = from(Check, 2.25);
 export const IconBack = from(ArrowLeft);
 export const IconChevronRight = from(ChevronRight);
+export const IconMore = from(Ellipsis);
 export const IconRestart = from(RotateCcw);
 export const IconPhone = from(Phone);
 export const IconHospital = from(Hospital);
