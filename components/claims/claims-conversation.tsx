@@ -145,6 +145,7 @@ export function ClaimsConversation({
                 <EntryView
                   entry={entry}
                   last={!(entries[index + 1]?.kind === "ditto" && !(entries[index + 1] as { first?: boolean }).first)}
+                  latest={index === lastAnswer}
                   active={!typing && index > lastAnswer}
                   onAnswer={reply}
                 />
@@ -282,8 +283,10 @@ function ChoiceRow({ choice, onChoose }: { choice: Choice; onChoose: () => void 
  * grey is translucent, so it reads on the white phone sheet and on the
  * frosted desktop one alike.
  */
-const bubble = "w-fit max-w-[80%] rounded-[12px] px-3 py-2 text-[15px] leading-[21px] text-pretty";
-const theirs = `${bubble} bg-black/[0.05] text-label`;
+const bubble = "w-fit max-w-[80%] rounded-[18px] px-3.5 py-2 text-[15px] leading-[21px] text-pretty";
+/* Ditto's are white, edged with a hairline and a soft shadow so they hold
+   on the white phone sheet as well as the frosted desktop one. */
+const theirs = `${bubble} bg-surface text-label shadow-[0_0_0_0.5px_rgb(0_0_0_/_0.08),0_1px_2px_rgb(0_0_0_/_0.06)]`;
 
 /** Ditto's avatar in the chat: a 32px monogram, as shadcn's MessageAvatar. */
 function ChatAvatar({ shown }: { shown: boolean }) {
@@ -316,23 +319,28 @@ function Typing() {
 function EntryView({
   entry,
   last,
+  latest = false,
   active,
   onAnswer,
 }: {
   entry: Entry;
   /** The last of Ditto's lines in a turn, which carries the avatar. */
   last: boolean;
+  /** Your most recent answer, which says it was delivered. */
+  latest?: boolean;
   active: boolean;
   onAnswer: (label: string, next: string) => void;
 }) {
   if (entry.kind === "widget") return <ChatWidget widget={entry.widget} active={active} onAnswer={onAnswer} />;
   if (entry.kind === "you") {
     return (
-      <div className="flex justify-end">
-        <p className={`${bubble} bg-accent text-white`}>
+      <div className="flex flex-col items-end gap-1">
+        {/* Yours: blue, its corner nearest you tucked in, as a sent bubble. */}
+        <p className={`${bubble} rounded-br-[6px] bg-accent text-white`}>
           <span className="sr-only">You: </span>
           {entry.text}
         </p>
+        {latest ? <p className="text-[12px] leading-4 text-label-secondary">Delivered</p> : null}
       </div>
     );
   }
@@ -343,7 +351,7 @@ function EntryView({
     <div className="flex items-end gap-2">
       <ChatAvatar shown={last} />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        {entry.first ? <p className="px-3 text-[12px] leading-4 font-medium text-label-secondary">Ditto</p> : null}
+        {entry.first ? <p className="text-[13px] leading-[18px] font-medium text-label">Ditto</p> : null}
         <p className={theirs}>
           {entry.first ? <span className="sr-only">Ditto: </span> : null}
           {entry.text}
