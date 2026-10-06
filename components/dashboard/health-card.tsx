@@ -136,9 +136,9 @@ export function PolicyCardFront({ policy, download = false }: { policy: ActivePo
   );
 }
 
-/** Saves the card as a PNG: a small icon button in the card's top-right
-    corner, inside the card so it tilts with it. It shows a tick for a moment
-    afterwards. */
+/** Saves the card as a PNG: a small icon button in the action blue, in the
+    card's top-right corner, inside the card so it tilts with it. It shows a
+    tick for a moment afterwards. */
 function DownloadPill({ policy }: { policy: ActivePolicy }) {
   const [saved, setSaved] = useState(false);
   const claims = useClaims(policy.id).length;
@@ -153,7 +153,7 @@ function DownloadPill({ policy }: { policy: ActivePolicy }) {
         setSaved(true);
         window.setTimeout(() => setSaved(false), 1600);
       }}
-      className="touch-hit absolute top-3 right-3 z-20 grid size-9 place-items-center rounded-full text-label-secondary transition-[background-color,color,transform] duration-150 ease-out hover:bg-black/[0.05] hover:text-label active:scale-[0.92]"
+      className="touch-hit absolute top-3 right-3 z-20 grid size-9 place-items-center rounded-full text-accent-text transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.92] active:bg-accent-tint [@media(hover:hover)]:hover:bg-accent-tint"
     >
       {saved ? (
         <IconCheck size={16} className="text-green-text" />
