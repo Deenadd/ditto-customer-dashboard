@@ -292,15 +292,15 @@ export function ClaimTicket({
                 Requested {formatDate(claim.createdAt)}{claim.type === "reimbursement" ? " · Keep the originals" : " · Show at the insurance desk"}
               </p>
 
-              {/* The round Request received stamp, inked: it multiplies
+              {/* The round Request received stamp in deep ink green, inked: it multiplies
                   into the paper, so the print shows through where it's thin. */}
               <div
                 ref={stampRef}
                 aria-hidden
-                className="pointer-events-none absolute top-[68px] right-2 opacity-0 mix-blend-multiply"
+                className="pointer-events-none absolute top-[52px] right-0 opacity-0 mix-blend-multiply"
                 style={{ transform: "rotate(-10deg)" }}
               >
-                <Asset src="/claims/stamp-received.svg" className="size-[112px]" />
+                <Asset src="/claims/stamp-received.svg" className="size-[140px]" />
               </div>
             </div>
           </div>
