@@ -395,6 +395,25 @@ lib/
   routes.ts                   URL state for tab, view and customer
 ```
 
+## Home card versions
+
+The switch at the foot of the Active tab compares two versions of the health
+cards: **v1 · Standard**, and **v2 · Renewal due**, where each health card
+carries its renewal at the foot of its front (`components/dashboard/renewal-strip.tsx`,
+stages in `lib/renewal.ts`):
+
+- **Up to 30 days out:** blue. A ring of the days left in the 30-day window,
+  "Renews in 18 days", and Renew.
+- **The last week, and the day itself:** orange, "Renews in 5 days" or
+  "Renews today", so there's no gap in cover.
+- **Overdue:** red, in the 30 days' grace after the date. The days left to
+  renew, and that new claims aren't covered until you do.
+
+The card's dot takes the stage's colour, and Valid till shows the renewal
+month. With v2 on, a second switch sets the family card to 18 days, 5 days,
+today or overdue; the parents' card stays at 5 days. Renew opens the renewal
+flow prototype. The choice is remembered in this browser.
+
 ## Checks and the weekly audit
 
 `npm run qa` drives every flow in Chrome against a running site (default

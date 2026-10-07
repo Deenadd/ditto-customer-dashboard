@@ -4,6 +4,7 @@ import { ApplicationCard } from "@/components/dashboard/application-card";
 import { ApplicationTimeline } from "@/components/dashboard/application-timeline";
 import { CardControls } from "@/components/dashboard/card-controls";
 import { DittoBuddy } from "@/components/dashboard/ditto-buddy";
+import { HomeCardSwitch } from "@/components/dashboard/renewal-strip";
 import { EmptyApplications } from "@/components/dashboard/empty-applications";
 import { PolicyPair } from "@/components/dashboard/policy-pair";
 import { RejectedCard } from "@/components/dashboard/rejected-card";
@@ -164,6 +165,7 @@ function TabPanel({ state, hasPending }: { state: DashboardState; hasPending: bo
             </ul>
           </section>
         ))}
+        <HomeCardSwitch />
       </div>
     );
   }

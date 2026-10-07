@@ -13,6 +13,9 @@ import { InsurerLogo } from "@/components/ui/insurer-logo";
 import { downloadPolicyCard } from "@/lib/download-card";
 import { useClaims, useHydrated } from "@/lib/claims";
 import { cardFields, toneOf, type CardTone } from "@/lib/card-fields";
+import { RenewalStrip, renewalDot } from "@/components/dashboard/renewal-strip";
+import { useHomeCard } from "@/lib/home-card-version";
+import { defaultRenewalDays, renewalOf } from "@/lib/renewal";
 import type { ActivePolicy, Member } from "@/lib/dashboard-data";
 
 export type { CardTone } from "@/lib/card-fields";
@@ -101,7 +104,7 @@ export function PolicyCardPair({
         onClick={flip && phone ? turnOver : undefined}
         inert={flip && phone && flipped}
       >
-        <Face plain={flip && phone}>
+        <Face plain={flip && phone} underLink={!!href}>
           <PolicyCardFront policy={policy} download={download} />
         </Face>
       </div>
@@ -111,7 +114,7 @@ export function PolicyCardPair({
         onClick={flip && phone ? turnOver : undefined}
         inert={flip && phone && !flipped}
       >
-      <Face plain={flip && phone}>
+      <Face plain={flip && phone} underLink={!!href}>
         <article aria-label={`People on ${policy.name}`} className={face}>
           <div aria-hidden className="absolute inset-0 -z-10">
             <Topography variant="members" tone={tone} />
@@ -164,10 +167,14 @@ export function PolicyCardPair({
  * away side showed through, mirrored), and the hover lift grew the card past
  * the page's gutter in a narrow window used with a mouse.
  */
-function Face({ plain, children }: { plain: boolean; children: ReactNode }) {
-  if (plain) return <div className="h-full">{children}</div>;
+function Face({ plain, underLink, children }: { plain: boolean; underLink: boolean; children: ReactNode }) {
+  /* With a link over the pair, the faces sit above it but let the pointer
+     through, so a tap anywhere opens the policy, and a control on a face
+     (Renew) takes its own taps with pointer-events-auto. */
+  const above = underLink ? "pointer-events-none relative z-[11]" : "";
+  if (plain) return <div className={`h-full ${above}`}>{children}</div>;
   return (
-    <GlareFace radius={22} className="h-full">
+    <GlareFace radius={22} className={`h-full ${above}`}>
       {children}
     </GlareFace>
   );
@@ -177,8 +184,16 @@ function Face({ plain, children }: { plain: boolean; children: ReactNode }) {
 export function PolicyCardFront({ policy, download = false }: { policy: ActivePolicy; download?: boolean }) {
   const claims = useClaims(policy.id).length;
   const hydrated = useHydrated();
-  const fields = cardFields(policy, hydrated ? claims : null);
   const tone = toneOf(policy);
+  /* v2 of the card: a health policy with its renewal coming up. */
+  const home = useHomeCard();
+  const renewal =
+    home.version === "v2" && tone === "blue" && policy.id in defaultRenewalDays
+      ? renewalOf(home.days[policy.id] ?? defaultRenewalDays[policy.id])
+      : null;
+  const fields = cardFields(policy, hydrated ? claims : null).map((field) =>
+    renewal && field === policy.term ? { ...field, value: renewal.validTill } : field,
+  );
   return (
     <article aria-label={policy.name} className={`${face} min-h-[237px]`}>
       <div aria-hidden className="absolute inset-0 -z-10">
@@ -187,7 +202,7 @@ export function PolicyCardFront({ policy, download = false }: { policy: ActivePo
       </div>
       {/* The Figma's blue dot: this card is current. */}
       {download ? null : (
-        <span aria-hidden className={`absolute top-5 right-5 size-2 rounded-full ${tone === "green" ? "bg-green-dot" : "bg-accent"}`} />
+        <span aria-hidden className={`absolute top-5 right-5 size-2 rounded-full ${renewal ? renewalDot[renewal.stage] : tone === "green" ? "bg-green-dot" : "bg-accent"}`} />
       )}
 
       <div className={`flex items-center gap-3.5 px-4 pt-4 ${download ? "pr-14" : "pr-10"}`}>
@@ -209,6 +224,7 @@ export function PolicyCardFront({ policy, download = false }: { policy: ActivePo
           </div>
         ))}
       </dl>
+      {renewal ? <RenewalStrip renewal={renewal} policyName={policy.name} /> : null}
       {download ? <DownloadPill policy={policy} /> : null}
     </article>
   );

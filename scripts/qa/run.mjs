@@ -35,6 +35,7 @@ const checks = [
   ["policyq", "Claim chat skips the policy question inside a policy", []],
   ["cta", "Hospital check: Continue under the card", []],
   ["paper", "Claim ticket prints, copy reference", []],
+  ["renewal", "Home card v2: renewal stages, Renew, card link", []],
   ["hap", "Haptics on taps, Android and iOS paths", []],
 ];
 

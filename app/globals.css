@@ -49,6 +49,7 @@
   --color-grey-dot: #aeaeb2;
   --color-red-text: #c41e3a;
   --color-red-tint: #fdeeee;
+  --color-red-dot: #ff3b30;
 
   /* Corner radius shared by the input field and every text button, so all
      controls read as one family. Inner is for things inset 3px inside one. */
