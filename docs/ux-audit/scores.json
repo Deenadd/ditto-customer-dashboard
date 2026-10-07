@@ -1,1 +1,89 @@
-[]
+[
+  {
+    "date": "2026-10-07",
+    "before": 82.5,
+    "after": 99.5,
+    "flows": {
+      "Sign in: phone number": [
+        13,
+        14,
+        14
+      ],
+      "Sign in: one-time code": [
+        15,
+        16,
+        16
+      ],
+      "Dashboard: welcome card and top sheet": [
+        9,
+        10,
+        10
+      ],
+      "Dashboard: tabs, lists and home cards": [
+        10,
+        11,
+        12
+      ],
+      "Pending application timeline": [
+        7,
+        8,
+        8
+      ],
+      "Policy page: card, flip, members, download": [
+        9,
+        14,
+        14
+      ],
+      "Policy page: network hospitals": [
+        9,
+        10,
+        10
+      ],
+      "Support: global help, WhatsApp": [
+        8,
+        8,
+        8
+      ],
+      "Claims list and a claim's page": [
+        13,
+        16,
+        16
+      ],
+      "New claim v2": [
+        14,
+        16,
+        16
+      ],
+      "New claim v1": [
+        14,
+        16,
+        16
+      ],
+      "Uploading documents": [
+        10,
+        14,
+        14
+      ],
+      "The claim ticket": [
+        12,
+        14,
+        14
+      ],
+      "Ditto Buddy": [
+        15,
+        16,
+        16
+      ],
+      "Header: notifications, profile, breadcrumbs": [
+        9,
+        12,
+        12
+      ],
+      "Lost: unknown URLs, ids, a crash": [
+        3,
+        10,
+        10
+      ]
+    }
+  }
+]
