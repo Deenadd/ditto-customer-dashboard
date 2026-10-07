@@ -15,7 +15,7 @@ const sheetSpring = { type: "spring", duration: 0.42, bounce: 0.14 } as const;
  * a slim bar under the header greets you, and tapping it draws the whole
  * card down from under the header over a dimmed page. The round button at
  * its foot folds it back up; so does dragging it up, tapping the page, or
- * Escape. The page doesn't scroll while it's open.
+ * Escape. The page doesn't scroll while it's open, and Tab stays inside it.
  *
  * Phones only: from 640px the card sits in the page as before.
  */
@@ -103,6 +103,26 @@ export function WelcomeSheet({ firstName, children }: { firstName: string; child
                 dragElastic={{ top: 0.6, bottom: 0.08 }}
                 onDragEnd={(_, info) => {
                   if (info.offset.y < -70 || info.velocity.y < -450) close();
+                }}
+                onKeyDown={(event) => {
+                  /* A modal keeps focus: Tab from the last control wraps to the
+                     first, and Shift+Tab from the first to the last. */
+                  if (event.key !== "Tab") return;
+                  const stops = [
+                    ...event.currentTarget.querySelectorAll<HTMLElement>(
+                      'a[href], button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])',
+                    ),
+                  ].filter((node) => !node.closest("[inert]"));
+                  const first = stops[0];
+                  const last = stops.at(-1);
+                  if (!first || !last) return;
+                  if (event.shiftKey && document.activeElement === first) {
+                    event.preventDefault();
+                    last.focus();
+                  } else if (!event.shiftKey && document.activeElement === last) {
+                    event.preventDefault();
+                    first.focus();
+                  }
                 }}
                 className="pointer-events-auto relative pb-7"
               >

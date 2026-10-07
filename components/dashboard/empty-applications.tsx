@@ -1,14 +1,15 @@
 import Image from "next/image";
 import type { CSSProperties, ReactNode } from "react";
-import { Button } from "@/components/ui/buttons";
+import { buttonClass } from "@/components/ui/buttons";
 import { cardClass } from "@/components/ui/card-bits";
+import { whatsappLink } from "@/lib/whatsapp";
 
 const tileShadow =
   "0 49.423px 14.121px 0 rgb(134 137 141 / 0), 0 32.478px 12.709px 0 rgb(134 137 141 / 0.01), 0 18.357px 11.297px 0 rgb(134 137 141 / 0.05), 0 8.473px 8.473px 0 rgb(134 137 141 / 0.09), 0 1.412px 4.236px 0 rgb(134 137 141 / 0.1)";
 
 /**
  * Nothing pending: three insurer tiles fanned out, what this space is for,
- * and one way forward.
+ * and one way forward: a Ditto advisor, on WhatsApp.
  */
 export function EmptyApplications() {
   return (
@@ -23,9 +24,15 @@ export function EmptyApplications() {
         When you apply for a policy, you can follow it here. Looking for new
         cover? Our team can help you choose.
       </p>
-      <Button size="large" className="mt-7">
+      <a
+        href={whatsappLink("Hi Ditto, I'm looking for a new policy and would like some help choosing.")}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={`${buttonClass("filled", "large")} mt-7`}
+      >
         Talk to our team
-      </Button>
+      </a>
+      <p className="mt-2.5 text-[12px] leading-4 text-label-secondary">Opens WhatsApp in a new tab.</p>
     </div>
   );
 }

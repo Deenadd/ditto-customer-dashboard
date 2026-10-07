@@ -1,12 +1,31 @@
+import { buttonClass } from "@/components/ui/buttons";
 import { AddOnChips, FieldItem, MetaLine, StatusPill, cardClass } from "@/components/ui/card-bits";
-import { InsurerLogo } from "@/components/ui/insurer-logo";
+import { InsurerLogo, insurerNames } from "@/components/ui/insurer-logo";
 import type { Application } from "@/lib/dashboard-data";
+import { whatsappLink } from "@/lib/whatsapp";
+
+/* What an application waiting on you needs, and the way to do it: a Ditto
+   advisor takes it on WhatsApp, with the application named in the message. */
+const nextSteps: Partial<Record<Application["status"], (a: Application) => { text: string; action: string; message: string }>> = {
+  "pending-uploads": (a) => ({
+    text: `${insurerNames[a.insurer]} needs a few more documents to carry on. A Ditto advisor can take them on WhatsApp.`,
+    action: "Send on WhatsApp",
+    message: `Hi Ditto, I'd like to send the documents for my ${a.name} application (${a.applicationNo}).`,
+  }),
+  "missing-details": (a) => ({
+    text: "A few details are missing from your proposal. A Ditto advisor can fill them in with you on WhatsApp.",
+    action: "Finish on WhatsApp",
+    message: `Hi Ditto, I'd like to add the missing details to my ${a.name} application (${a.applicationNo}).`,
+  }),
+};
 
 /**
  * A pending application: insurer, name and status on top, the four facts in
- * an inset tile, then the add-ons as capsules.
+ * an inset tile, then the add-ons as capsules. One that's waiting on you
+ * ends with what's needed and the way to do it.
  */
 export function ApplicationCard({ application }: { application: Application }) {
+  const next = nextSteps[application.status]?.(application);
   return (
     <article className={`@container ${cardClass} p-5`}>
       <header className="flex flex-wrap items-start gap-x-3.5 gap-y-2">
@@ -31,6 +50,21 @@ export function ApplicationCard({ application }: { application: Application }) {
       <div className="mt-4">
         <AddOnChips items={application.addOns} />
       </div>
+
+      {next ? (
+        <div className="mt-5 flex flex-col gap-3 border-t border-separator pt-4 @min-[480px]:flex-row @min-[480px]:items-center @min-[480px]:justify-between @min-[480px]:gap-5">
+          <p className="max-w-[46ch] text-[14px] leading-5 text-pretty text-label">{next.text}</p>
+          <a
+            href={whatsappLink(next.message)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`${buttonClass("tinted", "medium")} self-start @min-[480px]:self-center`}
+          >
+            {next.action}
+            <span className="sr-only"> (opens WhatsApp in a new tab)</span>
+          </a>
+        </div>
+      ) : null}
     </article>
   );
 }

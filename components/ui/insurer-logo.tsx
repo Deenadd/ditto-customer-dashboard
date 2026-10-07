@@ -1,7 +1,7 @@
 import Image from "next/image";
 import type { Insurer } from "@/lib/dashboard-data";
 
-const names: Record<Insurer, string> = {
+export const insurerNames: Record<Insurer, string> = {
   maxlife: "Max Life",
   care: "Care Health",
 };
@@ -26,7 +26,7 @@ export function InsurerLogo({
   return (
     <div
       role="img"
-      aria-label={names[insurer]}
+      aria-label={insurerNames[insurer]}
       className={`relative shrink-0 overflow-hidden shadow-logo after:pointer-events-none after:absolute after:inset-0 after:rounded-[inherit] after:ring-1 after:ring-black/[0.06] after:ring-inset ${radius} ${
         insurer === "maxlife" ? "bg-[#fce0c8]" : muted ? "bg-grey-tint" : "bg-[#fbdf00]"
       }`}
