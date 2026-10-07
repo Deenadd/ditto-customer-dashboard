@@ -36,6 +36,7 @@ const checks = [
   ["cta", "Hospital check: Continue under the card", []],
   ["paper", "Claim ticket prints, copy reference", []],
   ["renewal", "Home card v2: renewal stages, Renew, card link", []],
+  ["homeflip", "Home cards turn over on a phone; View policy; desktop link", []],
   ["hap", "Haptics on taps, Android and iOS paths", []],
 ];
 

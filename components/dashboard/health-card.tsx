@@ -104,7 +104,7 @@ export function PolicyCardPair({
         onClick={flip && phone ? turnOver : undefined}
         inert={flip && phone && flipped}
       >
-        <Face plain={flip && phone} underLink={!!href}>
+        <Face plain={flip && phone} underLink={!!href} flip={flip}>
           <PolicyCardFront policy={policy} download={download} />
         </Face>
       </div>
@@ -114,7 +114,7 @@ export function PolicyCardPair({
         onClick={flip && phone ? turnOver : undefined}
         inert={flip && phone && !flipped}
       >
-      <Face plain={flip && phone} underLink={!!href}>
+      <Face plain={flip && phone} underLink={!!href} flip={flip}>
         <article aria-label={`People on ${policy.name}`} className={face}>
           <div aria-hidden className="absolute inset-0 -z-10">
             <Topography variant="members" tone={tone} />
@@ -135,26 +135,41 @@ export function PolicyCardPair({
       </div>
 
       {/* The way to turn it over that a keyboard and a screen reader can use,
-          and the hint that it turns at all. */}
+          and the hint that it turns at all. On the home screen a tap turns
+          the card, so opening the policy is its own link beside it. */}
       {flip ? (
-        <button
-          type="button"
-          onClick={turnOver}
-          aria-pressed={flipped}
-          className="touch-hit -mt-1 inline-flex items-center justify-center gap-1.5 justify-self-center text-[13px] leading-[18px] font-medium text-accent-text transition-opacity duration-150 active:opacity-50 sm:hidden"
-        >
-          <svg aria-hidden width="14" height="14" viewBox="0 0 16 16" fill="none">
-            <path d="M2.5 8a5.5 5.5 0 0 1 9.4-3.9L13.5 5.7M13.5 2.5v3.2h-3.2M13.5 8a5.5 5.5 0 0 1-9.4 3.9L2.5 10.3M2.5 13.5v-3.2h3.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          {flipped ? "Show the policy details" : "Show who’s covered"}
-        </button>
+        <div className={`-mt-1 flex items-center sm:hidden ${href ? "justify-between" : "justify-center"}`}>
+          <button
+            type="button"
+            onClick={turnOver}
+            aria-pressed={flipped}
+            className="touch-hit inline-flex items-center justify-center gap-1.5 text-[13px] leading-[18px] font-medium text-accent-text transition-opacity duration-150 active:opacity-50"
+          >
+            <svg aria-hidden width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M2.5 8a5.5 5.5 0 0 1 9.4-3.9L13.5 5.7M13.5 2.5v3.2h-3.2M13.5 8a5.5 5.5 0 0 1-9.4 3.9L2.5 10.3M2.5 13.5v-3.2h3.2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            {flipped ? "Show the policy details" : "Show who’s covered"}
+          </button>
+          {href ? (
+            <Link
+              href={href}
+              aria-label={`View ${policy.name}`}
+              className="touch-hit inline-flex items-center gap-1 text-[13px] leading-[18px] font-medium text-accent-text transition-opacity duration-150 active:opacity-50"
+            >
+              View policy
+              <svg aria-hidden width="6" height="10" viewBox="0 0 7 12" fill="none">
+                <path d="M1.25 1.25 5.75 6l-4.5 4.75" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </Link>
+          ) : null}
+        </div>
       ) : null}
 
       {href ? (
         <Link
           href={href}
           aria-label={`${policy.name}, view policy details`}
-          className="absolute inset-0 z-10 rounded-[22px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+          className={`absolute inset-0 z-10 rounded-[22px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent ${flip ? "max-sm:hidden" : ""}`}
         />
       ) : null}
     </GlareGroup>
@@ -167,11 +182,12 @@ export function PolicyCardPair({
  * away side showed through, mirrored), and the hover lift grew the card past
  * the page's gutter in a narrow window used with a mouse.
  */
-function Face({ plain, underLink, children }: { plain: boolean; underLink: boolean; children: ReactNode }) {
+function Face({ plain, underLink, flip, children }: { plain: boolean; underLink: boolean; flip: boolean; children: ReactNode }) {
   /* With a link over the pair, the faces sit above it but let the pointer
      through, so a tap anywhere opens the policy, and a control on a face
-     (Renew) takes its own taps with pointer-events-auto. */
-  const above = underLink ? "pointer-events-none relative z-[11]" : "";
+     (Renew) takes its own taps with pointer-events-auto. A flip card on a
+     phone has no link over it (a tap turns it), so only from 640px. */
+  const above = !underLink ? "" : flip ? "sm:pointer-events-none sm:relative sm:z-[11]" : "pointer-events-none relative z-[11]";
   if (plain) return <div className={`h-full ${above}`}>{children}</div>;
   return (
     <GlareFace radius={22} className={`h-full ${above}`}>

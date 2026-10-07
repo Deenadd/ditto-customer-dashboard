@@ -395,6 +395,14 @@ lib/
   routes.ts                   URL state for tab, view and customer
 ```
 
+## Home cards on a phone
+
+Below 640px each active policy on the home screen is one card that turns
+over, as on the policy page: tap it (or "Show who's covered") to see who it
+covers, tap again to turn back. "View policy" sits beside the turn, since a
+tap on the card turns it rather than opening it. Wider, the pair sits side
+by side and the whole pair opens the policy, as before.
+
 ## Home card versions
 
 The switch at the foot of the Active tab compares two versions of the health
