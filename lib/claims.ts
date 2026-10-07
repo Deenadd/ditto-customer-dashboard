@@ -156,6 +156,9 @@ export function useHydrated() {
   return useSyncExternalStore(noSubscribe, () => true, () => false);
 }
 
+/** A claim by its reference, outside React. */
+export const findClaim = (id: string) => (current ?? load()).find((claim) => claim.id === id);
+
 export function addClaim(claim: Omit<Claim, "id" | "createdAt">): Claim {
   const all = current ?? load();
   let id: string;
@@ -166,8 +169,28 @@ export function addClaim(claim: Omit<Claim, "id" | "createdAt">): Claim {
   return made;
 }
 
+/* The claim deleted last, kept for this visit so the claims list can offer
+   Undo. A refresh lets it go. */
+let lastDeleted: { claim: Claim; index: number } | null = null;
+
 export function deleteClaim(id: string) {
-  save((current ?? load()).filter((claim) => claim.id !== id));
+  const all = current ?? load();
+  const index = all.findIndex((claim) => claim.id === id);
+  if (index >= 0) lastDeleted = { claim: all[index], index };
+  save(all.filter((claim) => claim.id !== id));
+}
+
+/** Whether Undo can still bring this claim back. */
+export const canRestoreClaim = (id: string) => lastDeleted?.claim.id === id;
+
+/** Puts the claim deleted last back where it was. */
+export function restoreClaim(id: string) {
+  if (!lastDeleted || lastDeleted.claim.id !== id) return false;
+  const all = [...(current ?? load())];
+  all.splice(Math.min(lastDeleted.index, all.length), 0, lastDeleted.claim);
+  lastDeleted = null;
+  save(all);
+  return true;
 }
 
 /** "14 Jul 1995" → age today. */

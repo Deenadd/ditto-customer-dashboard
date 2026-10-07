@@ -91,18 +91,19 @@ export function ClaimTicket({
   const [run, setRun] = useState(0);
   const [done, setDone] = useState(false);
   const viewRef = useRef<HTMLButtonElement>(null);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<"idle" | "copied" | "failed">("idle");
 
   async function copyReference() {
     /* The tap plays first, inside the click: after the await it's too late. */
     haptic("success");
     try {
       await navigator.clipboard.writeText(claim.id);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1500);
+      setCopied("copied");
     } catch {
-      /* Clipboard blocked; the reference is on screen to read. */
+      /* Clipboard blocked: say so; the reference is on screen to read. */
+      setCopied("failed");
     }
+    window.setTimeout(() => setCopied("idle"), 2000);
   }
 
   /* Tap the stamp once the ticket is out and it stamps again, with the
@@ -314,7 +315,7 @@ export function ClaimTicket({
               </div>
               <div className="mt-4 border-t border-dashed border-black/20" />
               <p className="mt-4 text-[11px] tracking-[0.08em] text-label-secondary uppercase" aria-live="polite">
-                {copied ? "Copied" : "Reference"}
+                {copied === "copied" ? "Copied" : copied === "failed" ? "Couldn't copy · Reference" : "Reference"}
               </p>
               {/* Tap the reference to copy it, for the hospital desk or a call. */}
               <button

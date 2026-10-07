@@ -1,25 +1,38 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { ClaimRow } from "@/components/claims/claim-bits";
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { buttonClass } from "@/components/ui/buttons";
 import { cardClass } from "@/components/ui/card-bits";
 import { IconClaim } from "@/components/ui/icons";
 import { SegmentedLinks } from "@/components/ui/segmented";
-import { claimHref, claimsHref, newClaimHref, useClaims, useHydrated } from "@/lib/claims";
+import { Bone, Loading } from "@/components/ui/skeleton";
+import {
+  canRestoreClaim,
+  claimHref,
+  claimsHref,
+  newClaimHref,
+  restoreClaim,
+  useClaims,
+  useHydrated,
+} from "@/lib/claims";
 import { policyDetail } from "@/lib/policy-detail";
 import { dashboardHref, policyHref, type Customer } from "@/lib/routes";
 
 /**
  * Every claim on the health policy. Open claims are under Active; Past is
  * where settled ones will go, and is empty for now. After a delete, a note
- * says which claim went.
+ * says which claim went, with Undo while this visit lasts.
  */
 export function ClaimsList({ customer, view, deleted }: { customer: Customer; view: "active" | "past"; deleted?: string }) {
+  const router = useRouter();
   const hydrated = useHydrated();
   const claims = useClaims(policyDetail.id);
   const shown = view === "active" ? claims : [];
+  const [restored, setRestored] = useState<string | null>(null);
 
   return (
     <>
@@ -41,9 +54,35 @@ export function ClaimsList({ customer, view, deleted }: { customer: Customer; vi
         </Link>
       </header>
 
-      {deleted ? (
-        <p role="status" className="mt-5 rounded-[14px] bg-fill px-4 py-3 text-[15px] leading-5 text-label-secondary">
-          Claim <span className="font-medium text-label tabular-nums">{deleted}</span> was deleted.
+      {deleted || restored ? (
+        <p
+          role="status"
+          className="mt-5 flex min-h-12 flex-wrap items-center justify-between gap-x-3 gap-y-1 rounded-[14px] bg-fill py-2 pr-2 pl-4 text-[15px] leading-5 text-label-secondary"
+        >
+          {restored ? (
+            <span>
+              Claim <span className="font-medium text-label tabular-nums">{restored}</span> is back in your claims.
+            </span>
+          ) : (
+            <>
+              <span>
+                Claim <span className="font-medium text-label tabular-nums">{deleted}</span> was deleted.
+              </span>
+              {hydrated && deleted && canRestoreClaim(deleted) ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!restoreClaim(deleted)) return;
+                    setRestored(deleted);
+                    router.replace(claimsHref(policyDetail.id, customer));
+                  }}
+                  className={buttonClass("plain", "medium")}
+                >
+                  Undo
+                </button>
+              ) : null}
+            </>
+          )}
         </p>
       ) : null}
 
@@ -60,7 +99,17 @@ export function ClaimsList({ customer, view, deleted }: { customer: Customer; vi
 
       <section aria-label={view === "active" ? "Active claims" : "Past claims"} className="mt-4">
         {!hydrated ? (
-          <div className="h-[180px]" />
+          <Loading label="Loading your claims" className="flex flex-col gap-3">
+            {[0, 1].map((row) => (
+              <div key={row} className={`${cardClass} flex items-center gap-3 p-5`}>
+                <Bone className="size-11 rounded-[11px]" />
+                <div className="flex flex-1 flex-col gap-2">
+                  <Bone className="h-4 w-3/5" />
+                  <Bone className="h-3 w-2/5" />
+                </div>
+              </div>
+            ))}
+          </Loading>
         ) : shown.length ? (
           /* Each claim is its own card. The row inside keeps an 8px inset, so
              its 14px hover corners sit concentric with the card's 22px. */

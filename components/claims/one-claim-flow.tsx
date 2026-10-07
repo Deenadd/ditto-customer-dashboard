@@ -5,7 +5,18 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ChoiceCard, ChoiceGroup, ClaimingOn, Note } from "@/components/claims/claim-bits";
 import { ClaimTicket } from "@/components/claims/claim-ticket";
-import { ErrorLine, FlowBack, FlowBar, FlowVersionSwitch, flowEase, stepSwap } from "@/components/claims/flow-parts";
+import {
+  ErrorLine,
+  FlowBack,
+  focusIssue,
+  FlowBar,
+  FlowVersionSwitch,
+  OpeningClaim,
+  Resumed,
+  flowEase,
+  stepSwap,
+  useFlowMemory,
+} from "@/components/claims/flow-parts";
 import { HospitalStep, type HospitalChoice } from "@/components/claims/new-claim-flow";
 import { DocumentsStep } from "@/components/claims/reimbursement-flow";
 import { Asset } from "@/components/ui/asset";
@@ -35,6 +46,7 @@ type Draft = {
 };
 
 const MAX_AMOUNT = 50_000_000;
+const freshDraft: Draft = { treatment: "", amount: "", documents: { bills: [], discharge: [], reports: [] } };
 
 const field =
   "h-[52px] w-full rounded-control bg-surface px-4 text-[17px] leading-6 text-label shadow-field transition-shadow duration-150 placeholder:text-label-tertiary focus:shadow-[0_0_0_2px_var(--color-accent)] focus:outline-none aria-[invalid=true]:shadow-[0_0_0_1.5px_var(--color-red-text)]";
@@ -48,21 +60,37 @@ const field =
  *
  * A hospital outside Care Health's network can't take cashless, so that
  * choice is shown but greyed, with the reason. Same parts as v2 (the bar,
- * the step swap, errors beside the question) and the same claim ticket.
+ * the step swap, errors beside the question and focused, answers kept for
+ * this tab, a request sent once) and the same claim ticket.
  */
 export function OneClaimFlow({ customer }: { customer: Customer }) {
   const router = useRouter();
   const reduced = !!useReducedMotion();
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
-  const [draft, setDraft] = useState<Draft>({
-    treatment: "",
-    amount: "",
-    documents: { bills: [], discharge: [], reports: [] },
-  });
+  const [draft, setDraft] = useState<Draft>(freshDraft);
   const [error, setError] = useState<{ text: string; field?: string } | null>(null);
   const [ticket, setTicket] = useState<Claim | null>(null);
   const moved = useRef(false);
+  const sending = useRef(false);
+
+  const memory = useFlowMemory<{ step: number; draft: Draft }>(
+    "ditto.claim-draft.v1",
+    { step, draft },
+    ticket?.id ?? null,
+    (kept) => {
+      if (typeof kept.step !== "number" || kept.step < 1 || kept.step > 4 || typeof kept.draft?.amount !== "string") return;
+      setStep(kept.step);
+      setDraft({ ...freshDraft, ...kept.draft, documents: { ...freshDraft.documents, ...kept.draft.documents } });
+    },
+    customer,
+  );
+
+  function startOver() {
+    memory.forget();
+    setDraft(freshDraft);
+    go(1);
+  }
 
   const reimbursing = draft.type === "reimbursement";
   const labels = ["Hospital", "Claim type", "Member", ...(reimbursing ? ["Documents"] : [])];
@@ -86,8 +114,11 @@ export function OneClaimFlow({ customer }: { customer: Customer }) {
     if (moved.current) window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
   }, [step, reduced]);
 
+  /* Focus what the message is about: an input by its id, a set of answers
+     by its first radio. */
   useEffect(() => {
-    if (error?.field) document.getElementById(error.field)?.focus();
+    if (!error?.field) return;
+    focusIssue(document.getElementById(error.field) ?? document.querySelector<HTMLElement>(`input[name=${error.field}]`));
   }, [error]);
 
   const focusHeading = (node: HTMLHeadingElement | null) => {
@@ -97,18 +128,18 @@ export function OneClaimFlow({ customer }: { customer: Customer }) {
   };
 
   function problem(): { text: string; field?: string } | null {
-    if (step === 1 && !draft.hospital) return { text: "Choose the hospital, or tell us you haven't chosen one." };
-    if (step === 2 && !draft.type) return { text: "Choose cashless or reimbursement." };
+    if (step === 1 && !draft.hospital) return { text: "Choose the hospital, or tell us you haven't chosen one.", field: "hospital-search" };
+    if (step === 2 && !draft.type) return { text: "Choose cashless or reimbursement.", field: "claim-type" };
     if (step === 3) {
-      if (!draft.patient) return { text: "Choose who the claim is for." };
-      if (!draft.treatment.trim()) return { text: "Enter the treatment's name.", field: "one-treatment" };
+      if (!draft.patient) return { text: "Choose who the claim is for.", field: "patient" };
+      if (!draft.treatment.trim()) return { text: "Enter the treatment's name, for example knee surgery.", field: "one-treatment" };
     }
     if (step === 4) {
       const amount = Number(draft.amount);
       if (!amount) return { text: "Enter the total amount you paid.", field: "one-amount" };
       if (amount > MAX_AMOUNT) return { text: `Enter an amount up to your sum insured, ${rupees(MAX_AMOUNT)}.`, field: "one-amount" };
-      if (!draft.documents.bills.length) return { text: "Add your bills and payment receipts." };
-      if (!draft.documents.discharge.length) return { text: "Add the discharge summary." };
+      if (!draft.documents.bills.length) return { text: "Add your bills and payment receipts.", field: "r-doc-bills" };
+      if (!draft.documents.discharge.length) return { text: "Add the discharge summary.", field: "r-doc-discharge" };
     }
     return null;
   }
@@ -121,6 +152,9 @@ export function OneClaimFlow({ customer }: { customer: Customer }) {
       return;
     }
     if (step < last) return go(step + 1);
+    /* A second tap while the first is sending would make a second claim. */
+    if (sending.current) return;
+    sending.current = true;
     const person = policyDetail.family.find((member) => member.name === draft.patient)!;
     const claim = addClaim({
       policyId: policyDetail.id,
@@ -137,6 +171,8 @@ export function OneClaimFlow({ customer }: { customer: Customer }) {
     window.scrollTo({ top: 0 });
     setTicket(claim);
   }
+
+  if (memory.reopening) return <OpeningClaim />;
 
   if (ticket) {
     return (
@@ -175,6 +211,7 @@ export function OneClaimFlow({ customer }: { customer: Customer }) {
         ) : (
           <FlowBack onClick={() => go(step - 1)} />
         )}
+        {memory.resumed && step > 1 ? <Resumed onStartOver={startOver} /> : null}
 
         <AnimatePresence mode="wait" initial={false}>
           <motion.div key={step} {...swap} transition={{ duration: reduced ? 0.12 : 0.2, ease: flowEase }} className="mt-7">
@@ -270,8 +307,14 @@ export function OneClaimFlow({ customer }: { customer: Customer }) {
                       placeholder="For example, knee surgery"
                       autoComplete="off"
                       aria-invalid={error?.field === "one-treatment" || undefined}
+                      aria-describedby={error?.field === "one-treatment" ? "one-treatment-error" : undefined}
                       className={`${field} mt-2`}
                     />
+                    {error?.field === "one-treatment" ? (
+                      <ErrorLine id="one-treatment-error" className="mt-2">
+                        {error.text}
+                      </ErrorLine>
+                    ) : null}
                   </div>
                 </div>
               ) : null}
@@ -293,17 +336,24 @@ export function OneClaimFlow({ customer }: { customer: Customer }) {
                         placeholder="50,000"
                         value={grouped}
                         aria-invalid={error?.field === "one-amount" || undefined}
+                        aria-describedby={error?.field === "one-amount" ? "one-amount-error" : undefined}
                         onChange={(event) => set({ amount: event.target.value.replace(/\D/g, "").slice(0, 9) })}
                         className={`${field} pl-9 tabular-nums`}
                       />
                     </div>
+                    {error?.field === "one-amount" ? (
+                      <ErrorLine id="one-amount-error" className="mt-2">
+                        {error.text}
+                      </ErrorLine>
+                    ) : null}
                   </div>
-                  <DocumentsStep documents={draft.documents} onChange={(documents) => set({ documents })} />
+                  <DocumentsStep documents={draft.documents} issue={error} onChange={(documents) => set({ documents })} />
                 </div>
               ) : null}
             </div>
 
-            {error ? <ErrorLine>{error.text}</ErrorLine> : null}
+            {/* Field messages sit under their field; the rest go here. */}
+            {error && !/^(one-|r-doc-)/.test(error.field ?? "") ? <ErrorLine>{error.text}</ErrorLine> : null}
             {step === 1 ? <FlowVersionSwitch /> : null}
           </motion.div>
         </AnimatePresence>

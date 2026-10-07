@@ -6,7 +6,19 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ChoiceCard, ChoiceGroup, ClaimingOn, Note } from "@/components/claims/claim-bits";
 import { ClaimTicket } from "@/components/claims/claim-ticket";
 import { ReimbursementFlow } from "@/components/claims/reimbursement-flow";
-import { ErrorLine, FlowBack, FlowBar, FlowVersionSwitch, flowEase, stepSwap, today } from "@/components/claims/flow-parts";
+import {
+  ErrorLine,
+  FlowBack,
+  focusIssue,
+  FlowBar,
+  FlowVersionSwitch,
+  OpeningClaim,
+  Resumed,
+  flowEase,
+  stepSwap,
+  today,
+  useFlowMemory,
+} from "@/components/claims/flow-parts";
 import { Chevron } from "@/components/dashboard/policy-pair";
 import { Asset } from "@/components/ui/asset";
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
@@ -40,6 +52,23 @@ type Draft = {
   hospital?: HospitalChoice;
 };
 
+/** Which answer a message is about, so focus and the message go to it. */
+type Field = "patient" | "category" | "treatment" | "stage" | "knows-date" | "admission" | "hospital";
+type Issue = { text: string; field: Field };
+const fieldTarget: Record<Field, string> = {
+  patient: "input[name=patient]",
+  category: "input[name=category]",
+  treatment: "#treatment",
+  stage: "input[name=stage]",
+  "knows-date": "input[name=knows-date]",
+  admission: "#admission",
+  hospital: "#hospital-search",
+};
+
+type Open = "category" | "treatment" | "stage" | null;
+type Progress = { step: number; draft: Draft; reimbursing: boolean; open: Open };
+const freshDraft: Draft = { treatment: "", admission: "" };
+
 /** A hospital from the list (with its id), one typed in, or not chosen yet. */
 export type HospitalChoice = { name: string; address: string; network: boolean; id?: string } | "undecided";
 
@@ -55,9 +84,10 @@ const steps = [
  * Making a claim on the health policy: pick the claim type. Reimbursement
  * hands over to its own flow; cashless continues here: 
  * four steps (patient, treatment, dates, hospital) with Continue in a bar at
- * the bottom. Each step checks its answers on Continue and says what's
- * missing beside the question. The last step sends the request and opens
- * the new claim.
+ * the bottom. Each step checks its answers on Continue, says what's missing
+ * beside the question and moves focus to it. The last step sends the
+ * request (once, however often it's tapped) and opens the new claim. The
+ * answers are kept for this tab, so a refresh doesn't lose them.
  */
 export function NewClaimFlow({ customer }: { customer: Customer }) {
   const router = useRouter();
@@ -65,14 +95,43 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
   /* 0 is the claim type; 1–4 are the steps. */
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
-  const [draft, setDraft] = useState<Draft>({ treatment: "", admission: "" });
-  const [error, setError] = useState<string | null>(null);
+  const [draft, setDraft] = useState<Draft>(freshDraft);
+  const [error, setError] = useState<Issue | null>(null);
   /* Once sent, the flow gives way to the printed claim ticket. */
   const [ticket, setTicket] = useState<Claim | null>(null);
-  /* Reimbursement is its own five-step flow. */
+  /* Reimbursement is its own five-step flow; a claim it sends counts here too. */
   const [reimbursing, setReimbursing] = useState(false);
-  const [open, setOpen] = useState<"category" | "treatment" | "stage" | null>("category");
+  const [reimbursed, setReimbursed] = useState<string | null>(null);
+  const [open, setOpen] = useState<Open>("category");
   const moved = useRef(false);
+  const sending = useRef(false);
+
+  const memory = useFlowMemory<Progress>(
+    "ditto.claim-draft.v2",
+    { step, draft, reimbursing, open },
+    ticket?.id ?? reimbursed,
+    (kept) => {
+      if (typeof kept.step !== "number" || kept.step < 0 || kept.step > 4 || typeof kept.draft?.treatment !== "string") return;
+      setStep(kept.step);
+      setDraft({ ...freshDraft, ...kept.draft });
+      setReimbursing(Boolean(kept.reimbursing));
+      setOpen(kept.open ?? null);
+    },
+    customer,
+  );
+
+  function startOver() {
+    memory.forget();
+    setDraft(freshDraft);
+    setReimbursing(false);
+    setOpen("category");
+    go(0);
+  }
+
+  /* Focus the answer the message is about. */
+  useEffect(() => {
+    if (error) focusIssue(document.querySelector<HTMLElement>(fieldTarget[error.field]));
+  }, [error]);
 
   const set = (patch: Partial<Draft>) => {
     setDraft((value) => ({ ...value, ...patch }));
@@ -99,36 +158,39 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
     node.focus({ preventScroll: true });
   };
 
-  function problem(): string | null {
-    if (step === 1 && !draft.patient) return "Choose who the claim is for.";
+  function problem(): Issue | null {
+    if (step === 1 && !draft.patient) return { text: "Choose who the claim is for.", field: "patient" };
     if (step === 2) {
       /* Open the question that needs an answer, so the message sits by it. */
       if (!draft.category) {
         setOpen("category");
-        return "Choose a category.";
+        return { text: "Choose a category.", field: "category" };
       }
       if (!draft.treatment.trim()) {
         setOpen("treatment");
-        return "Enter the treatment's name.";
+        return { text: "Enter the treatment's name, for example knee surgery.", field: "treatment" };
       }
       if (!draft.stage) {
         setOpen("stage");
-        return "Choose the stage you're at.";
+        return { text: "Choose the stage you're at.", field: "stage" };
       }
     }
     if (step === 3) {
-      if (draft.knowsDate === undefined) return "Tell us whether you know the date.";
+      if (draft.knowsDate === undefined) return { text: "Tell us whether you know the date.", field: "knows-date" };
       if (draft.knowsDate) {
-        if (!draft.admission) return "Choose the date of admission.";
+        if (!draft.admission) return { text: "Choose the date of admission.", field: "admission" };
         if (draft.admission < policyPeriod.start || draft.admission > policyPeriod.end)
-          return `Choose a date between ${formatDate(policyPeriod.start)} and ${formatDate(policyPeriod.end)}, when the policy covers you.`;
+          return {
+            text: `Choose a date between ${formatDate(policyPeriod.start)} and ${formatDate(policyPeriod.end)}, when the policy covers you.`,
+            field: "admission",
+          };
         if (draft.stage === "planning" && draft.admission < today())
-          return "A planned stay can't be in the past. Choose today or a later date.";
+          return { text: "A planned stay can't be in the past. Choose today or a later date.", field: "admission" };
         if (draft.stage !== "planning" && draft.stage !== "today" && draft.admission > today())
-          return "You've been admitted already, so choose today or an earlier date.";
+          return { text: "You've been admitted already, so choose today or an earlier date.", field: "admission" };
       }
     }
-    if (step === 4 && !draft.hospital) return "Choose a hospital, or enter one.";
+    if (step === 4 && !draft.hospital) return { text: "Choose a hospital, or enter one.", field: "hospital" };
     return null;
   }
 
@@ -140,6 +202,9 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
       return;
     }
     if (step < 4) return go(step + 1);
+    /* A second tap while the first is sending would make a second claim. */
+    if (sending.current) return;
+    sending.current = true;
     const person = policyDetail.family.find((member) => member.name === draft.patient)!;
     const claim = addClaim({
       policyId: policyDetail.id,
@@ -158,7 +223,16 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
     setTicket(claim);
   }
 
-  if (reimbursing) return <ReimbursementFlow customer={customer} onExit={() => setReimbursing(false)} />;
+  if (memory.reopening) return <OpeningClaim />;
+
+  if (reimbursing)
+    return (
+      <ReimbursementFlow
+        customer={customer}
+        onExit={() => setReimbursing(false)}
+        onSent={(claim) => setReimbursed(claim.id)}
+      />
+    );
 
   if (ticket) {
     return (
@@ -190,6 +264,7 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
         ) : (
           <FlowBack onClick={() => go(step - 1)} />
         )}
+        {memory.resumed && step > 0 ? <Resumed onStartOver={startOver} /> : null}
 
         <AnimatePresence mode="wait" initial={false}>
           <motion.div key={step} {...swap} transition={{ duration: reduced ? 0.12 : 0.2, ease: flowEase }} className="mt-7">
@@ -212,12 +287,13 @@ export function NewClaimFlow({ customer }: { customer: Customer }) {
             <div className="mt-6">
               {step === 0 ? <TypeStep onCashless={() => go(1)} onReimbursement={() => setReimbursing(true)} /> : null}
               {step === 1 ? <PatientStep draft={draft} set={set} /> : null}
-              {step === 2 ? <TreatmentStep draft={draft} set={set} open={open} setOpen={setOpen} /> : null}
-              {step === 3 ? <DateStep draft={draft} set={set} /> : null}
+              {step === 2 ? <TreatmentStep draft={draft} set={set} open={open} setOpen={setOpen} issue={error} /> : null}
+              {step === 3 ? <DateStep draft={draft} set={set} issue={error} /> : null}
               {step === 4 ? <HospitalStep hospital={draft.hospital} onChange={(hospital) => set({ hospital })} /> : null}
             </div>
 
-            {error ? <ErrorLine>{error}</ErrorLine> : null}
+            {/* The treatment step puts its message inside the question. */}
+            {error && step !== 2 ? <ErrorLine>{error.text}</ErrorLine> : null}
             {step === 0 ? <FlowVersionSwitch /> : null}
           </motion.div>
         </AnimatePresence>
@@ -303,10 +379,14 @@ function TreatmentStep({
   set,
   open,
   setOpen,
+  issue,
 }: StepProps & {
-  open: "category" | "treatment" | "stage" | null;
-  setOpen: (open: "category" | "treatment" | "stage" | null) => void;
+  open: Open;
+  setOpen: (open: Open) => void;
+  issue: Issue | null;
 }) {
+  const message = (field: Field) =>
+    issue?.field === field ? <ErrorLine id={`${field}-error`} className="mt-3">{issue.text}</ErrorLine> : null;
   const category = categories.find((item) => item.id === draft.category);
   const stage = draft.category ? stages[draft.category].find((item) => item.id === draft.stage) : undefined;
   const toggle = (id: "category" | "treatment" | "stage") => setOpen(open === id ? null : id);
@@ -344,6 +424,7 @@ function TreatmentStep({
             />
           ))}
         </ChoiceGroup>
+        {message("category")}
       </Disclosure>
 
       <Disclosure
@@ -368,8 +449,11 @@ function TreatmentStep({
           }}
           placeholder="For example, knee surgery"
           autoComplete="off"
-          className="h-[52px] w-full rounded-control bg-surface px-4 text-[17px] leading-6 text-label shadow-field transition-shadow duration-150 placeholder:text-label-tertiary focus:shadow-[0_0_0_2px_var(--color-accent)] focus:outline-none"
+          aria-invalid={issue?.field === "treatment" || undefined}
+          aria-describedby={issue?.field === "treatment" ? "treatment-error" : undefined}
+          className="h-[52px] w-full rounded-control bg-surface px-4 text-[17px] leading-6 text-label shadow-field transition-shadow duration-150 placeholder:text-label-tertiary focus:shadow-[0_0_0_2px_var(--color-accent)] focus:outline-none aria-[invalid=true]:shadow-[0_0_0_1.5px_var(--color-red-text)]"
         />
+        {message("treatment")}
         <div className="mt-3 flex justify-end">
           <Button variant="tinted" onClick={() => draft.treatment.trim() && next({})}>
             Next
@@ -413,6 +497,7 @@ function TreatmentStep({
         ) : (
           <Note>Choose a category first. The stages depend on it.</Note>
         )}
+        {message("stage")}
       </Disclosure>
     </div>
   );
@@ -492,7 +577,7 @@ function Disclosure({
   );
 }
 
-function DateStep({ draft, set }: StepProps) {
+function DateStep({ draft, set, issue }: StepProps & { issue: Issue | null }) {
   const past = draft.stage !== "planning" && draft.stage !== "today";
   return (
     <div className="flex flex-col gap-6">
@@ -524,7 +609,8 @@ function DateStep({ draft, set }: StepProps) {
             max={policyPeriod.end}
             onChange={(event) => set({ admission: event.target.value })}
             aria-describedby="admission-hint"
-            className="mt-2 h-[52px] w-full max-w-[320px] rounded-control bg-surface px-4 text-[17px] leading-6 text-label tabular-nums shadow-field transition-shadow duration-150 focus:shadow-[0_0_0_2px_var(--color-accent)] focus:outline-none"
+            aria-invalid={issue?.field === "admission" || undefined}
+            className="mt-2 h-[52px] w-full max-w-[320px] rounded-control bg-surface px-4 text-[17px] leading-6 text-label tabular-nums shadow-field transition-shadow duration-150 focus:shadow-[0_0_0_2px_var(--color-accent)] focus:outline-none aria-[invalid=true]:shadow-[0_0_0_1.5px_var(--color-red-text)]"
           />
           <p id="admission-hint" className="mt-2 text-[13px] leading-[18px] text-label-secondary tabular-nums">
             Your policy year runs from {formatDate(policyPeriod.start)} to {formatDate(policyPeriod.end)}.
@@ -550,7 +636,9 @@ export function HospitalStep({
 }) {
   const [query, setQuery] = useState("");
   const [manual, setManual] = useState("");
+  const [manualMissing, setManualMissing] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const manualRef = useRef<HTMLInputElement>(null);
   const q = query.trim().toLowerCase();
   const results = hospitals.filter((hospital) =>
     [hospital.name, hospital.address, hospital.city, hospital.pin].some((field) => field.toLowerCase().includes(q)),
@@ -667,6 +755,7 @@ export function HospitalStep({
         className="m-auto w-[min(440px,calc(100vw-32px))] rounded-[22px] bg-surface p-0 text-label shadow-raised backdrop:bg-black/30 open:animate-pop"
         onClose={() => {
           setManual("");
+          setManualMissing(false);
           unlockScroll();
         }}
       >
@@ -700,13 +789,24 @@ export function HospitalStep({
             Hospital name
           </label>
           <input
+            ref={manualRef}
             id="manual-hospital"
             value={manual}
-            onChange={(event) => setManual(event.target.value)}
+            onChange={(event) => {
+              setManual(event.target.value);
+              if (event.target.value.trim()) setManualMissing(false);
+            }}
             placeholder="For example, City General Hospital"
             autoComplete="off"
-            className="mt-2 h-[52px] w-full rounded-control bg-surface px-4 text-[17px] leading-6 text-label shadow-field transition-shadow duration-150 placeholder:text-label-tertiary focus:shadow-[0_0_0_2px_var(--color-accent)] focus:outline-none"
+            aria-invalid={manualMissing || undefined}
+            aria-describedby={manualMissing ? "manual-hospital-error" : undefined}
+            className="mt-2 h-[52px] w-full rounded-control bg-surface px-4 text-[17px] leading-6 text-label shadow-field transition-shadow duration-150 placeholder:text-label-tertiary focus:shadow-[0_0_0_2px_var(--color-accent)] focus:outline-none aria-[invalid=true]:shadow-[0_0_0_1.5px_var(--color-red-text)]"
           />
+          {manualMissing ? (
+            <ErrorLine id="manual-hospital-error" className="mt-2">
+              Enter the hospital&apos;s name, or choose I haven&apos;t chosen one yet.
+            </ErrorLine>
+          ) : null}
           <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
             <Button
               variant="plain"
@@ -719,12 +819,14 @@ export function HospitalStep({
             </Button>
             <Button
               onClick={() => {
-                if (!manual.trim()) return;
+                if (!manual.trim()) {
+                  setManualMissing(true);
+                  manualRef.current?.focus();
+                  return;
+                }
                 onChange({ name: manual.trim(), address: "Entered by you", network: false });
                 dialogRef.current?.close();
               }}
-              aria-disabled={!manual.trim()}
-              className={manual.trim() ? "" : "opacity-50"}
             >
               Use this hospital
             </Button>

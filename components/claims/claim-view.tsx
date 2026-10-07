@@ -12,6 +12,7 @@ import { Button, buttonClass } from "@/components/ui/buttons";
 import { StatusPill, cardClass } from "@/components/ui/card-bits";
 import { IconCheck, IconDocuments, IconTrash } from "@/components/ui/icons";
 import { GlareFace, GlareGroup } from "@/components/ui/glare";
+import { Bone, Loading } from "@/components/ui/skeleton";
 import {
   categoryLabel,
   claimsHref,
@@ -55,7 +56,25 @@ export function ClaimView({ claimId, customer, created }: { claimId: string; cus
   const claims = useClaims(policyDetail.id);
   const claim = claims.find((item) => item.id === claimId);
 
-  if (!hydrated) return <div className="min-h-[60dvh]" />;
+  /* Claims live in this browser, so the page waits a beat for them: the
+     claim's outline, rather than a blank page or a false "not found". */
+  if (!hydrated)
+    return (
+      <Loading label="Loading your claim" className="min-h-[60dvh]">
+        <Bone className="h-5 w-64 max-w-full" />
+        <Bone className="mt-5 h-8 w-80 max-w-full" />
+        <Bone className="mt-3 h-6 w-36 rounded-full" />
+        <div className="mt-6 grid items-center gap-5 sm:grid-cols-[minmax(0,380px)_1fr] sm:gap-7">
+          <Bone className="aspect-[365/237] w-full rounded-[22px]" />
+          <div className="flex flex-col gap-2.5">
+            <Bone className="h-5 w-48" />
+            <Bone className="h-4 w-full" />
+            <Bone className="h-4 w-4/5" />
+          </div>
+        </div>
+        <Bone className="mt-8 h-56 w-full rounded-[22px]" />
+      </Loading>
+    );
 
   if (!claim) {
     return (
@@ -92,18 +111,19 @@ const card = activePolicyGroups.flatMap((group) => group.items).find((item) => i
 function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Customer; created: boolean }) {
   const router = useRouter();
   const cardConfig = useCardConfig();
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<"idle" | "copied" | "failed">("idle");
   const dialogRef = useRef<HTMLDialogElement>(null);
   const keepRef = useRef<HTMLButtonElement>(null);
 
   async function copy() {
     try {
       await navigator.clipboard.writeText(claim.id);
-      setCopied(true);
-      window.setTimeout(() => setCopied(false), 1600);
+      setCopied("copied");
     } catch {
-      /* The reference is on screen to copy by hand. */
+      /* Clipboard blocked: say so, and the reference is on screen to read. */
+      setCopied("failed");
     }
+    window.setTimeout(() => setCopied("idle"), 2400);
   }
 
   const reimbursement = claim.type === "reimbursement";
@@ -154,7 +174,11 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
             {claim.hospital ? `${typeLabel(claim)} claim · ` : ""}Requested {formatDate(claim.createdAt)}
           </span>
           <span role="status" className="sr-only">
-            {copied ? "Reference copied." : ""}
+            {copied === "copied"
+              ? "Reference copied."
+              : copied === "failed"
+                ? `Couldn't copy. Your reference is ${claim.id}.`
+                : ""}
           </span>
         </div>
       </header>
@@ -209,9 +233,12 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
                 <button
                   type="button"
                   onClick={copy}
-                  className="-my-1 h-7 rounded-[8px] px-2 text-[13px] leading-none font-medium text-accent-text transition-opacity active:opacity-50 [@media(hover:hover)]:hover:opacity-70"
+                  aria-label={`Copy reference ${claim.id}`}
+                  className={`touch-hit -my-1 h-7 rounded-[8px] px-2 text-[13px] leading-none font-medium transition-opacity active:opacity-50 [@media(hover:hover)]:hover:opacity-70 ${
+                    copied === "failed" ? "text-label-secondary" : "text-accent-text"
+                  }`}
                 >
-                  {copied ? "Copied" : "Copy"}
+                  {copied === "copied" ? "Copied" : copied === "failed" ? "Couldn't copy" : "Copy"}
                 </button>
               </dd>
             </div>
@@ -345,7 +372,7 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
           </h2>
           <p id="delete-dialog-body" className="mt-2 text-[15px] leading-5 text-pretty text-label-secondary">
             The request for {claim.patient.name}
-            {claim.hospital ? ` at ${claim.hospital.name}` : ""} is withdrawn. You can&apos;t undo this.
+            {claim.hospital ? ` at ${claim.hospital.name}` : ""} is withdrawn and removed from your claims.
           </p>
           <div className="mt-6 flex w-full flex-col gap-2">
             <Button

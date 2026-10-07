@@ -283,7 +283,8 @@ function ChoiceRow({ choice, onChoose }: { choice: Choice; onChoose: () => void 
  * grey is translucent, so it reads on the white phone sheet and on the
  * frosted desktop one alike.
  */
-const bubble = "w-fit max-w-[80%] rounded-[18px] px-3.5 py-2 text-[15px] leading-[21px] text-pretty";
+/* A long link or an unbroken word wraps inside the bubble, never past it. */
+const bubble = "w-fit max-w-[80%] rounded-[18px] px-3.5 py-2 text-[15px] leading-[21px] text-pretty [overflow-wrap:anywhere]";
 /* Ditto's are white, edged with a hairline and a soft shadow so they hold
    on the white phone sheet as well as the frosted desktop one. */
 const theirs = `${bubble} bg-surface text-label shadow-[0_0_0_0.5px_rgb(0_0_0_/_0.08),0_1px_2px_rgb(0_0_0_/_0.06)]`;
