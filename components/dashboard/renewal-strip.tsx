@@ -25,25 +25,26 @@ export const renewalDot: Record<RenewalStage, string> = {
 };
 
 /**
- * The renewal, at the foot of a health card's front: a ring of the days left
- * in the 30-day window (or the grace after it), what that means, and Renew.
+ * The renewal, at the foot of a health card's front, kept compact: a small
+ * ring of the days left in the 30-day window (or the grace after it), a
+ * title and one short line, and Renew.
  * Its inset matches the facts panel above, so the radii stay concentric.
  */
 export function RenewalStrip({ renewal, policyName }: { renewal: Renewal; policyName: string }) {
   const tone = tones[renewal.stage];
   return (
-    <div className={`relative mx-2 mb-2 flex items-center gap-3 rounded-[14px] py-2.5 pr-2.5 pl-2.5 ${tone.panel}`}>
+    <div className={`relative mx-2 mb-2 flex items-center gap-2.5 rounded-[14px] p-2 pl-2.5 ${tone.panel}`}>
       <DaysRing left={renewal.left} share={renewal.share} className={tone.ring} titleClass={tone.title} />
       <div className="min-w-0 flex-1">
-        <p className={`text-[14px] leading-[18px] font-semibold tracking-[-0.01em] ${tone.title}`}>{renewal.title}</p>
-        <p className="mt-0.5 text-[12px] leading-4 text-pretty text-label-secondary">{renewal.detail}</p>
+        <p className={`truncate text-[13px] leading-[18px] font-semibold tracking-[-0.01em] ${tone.title}`}>{renewal.title}</p>
+        <p className="truncate text-[12px] leading-4 text-label-secondary">{renewal.detail}</p>
       </div>
       {/* The card's faces let taps through to its link; this one keeps its own. */}
       <a
         href={RENEW_URL}
         aria-label={`Renew ${policyName}`}
         onClick={(event) => event.stopPropagation()}
-        className="touch-hit pointer-events-auto relative inline-flex h-8 shrink-0 items-center rounded-full bg-accent px-3.5 text-[13px] font-semibold text-white shadow-accent transition-[transform,background-color,box-shadow] duration-150 ease-out active:scale-[0.96] active:shadow-accent-pressed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent [@media(hover:hover)]:hover:bg-accent-hover"
+        className="touch-hit pointer-events-auto relative inline-flex h-7 shrink-0 items-center rounded-full bg-accent px-3 text-[12px] font-semibold text-white shadow-accent transition-[transform,background-color,box-shadow] duration-150 ease-out active:scale-[0.96] active:shadow-accent-pressed focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent [@media(hover:hover)]:hover:bg-accent-hover"
       >
         Renew
       </a>
@@ -53,27 +54,25 @@ export function RenewalStrip({ renewal, policyName }: { renewal: Renewal; policy
 
 /** Days left, in a ring that empties as the date comes closer. */
 function DaysRing({ left, share, className, titleClass }: { left: number; share: number; className: string; titleClass: string }) {
-  const r = 19;
+  const r = 13.5;
   const length = 2 * Math.PI * r;
   return (
-    <span aria-hidden className={`relative grid size-11 shrink-0 place-items-center ${className}`}>
-      <svg width="44" height="44" viewBox="0 0 44 44" className="absolute inset-0 -rotate-90">
-        <circle cx="22" cy="22" r={r} fill="none" stroke="currentColor" strokeOpacity="0.18" strokeWidth="3.5" />
+    <span aria-hidden className={`relative grid size-8 shrink-0 place-items-center ${className}`}>
+      <svg width="32" height="32" viewBox="0 0 32 32" className="absolute inset-0 -rotate-90">
+        <circle cx="16" cy="16" r={r} fill="none" stroke="currentColor" strokeOpacity="0.18" strokeWidth="3" />
         <circle
-          cx="22"
-          cy="22"
+          cx="16"
+          cy="16"
           r={r}
           fill="none"
           stroke="currentColor"
-          strokeWidth="3.5"
+          strokeWidth="3"
           strokeLinecap="round"
           strokeDasharray={`${Math.max(share, 0.001) * length} ${length}`}
         />
       </svg>
-      <span className={`relative flex flex-col items-center leading-none ${titleClass}`}>
-        <span className="text-[14px] font-semibold tabular-nums">{left}</span>
-        <span className="mt-0.5 text-[8px] font-semibold tracking-[0.04em] uppercase opacity-70">{left === 1 ? "day" : "days"}</span>
-      </span>
+      {/* The number alone; the title beside it says what it counts. */}
+      <span className={`relative text-[12px] leading-none font-semibold tabular-nums ${titleClass}`}>{left}</span>
     </span>
   );
 }

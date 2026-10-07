@@ -23,6 +23,7 @@ export type Renewal = {
   /** How much of the window or grace is left, 0 to 1, for the ring. */
   share: number;
   title: string;
+  /** One short line under the title. */
   detail: string;
   /** "Valid till" on the card, as a month and year. */
   validTill: string;
@@ -48,16 +49,14 @@ export function renewalOf(days: number, today = new Date()): Renewal | null {
       stage: "grace",
       left,
       share: left / GRACE_DAYS,
-      title: left === 0 ? "Last day to renew" : "Renewal overdue",
-      detail:
-        left === 0
-          ? "Renew today to keep your no-claim bonus. New claims aren’t covered until you do."
-          : `${left} ${left === 1 ? "day" : "days"} left to renew, until ${dayMonth(graceEnds)}. New claims aren’t covered until you do.`,
+      /* In the grace nothing is covered, which is what matters most. */
+      title: "Cover paused",
+      detail: left === 0 ? "Last day to renew" : `Renew by ${dayMonth(graceEnds)}`,
       validTill,
     };
   }
   if (days === 0) {
-    return { stage: "today", left: 0, share: 0, title: "Renews today", detail: "Renew today so there’s no gap in your cover.", validTill };
+    return { stage: "today", left: 0, share: 0, title: "Renews today", detail: "Renew to stay covered", validTill };
   }
   const soon = days <= 7;
   return {
@@ -65,9 +64,7 @@ export function renewalOf(days: number, today = new Date()): Renewal | null {
     left: days,
     share: days / RENEWAL_WINDOW,
     title: days === 1 ? "Renews tomorrow" : `Renews in ${days} days`,
-    detail: soon
-      ? `Renew by ${dayMonth(due)} so there’s no gap in your cover.`
-      : `Due on ${dayMonth(due)}. Renew early to keep your no-claim bonus.`,
+    detail: soon ? `Renew by ${dayMonth(due)}` : `Due on ${dayMonth(due)}`,
     validTill,
   };
 }

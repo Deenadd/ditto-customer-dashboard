@@ -403,11 +403,12 @@ carries its renewal at the foot of its front (`components/dashboard/renewal-stri
 stages in `lib/renewal.ts`):
 
 - **Up to 30 days out:** blue. A ring of the days left in the 30-day window,
-  "Renews in 18 days", and Renew.
+  "Renews in 18 days", one short line ("Due on 25 Oct"), and Renew. Every
+  line fits on one line at 320px.
 - **The last week, and the day itself:** orange, "Renews in 5 days" or
   "Renews today", so there's no gap in cover.
-- **Overdue:** red, in the 30 days' grace after the date. The days left to
-  renew, and that new claims aren't covered until you do.
+- **Overdue:** red, "Cover paused", in the 30 days' grace after the date:
+  the days left to renew, and the date to renew by.
 
 The card's dot takes the stage's colour, and Valid till shows the renewal
 month. With v2 on, a second switch sets the family card to 18 days, 5 days,

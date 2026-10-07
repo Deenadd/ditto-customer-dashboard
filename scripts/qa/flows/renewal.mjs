@@ -17,7 +17,7 @@ for (const [tag, viewport, mobile] of [["d", { width: 1280, height: 900 }, false
   for (const label of ["18 days", "5 days", "Today", "Overdue"]) {
     await stages.getByRole("button", { name: label }).click(); await p.waitForTimeout(300);
     const card = p.getByRole("article", { name: "Your Health complete", exact: true });
-    console.log(tag, label, "→", (await card.locator("p.font-semibold").first().innerText()), "|", await card.locator("p.text-label-secondary.text-pretty").innerText());
+    console.log(tag, label, "→", (await card.locator("p.font-semibold").first().innerText()), "|", await card.locator("p.truncate.text-label-secondary").innerText());
     if (label === "18 days" || label === "Overdue") await card.screenshot({ path: `out-bc/renewal-${tag}-${label.replace(" ", "")}.png` });
   }
   await p.reload(); await p.waitForTimeout(1000);
