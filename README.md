@@ -453,6 +453,16 @@ its angle on a spring; then the heading, the line and the button come into
 focus in turn, a short blur clearing as they rise. Reduced motion keeps the
 order as plain fades.
 
+## Claim questions
+
+In every claim flow (v1, v2 and reimbursement) the top stays still: the way
+back sits in a row of fixed height and the Claiming on card under it never
+moves, whichever question you're on (`FlowTop`). Questions change the way
+Typeform's do (`QuestionSwap`): the answered one lifts away quickly, the next
+rises 14px into place with its answers a beat behind, and Back reverses it.
+Switching into reimbursement and back plays the same. Reduced motion is a
+plain crossfade.
+
 ## Checks and the weekly audit
 
 `npm run qa` drives every flow in Chrome against a running site (default

@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useState, type CSSProperties } from "react";
+import { createContext, useContext, useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { AnimatePresence, motion, useReducedMotion, type Variants } from "motion/react";
+import { ClaimingOn } from "@/components/claims/claim-bits";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/buttons";
 import { defaultSideSheetConfig } from "@/components/ui/frosted-side-sheet/config";
@@ -15,15 +17,104 @@ import type { Customer } from "@/lib/routes";
 
 export const flowEase = [0.23, 1, 0.32, 1] as const;
 
-/** Steps slide in from the side they come from; reduced motion crossfades. */
-export function stepSwap(direction: number, reduced: boolean) {
-  return reduced
-    ? { initial: { opacity: 0 }, animate: { opacity: 1 }, exit: { opacity: 0 } }
-    : {
-        initial: { opacity: 0, transform: `translateX(${direction * 16}px)` },
-        animate: { opacity: 1, transform: "translateX(0px)" },
-        exit: { opacity: 0, transform: `translateX(${direction * -16}px)` },
-      };
+/**
+ * The top of a claim flow, identical on every question so nothing above the
+ * question ever moves: the way back in a row of fixed height (breadcrumbs on
+ * the first question, Back after, which differ in height), then the policy
+ * you're claiming on. A notice (We kept your answers) goes under the card,
+ * so it never pushes the card down.
+ */
+export function FlowTop({ nav, name, notice }: { nav: ReactNode; name: string; notice?: ReactNode }) {
+  return (
+    <>
+      <div className="flex h-9 items-center">{nav}</div>
+      <div className="mt-7">
+        <ClaimingOn name={name} />
+      </div>
+      {notice}
+    </>
+  );
+}
+
+/*
+ * Questions change the way Typeform's do, under a header that stays put:
+ * the answered one lifts away quickly, the next rises into place and its
+ * parts follow a beat apart (heading, then answers, then the rest). Back
+ * reverses it: the question drops away and the earlier one comes down from
+ * above. Small distances and short times, so it reads as a page turning in
+ * place rather than a slide. Reduced motion: a plain crossfade.
+ */
+const Direction = createContext(1);
+
+const question: Variants = {
+  enter: (direction: number) => ({ opacity: 0, transform: `translateY(${direction * 14}px)` }),
+  center: {
+    opacity: 1,
+    transform: "translateY(0px)",
+    transition: { duration: 0.32, ease: flowEase, staggerChildren: 0.05, delayChildren: 0.03 },
+  },
+  exit: (direction: number) => ({
+    opacity: 0,
+    transform: `translateY(${direction * -8}px)`,
+    transition: { duration: 0.14, ease: "easeOut" },
+  }),
+};
+const fade: Variants = {
+  enter: { opacity: 0 },
+  center: { opacity: 1, transition: { duration: 0.15, ease: "easeOut" } },
+  exit: { opacity: 0, transition: { duration: 0.1, ease: "easeOut" } },
+};
+
+/** The current question, swapped when `step` changes; `direction` is 1
+    going on and -1 going back. The first question shows as it is, unless
+    `appear` (the flow was just switched to, from another). */
+export function QuestionSwap({
+  step,
+  direction,
+  appear = false,
+  children,
+}: {
+  step: number;
+  direction: number;
+  appear?: boolean;
+  children: ReactNode;
+}) {
+  const reduced = !!useReducedMotion();
+  return (
+    <Direction.Provider value={direction}>
+      <AnimatePresence mode="wait" initial={appear} custom={direction}>
+        <motion.div
+          key={step}
+          custom={direction}
+          variants={reduced ? fade : question}
+          initial="enter"
+          animate="center"
+          exit="exit"
+          className="mt-8"
+        >
+          {children}
+        </motion.div>
+      </AnimatePresence>
+    </Direction.Provider>
+  );
+}
+
+/** A part of a question that arrives a beat after the one before it. */
+export function QuestionPart({ children, className }: { children: ReactNode; className?: string }) {
+  const direction = useContext(Direction);
+  const reduced = !!useReducedMotion();
+  if (reduced) return <div className={className}>{children}</div>;
+  return (
+    <motion.div
+      className={className}
+      variants={{
+        enter: { opacity: 0, transform: `translateY(${direction * 8}px)` },
+        center: { opacity: 1, transform: "translateY(0px)", transition: { duration: 0.3, ease: flowEase } },
+      }}
+    >
+      {children}
+    </motion.div>
+  );
 }
 
 export const today = () => {

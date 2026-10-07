@@ -39,6 +39,7 @@ const checks = [
   ["renewal", "Home card v2 from the account menu: stages, Renew, card link", []],
   ["homeflip", "Home cards turn over on a phone; View policy; desktop link", []],
   ["empty", "No pending applications: no card, tiles dealt in, reduced motion", []],
+  ["question", "Claim questions: Claiming on card stays put; vertical, reversible motion", []],
   ["hap", "Haptics on taps, Android and iOS paths", []],
   ["lost", "Unknown pages and policies, the error boundary", []],
   ["states", "Empty states, next steps, download, log out, skip link", []],

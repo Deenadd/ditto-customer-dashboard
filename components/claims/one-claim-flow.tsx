@@ -2,19 +2,20 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ChoiceCard, ChoiceGroup, ClaimingOn, Note } from "@/components/claims/claim-bits";
+import { useReducedMotion } from "motion/react";
+import { ChoiceCard, ChoiceGroup, Note } from "@/components/claims/claim-bits";
 import { ClaimTicket } from "@/components/claims/claim-ticket";
 import {
   ErrorLine,
   FlowBack,
-  focusIssue,
   FlowBar,
+  FlowTop,
   FlowVersionSwitch,
+  focusIssue,
   OpeningClaim,
+  QuestionPart,
+  QuestionSwap,
   Resumed,
-  flowEase,
-  stepSwap,
   useFlowMemory,
 } from "@/components/claims/flow-parts";
 import { HospitalStep, type HospitalChoice } from "@/components/claims/new-claim-flow";
@@ -193,38 +194,41 @@ export function OneClaimFlow({ customer }: { customer: Customer }) {
     4: ["Add your documents", "What you paid, and the papers that show it."],
   };
   const [title, subtitle] = titles[step];
-  const swap = stepSwap(direction, reduced);
   const grouped = draft.amount ? new Intl.NumberFormat("en-IN").format(Number(draft.amount)) : "";
 
   return (
     <form onSubmit={onContinue} noValidate className="flex min-h-[calc(100dvh-64px)] flex-col">
       <div className="mx-auto w-full max-w-[640px] flex-1 px-3.5 pt-5 pb-10 sm:px-6 sm:pt-8">
-        {step === 1 ? (
-          <Breadcrumbs
-            items={[
-              { label: "Active policies", href: dashboardHref({ tab: "active", customer }) },
-              { label: policyDetail.name, href: policyHref(policyDetail.id, customer) },
-              { label: "Claims", href: claimsHref(policyDetail.id, customer) },
-              { label: "New claim" },
-            ]}
-          />
-        ) : (
-          <FlowBack onClick={() => go(step - 1)} />
-        )}
-        {memory.resumed && step > 1 ? <Resumed onStartOver={startOver} /> : null}
-
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div key={step} {...swap} transition={{ duration: reduced ? 0.12 : 0.2, ease: flowEase }} className="mt-7">
-            <ClaimingOn name={policyDetail.name} />
+        <FlowTop
+          nav={
+            step === 1 ? (
+              <Breadcrumbs
+                items={[
+                  { label: "Active policies", href: dashboardHref({ tab: "active", customer }) },
+                  { label: policyDetail.name, href: policyHref(policyDetail.id, customer) },
+                  { label: "Claims", href: claimsHref(policyDetail.id, customer) },
+                  { label: "New claim" },
+                ]}
+              />
+            ) : (
+              <FlowBack onClick={() => go(step - 1)} />
+            )
+          }
+          name={policyDetail.name}
+          notice={memory.resumed && step > 1 ? <Resumed onStartOver={startOver} /> : null}
+        />
+        <QuestionSwap step={step} direction={direction}>
+          <QuestionPart>
             <h1
               ref={focusHeading}
               tabIndex={-1}
-              className="mt-8 text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label focus:outline-none"
+              className="text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label focus:outline-none"
             >
               {title}
             </h1>
             <p className="mt-1.5 text-[15px] leading-5 text-pretty text-label-secondary">{subtitle}</p>
-
+          </QuestionPart>
+          <QuestionPart>
             <div className="mt-6">
               {step === 1 ? (
                 <HospitalStep
@@ -355,8 +359,8 @@ export function OneClaimFlow({ customer }: { customer: Customer }) {
             {/* Field messages sit under their field; the rest go here. */}
             {error && !/^(one-|r-doc-)/.test(error.field ?? "") ? <ErrorLine>{error.text}</ErrorLine> : null}
             {step === 1 ? <FlowVersionSwitch /> : null}
-          </motion.div>
-        </AnimatePresence>
+          </QuestionPart>
+        </QuestionSwap>
       </div>
 
       <FlowBar labels={labels} step={step} submitLabel={step === last && draft.type ? "Send request" : "Continue"} />

@@ -2,18 +2,19 @@
 
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { ChoiceCard, ChoiceGroup, ClaimingOn, Note } from "@/components/claims/claim-bits";
+import { useReducedMotion } from "motion/react";
+import { ChoiceCard, ChoiceGroup, Note } from "@/components/claims/claim-bits";
 import { ClaimTicket } from "@/components/claims/claim-ticket";
 import {
   ErrorLine,
   FlowBack,
-  focusIssue,
   FlowBar,
+  FlowTop,
+  focusIssue,
   OpeningClaim,
+  QuestionPart,
+  QuestionSwap,
   Resumed,
-  flowEase,
-  stepSwap,
   today,
   useFlowMemory,
 } from "@/components/claims/flow-parts";
@@ -239,20 +240,23 @@ export function ReimbursementFlow({
   return (
     <form onSubmit={onContinue} noValidate className="flex min-h-[calc(100dvh-64px)] flex-col">
       <div className="mx-auto w-full max-w-[640px] flex-1 px-3.5 pt-5 pb-10 sm:px-6 sm:pt-8">
-        <FlowBack onClick={() => (step === 1 ? onExit() : go(step - 1))} />
-        {memory.resumed && step > 1 ? <Resumed onStartOver={startOver} /> : null}
-        <AnimatePresence mode="wait" initial={false}>
-          <motion.div key={step} {...stepSwap(direction, reduced)} transition={{ duration: reduced ? 0.12 : 0.2, ease: flowEase }} className="mt-7">
-            <ClaimingOn name={policyDetail.name} />
+        <FlowTop
+          nav={<FlowBack onClick={() => (step === 1 ? onExit() : go(step - 1))} />}
+          name={policyDetail.name}
+          notice={memory.resumed && step > 1 ? <Resumed onStartOver={startOver} /> : null}
+        />
+        <QuestionSwap step={step} direction={direction} appear>
+          <QuestionPart>
             <h1
               ref={focusHeading}
               tabIndex={-1}
-              className="mt-8 text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label focus:outline-none"
+              className="text-[28px] leading-[34px] font-bold tracking-[-0.025em] text-balance text-label focus:outline-none"
             >
               {meta.title}
             </h1>
             <p className="mt-1.5 text-[15px] leading-5 text-pretty text-label-secondary">{meta.subtitle}</p>
-
+          </QuestionPart>
+          <QuestionPart>
             <div className="mt-6">
               {step === 1 ? <CategoryStep draft={draft} set={set} /> : null}
               {step === 2 ? <DetailsStep draft={draft} set={set} issue={error} /> : null}
@@ -269,8 +273,8 @@ export function ReimbursementFlow({
             </div>
             {/* Field messages sit under their field; the rest go here. */}
             {error && !inline(error) ? <ErrorLine>{error.text}</ErrorLine> : null}
-          </motion.div>
-        </AnimatePresence>
+          </QuestionPart>
+        </QuestionSwap>
       </div>
       <FlowBar labels={steps.map((item) => item.label)} step={step} submitLabel={step === 5 ? "Send claim" : "Continue"} />
     </form>
