@@ -201,17 +201,17 @@ returns to the row that opened it; Escape or a click outside closes it.
     header; tap it and the card slides down from under the header over a
     dimmed page. The round ⌃ at its foot (tap or drag up), the page, or
     Escape folds it away (`welcome-sheet.tsx`).
-  - A **bottom nav** (Figma 158:3693) replaces the policy tabs: Pending,
-    Active, Inactive, and Search, which opens a sheet that finds any policy
-    or application by name or number. The current tab is blue with a filled
-    icon; tapping it again scrolls to the top (`bottom-nav.tsx`).
+  - The policy tabs stay a segmented control under Your policies, as on
+    the web.
   - Bottom sheets float as white cards, 8px in from the sides and bottom.
   - On the policy page the card is one card that turns over on a tap (or
     Show who's covered) to show its members, and the Claims card follows it.
-  - **Haptics** (`lib/haptics.ts`) for the moments that earn them: a tab
-    change, the card turning over, the welcome sheet, each printer pull and
-    the stamp landing, a code right or wrong. Android uses the Vibration
-    API; iOS 18+ Safari gets the system tap from a hidden switch.
+  - **Haptics** (`lib/haptics.ts`): a light tick on every tap of a button,
+    link, choice or tab (`TapHaptics`), and their own for the card turning
+    over, the welcome sheet, copying the reference and re-stamping. Android
+    uses the Vibration API; iOS 18+ Safari plays the system tap from a hidden
+    switch, which it only allows inside the tap itself, so haptics that come
+    later (the printer's pulls, a code's result) play on Android only.
   - The sign-in status bar takes the wash's colour (Safari on iOS 26 fills it
     from the page background), fading into the wash below.
 

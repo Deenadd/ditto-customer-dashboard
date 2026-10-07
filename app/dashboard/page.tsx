@@ -8,7 +8,6 @@ import { EmptyApplications } from "@/components/dashboard/empty-applications";
 import { PolicyPair } from "@/components/dashboard/policy-pair";
 import { RejectedCard } from "@/components/dashboard/rejected-card";
 import { WelcomeCard } from "@/components/dashboard/sidebar-cards";
-import { BottomNav } from "@/components/dashboard/bottom-nav";
 import { WelcomeSheet } from "@/components/dashboard/welcome-sheet";
 import { Count, SectionTitle } from "@/components/ui/card-bits";
 import { SegmentedLinks } from "@/components/ui/segmented";
@@ -62,16 +61,14 @@ export default async function DashboardPage({
       <SiteHeader customerState={state.customer} />
       <main
         id="main"
-        className="mx-auto grid max-w-[1112px] grid-cols-1 gap-x-8 gap-y-6 px-3.5 pt-6 pb-20 max-sm:pb-[calc(96px+env(safe-area-inset-bottom))] [grid-template-areas:'welcome'_'main'_'claims'] sm:px-6 sm:pt-10 lg:grid-cols-[minmax(0,750px)_330px] lg:grid-rows-[auto_1fr] lg:justify-between lg:[grid-template-areas:'main_welcome'_'main_claims'] xl:px-0"
+        className="mx-auto grid max-w-[1112px] grid-cols-1 gap-x-8 gap-y-6 px-3.5 pt-6 pb-20 [grid-template-areas:'welcome'_'main'_'claims'] sm:px-6 sm:pt-10 lg:grid-cols-[minmax(0,750px)_330px] lg:grid-rows-[auto_1fr] lg:justify-between lg:[grid-template-areas:'main_welcome'_'main_claims'] xl:px-0"
       >
         <div className="min-w-0 [grid-area:main] max-lg:mt-4 max-sm:mt-0">
           <h1 className="text-[32px] leading-[38px] font-bold tracking-[-0.03em] text-label">
             Your policies
           </h1>
 
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 max-sm:mt-3">
-            {/* On a phone the bottom nav switches tabs instead. */}
-            <div className="max-sm:hidden">
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
             <SegmentedLinks
               label="Policies"
               value={state.tab}
@@ -105,7 +102,6 @@ export default async function DashboardPage({
                 },
               ]}
             />
-            </div>
             {state.tab === "pending" && hasPending ? (
               <SegmentedLinks
                 label="Show applications as"
@@ -127,7 +123,7 @@ export default async function DashboardPage({
             ) : null}
           </div>
 
-          <div className="mt-8 max-sm:mt-5">
+          <div className="mt-8 max-sm:mt-6">
             <TabPanel state={state} hasPending={hasPending} />
           </div>
         </div>
@@ -142,7 +138,6 @@ export default async function DashboardPage({
           <DittoBuddy />
         </div>
       </main>
-      <BottomNav tab={state.tab} customer={state.customer} />
       <CardControls />
     </>
   );

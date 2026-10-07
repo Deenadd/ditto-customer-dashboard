@@ -94,10 +94,11 @@ export function ClaimTicket({
   const [copied, setCopied] = useState(false);
 
   async function copyReference() {
+    /* The tap plays first, inside the click: after the await it's too late. */
+    haptic("success");
     try {
       await navigator.clipboard.writeText(claim.id);
       setCopied(true);
-      haptic("success");
       window.setTimeout(() => setCopied(false), 1500);
     } catch {
       /* Clipboard blocked; the reference is on screen to read. */
