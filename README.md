@@ -394,3 +394,12 @@ lib/
   policy-detail.ts            The policy view's content
   routes.ts                   URL state for tab, view and customer
 ```
+
+## Checks and the weekly audit
+
+`npm run qa` drives every flow in Chrome against a running site (default
+`http://localhost:3123`, or pass a URL) and prints a pass/fail table; the
+scripts are in `scripts/qa/flows/`. Every Wednesday at 1 pm IST an Orca
+automation runs the A-to-Z UX audit in `docs/ux-audit/rubric.md`: it scores
+every flow's states, fixes the weakest, ships to `main`, and adds a report
+with the before and after percentage to `docs/ux-audit/reports.md`.

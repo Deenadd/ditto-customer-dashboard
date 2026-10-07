@@ -1,0 +1,23 @@
+import { chromium } from "playwright-core";
+const base = process.argv[2] ?? "http://localhost:3123";
+const b = await chromium.launch({ channel: "chrome" });
+const errors = [];
+const p = await (await b.newContext({ viewport: { width: 520, height: 1200 }, deviceScaleFactor: 3 })).newPage();
+p.on("pageerror", (e) => errors.push(e.message)); p.on("console", (m) => m.type() === "error" && errors.push(m.text()));
+await p.goto(base + "/dashboard/policies/474-981-34EDH20/claims/new"); await p.waitForTimeout(1200);
+await p.getByRole("button", { name: /Cashless/ }).click(); await p.waitForTimeout(400);
+await p.getByLabel(/Kavya Raghavan/).check({ force: true }); await p.getByRole("button", { name: "Continue" }).click(); await p.waitForTimeout(400);
+await p.getByLabel(/^Hospitalisation/).check({ force: true }); await p.waitForTimeout(400); await p.getByLabel("Treatment name").fill("Knee surgery"); await p.keyboard.press("Enter"); await p.waitForTimeout(500);
+await p.getByLabel(/^Planning a stay/).check({ force: true }); await p.getByRole("button", { name: "Continue" }).click(); await p.waitForTimeout(400);
+await p.getByLabel(/No, it isn/).check({ force: true }); await p.getByRole("button", { name: "Continue" }).click(); await p.waitForTimeout(400);
+await p.getByLabel(/^Lakeview Hospital/).check({ force: true }); await p.getByRole("button", { name: "Send request" }).click();
+await p.waitForTimeout(5500);
+const paper = await p.locator(".ticket-paper").boundingBox();
+await p.screenshot({ path: "out-bc/paper-full.png", clip: { x: paper.x - 40, y: paper.y - 50, width: paper.width + 80, height: paper.height + 90 } });
+await p.screenshot({ path: "out-bc/paper-zoom.png", clip: { x: paper.x - 30, y: paper.y + paper.height - 120, width: 220, height: 160 } });
+// copy reference
+await p.context().grantPermissions(["clipboard-read", "clipboard-write"]);
+await p.getByRole("button", { name: /Copy reference/ }).click(); await p.waitForTimeout(200);
+console.log("copied label:", await p.locator(".ticket-paper p[aria-live]").innerText(), "| clipboard:", await p.evaluate(() => navigator.clipboard.readText()));
+console.log("errors:", errors.length ? errors : "none");
+await b.close();

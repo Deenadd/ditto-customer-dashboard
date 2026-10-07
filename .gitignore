@@ -43,3 +43,6 @@ next-env.d.ts
 # Next.js generated agent rule files
 /AGENTS.md
 /CLAUDE.md
+
+# QA run output
+/scripts/qa/.out/
