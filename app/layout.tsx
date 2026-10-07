@@ -30,6 +30,14 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body>
+        {/* The first stop for the keyboard: past the header, straight to the
+            page. Every page's <main> is #main. Off screen until focused. */}
+        <a
+          href="#main"
+          className="fixed top-[calc(env(safe-area-inset-top)+8px)] left-3 z-[60] inline-flex h-11 -translate-y-[calc(100%+80px)] items-center rounded-control bg-accent px-4 text-[15px] font-medium text-white shadow-accent transition-transform duration-150 ease-out focus-visible:translate-y-0"
+        >
+          Skip to content
+        </a>
         {children}
         <TapHaptics />
       </body>

@@ -3,7 +3,7 @@
 import { haptic } from "@/lib/haptics";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { OtpField } from "@/components/otp-field";
 import { Button } from "@/components/ui/buttons";
@@ -11,6 +11,7 @@ import { useGlowConfig } from "@/components/login/glow-config";
 import { GlowControls, type GlowPreview } from "@/components/login/glow-controls";
 import type { GlowTone } from "@/components/login/glow-ramps";
 import { SignInGradient } from "@/components/login/sign-in-gradient";
+import { SIGN_IN_KEY, forgetSignedOut, justSignedOut } from "@/lib/session";
 
 type Mode = "mobile" | "policy";
 
@@ -39,6 +40,37 @@ const isValid = (mode: Mode, raw: string) =>
     ? /^\d{10}$/.test(raw.replace(/\s/g, ""))
     : /^[A-Za-z0-9-]{8,20}$/.test(raw.trim());
 
+/** A pasted number in any common form, "+91 98765-43210", "098765 43210"
+    or "9876543210", comes down to its 10 digits. */
+const normalizeMobile = (raw: string) => {
+  let digits = raw.replace(/\D/g, "");
+  if (digits.length > 10 && digits.startsWith("91")) digits = digits.slice(2);
+  else if (digits.length === 11 && digits.startsWith("0")) digits = digits.slice(1);
+  return digits.slice(0, 10);
+};
+
+/** Where the flow stands, kept for this tab so a refresh on the code step
+    stays there. Cleared once the code is verified or you log out. */
+const SAVED = SIGN_IN_KEY;
+type Saved = { step: "number" | "code"; mode: Mode; value: string };
+type Start = { signedOut: boolean; saved: Saved | null };
+
+const noSubscribe = () => () => {};
+
+function readStart(): Start {
+  try {
+    if (justSignedOut()) return { signedOut: true, saved: null };
+    const raw = JSON.parse(window.sessionStorage.getItem(SAVED) ?? "null") as Partial<Saved> | null;
+    if (raw && (raw.mode === "mobile" || raw.mode === "policy") && typeof raw.value === "string") {
+      const step = raw.step === "code" && isValid(raw.mode, raw.value) ? "code" : "number";
+      return { signedOut: false, saved: { step, mode: raw.mode, value: raw.value } };
+    }
+  } catch {
+    /* Storage blocked: start from the top. */
+  }
+  return { signedOut: false, saved: null };
+}
+
 /** "9876543210" → "+91 98765 43210" */
 const formatMobile = (digits: string) => `+91 ${digits.slice(0, 5)} ${digits.slice(5)}`;
 
@@ -62,6 +94,34 @@ export function SignInFlow() {
   const glow = useGlowConfig();
   const [controlsOpen, setControlsOpen] = useState(false);
   const [preview, setPreview] = useState<GlowPreview>({ tone: "auto" });
+  /* Back from Log out, say so; otherwise pick up where this tab left off.
+     Read once per visit, on the client (the server can't see either). */
+  const [visit] = useState<{ start?: Start }>(() => ({}));
+  const start = useSyncExternalStore(noSubscribe, () => (visit.start ??= readStart()), () => null);
+  const [seeded, setSeeded] = useState(false);
+  if (start && !seeded) {
+    setSeeded(true);
+    if (start.saved) {
+      setMode(start.saved.mode);
+      setValue(start.saved.value);
+      setStep(start.saved.step);
+    }
+  }
+  const signedOut = start?.signedOut ?? false;
+
+  /* Said once: a refresh after this is an ordinary sign-in. */
+  useEffect(() => {
+    if (start?.signedOut) forgetSignedOut();
+  }, [start]);
+
+  useEffect(() => {
+    if (!seeded) return;
+    try {
+      window.sessionStorage.setItem(SAVED, JSON.stringify({ step, mode, value } satisfies Saved));
+    } catch {
+      /* Kept for this visit only. */
+    }
+  }, [seeded, step, mode, value]);
 
   /* Shift+Option+C (Shift+Alt+C) reveals the glow controls. The key code is
      used because Option changes the typed character on a Mac. */
@@ -125,6 +185,7 @@ export function SignInFlow() {
           >
             {step === "number" ? (
               <NumberStep
+                signedOut={signedOut}
                 mode={mode}
                 value={value}
                 onModeChange={setMode}
@@ -191,12 +252,14 @@ function ErrorLine({ id, children }: { id: string; children: ReactNode }) {
 }
 
 function NumberStep({
+  signedOut,
   mode,
   value,
   onModeChange,
   onValueChange,
   onContinue,
 }: {
+  signedOut: boolean;
   mode: Mode;
   value: string;
   onModeChange: (mode: Mode) => void;
@@ -210,7 +273,9 @@ function NumberStep({
   return (
     <>
       <Heading title="Insurance, made simple.">
-        Sign in to see your policies, applications and claims.
+        {signedOut
+          ? "You've signed out. Sign in again to see your policies, applications and claims."
+          : "Sign in to see your policies, applications and claims."}
       </Heading>
 
       <form
@@ -250,14 +315,15 @@ function NumberStep({
             inputMode={mode === "mobile" ? "numeric" : "text"}
             autoComplete={mode === "mobile" ? "tel-national" : "off"}
             autoCapitalize={mode === "policy" ? "characters" : undefined}
-            maxLength={mode === "mobile" ? 11 : 20}
+            maxLength={mode === "mobile" ? 16 : 20}
             placeholder={copy.label}
             value={value}
             aria-invalid={invalid || undefined}
             aria-describedby={invalid ? "login-error" : undefined}
             onChange={(event) => {
-              onValueChange(event.target.value);
-              if (invalid && isValid(mode, event.target.value)) setInvalid(false);
+              const next = mode === "mobile" ? normalizeMobile(event.target.value) : event.target.value;
+              onValueChange(next);
+              if (invalid && isValid(mode, next)) setInvalid(false);
             }}
             className="h-full min-w-0 flex-1 rounded-r-control bg-transparent pr-4 text-[17px] leading-6 text-label tabular-nums placeholder:text-label-tertiary focus:outline-none"
           />
@@ -334,6 +400,11 @@ function CodeStep({
     later(() => {
       if (value === DEMO_CODE) {
         haptic("success");
+        try {
+          window.sessionStorage.removeItem(SAVED);
+        } catch {
+          /* Nothing was kept. */
+        }
         setState("verified");
         setStatus("Code verified. Opening your dashboard.");
         onToneChange("green");

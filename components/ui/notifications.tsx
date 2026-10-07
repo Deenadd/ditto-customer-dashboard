@@ -17,7 +17,8 @@ export type Update = {
 
 /**
  * The bell opens the latest application updates, the same ones the timeline
- * shows. Opening the panel marks them read.
+ * shows. Opening the panel marks them read. With nothing to show, the panel
+ * says so and what will appear there, rather than the bell disappearing.
  */
 export function Notifications({ updates, href }: { updates: Update[]; href: string }) {
   const [open, setOpen] = useState(false);
@@ -43,15 +44,7 @@ export function Notifications({ updates, href }: { updates: Update[]; href: stri
         }}
         className="relative grid size-10 place-items-center rounded-full text-label transition-[background-color,transform] duration-150 ease-out active:scale-[0.92] [@media(hover:hover)]:hover:bg-black/[0.04]"
       >
-        <svg aria-hidden width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path
-            d="M18.5 14V9.5a6.5 6.5 0 1 0-13 0V14c0 1.1-.6 2.4-1.5 3.3-.3.3-.1.7.3.7h15.4c.4 0 .6-.4.3-.7-.9-.9-1.5-2.2-1.5-3.3Z"
-            stroke="currentColor"
-            strokeWidth="1.6"
-            strokeLinejoin="round"
-          />
-          <path d="M10 20.5h4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
+        <BellGlyph size={22} />
         {unread ? (
           <span
             aria-hidden
@@ -68,37 +61,65 @@ export function Notifications({ updates, href }: { updates: Update[]; href: stri
           aria-label="Notifications"
           className={`${popoverPanelClass} w-[360px] p-2`}
         >
-          <p className="px-3 pt-2 pb-1 text-[13px] leading-[18px] font-semibold text-label-secondary">
-            Latest updates
-          </p>
-          <ul>
-            {updates.map((update) => (
-              <li key={update.id}>
-                <Link
-                  href={href}
-                  onClick={() => setOpen(false)}
-                  className="flex gap-3 rounded-[12px] p-3 transition-colors duration-150 active:bg-black/[0.05] [@media(hover:hover)]:hover:bg-black/[0.035]"
-                >
-                  <InsurerLogo insurer={update.insurer} size={40} />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-baseline justify-between gap-2">
-                      <span className="truncate text-[14px] leading-5 font-semibold text-label">
-                        {update.title}
+          {updates.length ? (
+            <>
+              <p className="px-3 pt-2 pb-1 text-[13px] leading-[18px] font-semibold text-label-secondary">
+                Latest updates
+              </p>
+              <ul>
+                {updates.map((update) => (
+                  <li key={update.id}>
+                    <Link
+                      href={href}
+                      onClick={() => setOpen(false)}
+                      className="flex gap-3 rounded-[12px] p-3 transition-colors duration-150 active:bg-black/[0.05] [@media(hover:hover)]:hover:bg-black/[0.035]"
+                    >
+                      <InsurerLogo insurer={update.insurer} size={40} />
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-baseline justify-between gap-2">
+                          <span className="truncate text-[14px] leading-5 font-semibold text-label">
+                            {update.title}
+                          </span>
+                          <span className="shrink-0 text-[12px] leading-4 text-label-secondary">
+                            {update.when}
+                          </span>
+                        </span>
+                        <span className="mt-0.5 block text-[13px] leading-[18px] text-label-secondary">
+                          {update.body}
+                        </span>
                       </span>
-                      <span className="shrink-0 text-[12px] leading-4 text-label-secondary">
-                        {update.when}
-                      </span>
-                    </span>
-                    <span className="mt-0.5 block text-[13px] leading-[18px] text-label-secondary">
-                      {update.body}
-                    </span>
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <div className="flex flex-col items-center px-6 pt-6 pb-5 text-center">
+              <span aria-hidden className="grid size-11 place-items-center rounded-[12px] bg-fill text-label-secondary">
+                <BellGlyph size={20} />
+              </span>
+              <p className="mt-3 text-[15px] leading-5 font-semibold text-label">No updates yet</p>
+              <p className="mt-1 max-w-[240px] text-[13px] leading-[18px] text-pretty text-label-secondary">
+                When an application moves forward or the insurer needs something, it shows up here.
+              </p>
+            </div>
+          )}
         </div>
       ) : null}
     </div>
+  );
+}
+
+function BellGlyph({ size }: { size: number }) {
+  return (
+    <svg aria-hidden width={size} height={size} viewBox="0 0 24 24" fill="none">
+      <path
+        d="M18.5 14V9.5a6.5 6.5 0 1 0-13 0V14c0 1.1-.6 2.4-1.5 3.3-.3.3-.1.7.3.7h15.4c.4 0 .6-.4.3-.7-.9-.9-1.5-2.2-1.5-3.3Z"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinejoin="round"
+      />
+      <path d="M10 20.5h4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    </svg>
   );
 }

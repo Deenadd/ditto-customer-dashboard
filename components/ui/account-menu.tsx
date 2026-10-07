@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { popoverPanelClass } from "@/components/ui/popover";
+import { markSignedOut } from "@/lib/session";
 
 export type AccountOption = {
   value: string;
@@ -190,7 +191,10 @@ export function AccountMenu({
             type="button"
             role="menuitem"
             tabIndex={active === options.length ? 0 : -1}
-            onClick={() => go("/")}
+            onClick={() => {
+              markSignedOut();
+              go("/");
+            }}
             onPointerEnter={() => setActive(options.length)}
             className={itemClass}
           >
