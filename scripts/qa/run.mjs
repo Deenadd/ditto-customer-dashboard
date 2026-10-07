@@ -38,6 +38,9 @@ const checks = [
   ["renewal", "Home card v2: renewal stages, Renew, card link", []],
   ["homeflip", "Home cards turn over on a phone; View policy; desktop link", []],
   ["hap", "Haptics on taps, Android and iOS paths", []],
+  ["lost", "Unknown pages and policies, the error boundary", []],
+  ["states", "Empty states, next steps, download, log out, skip link", []],
+  ["recover", "Refresh keeps answers, errors at the field, Undo, bad files", [fixtures]],
 ];
 
 const rows = [];
