@@ -4,10 +4,9 @@ import { useSyncExternalStore } from "react";
 
 /**
  * Which home card to show, for comparing: v1, the card as it is, and v2,
- * the card with its renewal coming up (see lib/renewal.ts). Chosen with the
- * switch at the foot of the Active tab and remembered in this browser, with
- * how many days each card has left, which the renewal preview panel
- * (Shift+Option+R) changes. v1 on the server and by default.
+ * the card with its renewal coming up (see lib/renewal.ts). Chosen in the
+ * account menu (the avatar), with how far off the family card's renewal is,
+ * and remembered in this browser. v1 on the server and by default.
  */
 export type HomeCardVersion = "v1" | "v2";
 export type HomeCardState = { version: HomeCardVersion; days: Record<string, number> };

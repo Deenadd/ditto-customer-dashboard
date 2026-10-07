@@ -1,11 +1,12 @@
 import { chromium } from "playwright-core";
+import { channel } from "../browser.mjs";
 /* Nothing is lost: a pasted number and a refresh in sign-in, a refresh mid
    claim and on the ticket, errors beside the field and focused, Undo after a
    delete, and files that can't be added saying why (on a phone, with 40px
    remove targets). */
 const base = process.argv[2] ?? "http://localhost:3123";
 const S = process.argv[3];
-const b = await chromium.launch({ channel: "chrome" });
+const b = await chromium.launch({ channel });
 const errors = [];
 const fail = (msg) => errors.push(msg);
 const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });

@@ -1,6 +1,7 @@
 import { chromium } from "playwright-core";
+import { channel } from "../browser.mjs";
 const base = process.argv[2] ?? "http://localhost:3123";
-const b = await chromium.launch({ channel: "chrome" });
+const b = await chromium.launch({ channel });
 const errors = [];
 const p = await (await b.newContext({ viewport: { width: 520, height: 1200 }, deviceScaleFactor: 3 })).newPage();
 p.on("pageerror", (e) => errors.push(e.message)); p.on("console", (m) => m.type() === "error" && errors.push(m.text()));

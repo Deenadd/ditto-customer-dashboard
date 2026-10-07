@@ -426,8 +426,8 @@ by side and the whole pair opens the policy, as before.
 
 ## Home card versions
 
-The switch at the foot of the Active tab compares two versions of the health
-cards: **v1 · Standard**, and **v2 · Renewal due**, where each health card
+The account menu (the avatar, on every page) compares two versions of the
+health cards, under Home card: **v1 · Standard**, and **v2 · Renewal due**, where each health card
 carries its renewal at the foot of its front (`components/dashboard/renewal-strip.tsx`,
 stages in `lib/renewal.ts`):
 
@@ -440,9 +440,18 @@ stages in `lib/renewal.ts`):
   the days left to renew, and the date to renew by.
 
 The card's dot takes the stage's colour, and Valid till shows the renewal
-month. With v2 on, a second switch sets the family card to 18 days, 5 days,
+month. With v2 on, the menu also sets the family card to 18 days, 5 days,
 today or overdue; the parents' card stays at 5 days. Renew opens the renewal
 flow prototype. The choice is remembered in this browser.
+
+## No pending applications
+
+With nothing pending, the Pending tab shows the empty state on the page
+itself, without a card. As it appears, the three insurer tiles are dealt in
+one at a time, left to right, each sliding in from the left and settling into
+its angle on a spring; then the heading, the line and the button come into
+focus in turn, a short blur clearing as they rise. Reduced motion keeps the
+order as plain fades.
 
 ## Checks and the weekly audit
 

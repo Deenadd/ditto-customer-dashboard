@@ -1,6 +1,7 @@
 import { chromium } from "playwright-core";
+import { channel } from "../browser.mjs";
 const base = process.argv[2] ?? "http://localhost:3123";
-const b = await chromium.launch({ channel: "chrome" });
+const b = await chromium.launch({ channel });
 const errors = [];
 for (const mode of ["android", "ios"]) {
   const ctx = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, hasTouch: true, isMobile: true });

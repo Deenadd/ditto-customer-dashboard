@@ -14,6 +14,19 @@ export const defaultRenewalDays: Record<string, number> = {
   "528-190-47SNR36": 5,
 };
 
+/* Which card the preview in the account menu moves through the stages,
+   and the stops it offers; the parents' card stays at its default. */
+export const renewalPreview = {
+  policyId: "474-981-34EDH20",
+  name: "Your Health complete",
+  stops: [
+    { days: 18, label: "In 18 days" },
+    { days: 5, label: "In 5 days" },
+    { days: 0, label: "Today" },
+    { days: -12, label: "Overdue" },
+  ],
+};
+
 export type RenewalStage = "upcoming" | "soon" | "today" | "grace";
 
 export type Renewal = {

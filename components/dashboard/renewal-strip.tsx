@@ -1,8 +1,6 @@
 "use client";
 
-import { VersionSwitch } from "@/components/ui/version-switch";
-import { setHomeCard, useHomeCard, type HomeCardVersion } from "@/lib/home-card-version";
-import { defaultRenewalDays, type Renewal, type RenewalStage } from "@/lib/renewal";
+import type { Renewal, RenewalStage } from "@/lib/renewal";
 
 /* Where Renew leads: the renewal flow, a sibling prototype. */
 const RENEW_URL = "https://ditto-renewal-flow.vercel.app";
@@ -74,46 +72,5 @@ function DaysRing({ left, share, className, titleClass }: { left: number; share:
       {/* The number alone; the title beside it says what it counts. */}
       <span className={`relative text-[12px] leading-none font-semibold tabular-nums ${titleClass}`}>{left}</span>
     </span>
-  );
-}
-
-const presets = [
-  { value: "18", label: "18 days" },
-  { value: "5", label: "5 days" },
-  { value: "0", label: "Today" },
-  { value: "-12", label: "Overdue" },
-];
-const FAMILY = "474-981-34EDH20";
-
-/**
- * At the foot of the Active tab: v1, the card as it is; v2, with the renewal
- * coming up. With v2 on, pick how far off the family card's renewal is, to
- * see each stage; the parents' card stays at 5 days.
- */
-export function HomeCardSwitch() {
-  const { version, days } = useHomeCard();
-  const familyDays = String(days[FAMILY] ?? defaultRenewalDays[FAMILY]);
-  return (
-    <div className="mt-4 flex flex-col items-center gap-5">
-      <VersionSwitch<HomeCardVersion>
-        label="Home card"
-        value={version}
-        onChange={(next) => setHomeCard({ version: next })}
-        className=""
-        options={[
-          { value: "v1", label: "v1 · Standard" },
-          { value: "v2", label: "v2 · Renewal due" },
-        ]}
-      />
-      {version === "v2" ? (
-        <VersionSwitch
-          label="Your Health complete renews in"
-          value={presets.some((preset) => preset.value === familyDays) ? familyDays : "18"}
-          onChange={(next) => setHomeCard({ days: { ...days, [FAMILY]: Number(next) } })}
-          className=""
-          options={presets}
-        />
-      ) : null}
-    </div>
   );
 }

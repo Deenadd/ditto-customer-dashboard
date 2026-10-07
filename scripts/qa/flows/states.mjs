@@ -1,10 +1,11 @@
 import { chromium } from "playwright-core";
+import { channel } from "../browser.mjs";
 /* Empty states, next steps and confirmations: notifications with nothing new,
    the empty Pending tab and the cards waiting on you, a hospital search with
    no match, the card download, log out, the skip link, the welcome sheet
    keeping focus, and a long message in Buddy. */
 const base = process.argv[2] ?? "http://localhost:3123";
-const b = await chromium.launch({ channel: "chrome" });
+const b = await chromium.launch({ channel });
 const errors = [];
 const fail = (msg) => errors.push(msg);
 const watch = (p) => {

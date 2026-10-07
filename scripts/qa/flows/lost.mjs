@@ -1,9 +1,10 @@
 import { chromium } from "playwright-core";
+import { channel } from "../browser.mjs";
 /* Lost: an unknown address and an unknown policy get the branded page with
    a way home, on a computer and at 320px; a crash gets the error boundary
    (checked when the build has the /qa-crash page, which only local runs add). */
 const base = process.argv[2] ?? "http://localhost:3123";
-const b = await chromium.launch({ channel: "chrome" });
+const b = await chromium.launch({ channel });
 const errors = [];
 const fail = (msg) => errors.push(msg);
 for (const [tag, viewport, mobile] of [["d", { width: 1280, height: 860 }, false], ["m", { width: 320, height: 640 }, true]]) {

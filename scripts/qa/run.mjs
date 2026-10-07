@@ -5,8 +5,9 @@
  *   npm run qa                       # against http://localhost:3123
  *   npm run qa -- https://ditto-customer-dashboard.vercel.app
  *
- * Each script in flows/ drives the site in Chrome (playwright-core, channel
- * "chrome") and prints what it saw; a check passes when it exits cleanly and
+ * Each script in flows/ drives the site in Chrome, or Playwright's own
+ * Chromium when Chrome isn't installed (browser.mjs; QA_BROWSER overrides),
+ * and prints what it saw; a check passes when it exits cleanly and
  * reports "errors: none". Screenshots land in scripts/qa/.out/ (gitignored).
  * The weekly UX audit (docs/ux-audit/rubric.md) starts and ends with this.
  */
@@ -35,8 +36,9 @@ const checks = [
   ["policyq", "Claim chat skips the policy question inside a policy", []],
   ["cta", "Hospital check: Continue under the card", []],
   ["paper", "Claim ticket prints, copy reference", []],
-  ["renewal", "Home card v2: renewal stages, Renew, card link", []],
+  ["renewal", "Home card v2 from the account menu: stages, Renew, card link", []],
   ["homeflip", "Home cards turn over on a phone; View policy; desktop link", []],
+  ["empty", "No pending applications: no card, tiles dealt in, reduced motion", []],
   ["hap", "Haptics on taps, Android and iOS paths", []],
   ["lost", "Unknown pages and policies, the error boundary", []],
   ["states", "Empty states, next steps, download, log out, skip link", []],

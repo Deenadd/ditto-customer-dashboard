@@ -1,9 +1,10 @@
 import { chromium } from "playwright-core";
+import { channel } from "../browser.mjs";
 const base = process.argv[2] ?? "http://localhost:3123";
 const out = process.argv[3];
 const S = process.argv[4];
 const tag = process.argv[5] === "mobile" ? "m" : "d";
-const b = await chromium.launch({ channel: "chrome" });
+const b = await chromium.launch({ channel });
 const p = await b.newPage({ viewport: tag === "m" ? { width: 390, height: 844 } : { width: 1440, height: 900 }, deviceScaleFactor: 1.5 });
 const errors = [];
 p.on("pageerror", (e) => errors.push(e.message));
