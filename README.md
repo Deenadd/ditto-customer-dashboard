@@ -166,7 +166,8 @@ returns to the row that opened it; Escape or a click outside closes it.
   Website (a search, as the sample hospitals are made up, numbers too).
 - The policy card, on the policy and claim pages, has a small download
   icon (top right) that saves the card's front as a PNG, drawn on a canvas
-  at 3×.
+  at 3×. It spins while drawing and ignores more taps, then ticks; if the
+  browser can't make the image it says to try again. Both are announced.
 
 ### Mobile
 
@@ -241,9 +242,20 @@ colour points layer over the wash.
   - Every answer can be undone with Back; Start over asks the first question
     again. Each ending offers a next step, such as Check something else.
 - **Notifications** (the bell) lists the latest application updates and marks
-  them read; each opens the timeline.
+  them read; each opens the timeline. With nothing new it says No updates yet
+  and what will show up there.
 - **Avatar menu** switches between the customer with pending applications and
-  the one with none, and logs out.
+  the one with none, and logs out. Log out clears this tab's sign-in step and
+  claim drafts, and the sign-in page says you've signed out.
+- **Applications waiting on you** (Pending uploads, Missing details) end
+  with what's needed and a button to do it with a Ditto advisor on WhatsApp,
+  the application number in the message. The empty Pending tab's Talk to our
+  team opens WhatsApp too.
+- **Getting lost:** an unknown address or policy shows a "This page isn't
+  here" card with Go to your policies; a page that breaks shows the error
+  boundary ("This page didn't load") with Try again (`app/not-found.tsx`,
+  `app/error.tsx`, `components/lost-state.tsx`).
+- **Skip to content** is the first Tab stop on every page.
 - **Active health policy** opens the policy page. Pages below the dashboard
   carry breadcrumbs (Active policies › policy › Claims › claim), in the label
   greys so they read as wayfinding. A long trail folds its middle crumbs into
@@ -251,7 +263,8 @@ colour points layer over the wash.
   New claim, so it stays on one line; the ••• links to the policy and is named
   for it. Each link has a 44px tap area on touch screens.
 
-Buttons with no destination yet: Chat now, Talk to our team and Download policy.
+Every button now has a destination; WhatsApp stands in for the actions a
+real backend would take (sending documents, finishing a proposal).
 
 ## Claims
 
@@ -268,8 +281,12 @@ page's one filled action, and the open claims once there are any.
   - **v2**, below: the claim type first, then its own steps.
 - **Make a claim:** Cashless, or Reimbursement.
 - **Four steps**, with progress and Continue in a bar at the bottom. Each step
-  checks its answers on Continue and says what's missing beside the question;
-  focus moves to each new step's heading.
+  checks its answers on Continue, says what's missing beside the question and
+  moves focus to it; focus moves to each new step's heading. Answers are kept
+  for the tab (sessionStorage), so a refresh or a trip away and back picks up
+  where you were, with "We kept your answers" and Start over. Send request
+  sends once however often it's tapped, and a refresh on the ticket opens the
+  claim rather than an empty form. The same goes for v1 and reimbursement.
   1. **Patient:** anyone on the policy, with relation and age.
   2. **Treatment:** category (hospitalisation or day care), the treatment's
      name, and the stage you're at. Each question folds away once answered; the
@@ -287,7 +304,8 @@ page's one filled action, and the open claims once there are any.
   to copy; what happens next; the claim's details; and, set apart in its own
   card as iOS does, a red Delete claim row that says what deleting does. Its
   alert names the claim and who it's for, with Delete claim and Keep claim;
-  focus starts on Keep claim.
+  focus starts on Keep claim. The claims list then offers Undo for the rest of
+  the visit.
 - **Look:** each step opens with a small picture of the policy card and the
   policy's name. Answers are one card with hairline rows (inset grouped, as
   on iOS); the chosen row is tinted and its radio filled. People get the
@@ -312,15 +330,18 @@ page's one filled action, and the open claims once there are any.
   details (patient, amount, reason, hospital, admission and discharge, with
   the "check before you continue" tips), the policy, your documents (bills,
   discharge summary, reports; added files can be removed), and a review with
-  Edit links and a confirmation. Each step checks itself and focuses the
-  field at fault; the amount is capped at the sum insured, and dates must be
+  Edit links and a confirmation. Each step checks itself, puts the message
+  under the field at fault and focuses it. Documents are photos or PDFs up to
+  10 MB; anything else, or the same file twice, is left out with a note
+  beside its row saying what to add instead; the amount is capped at the sum insured, and dates must be
   in the policy year and not in the future. Sending prints the ticket; the
   claim page shows the amount, stay and documents, and asks you to keep the
   originals. Only file names are kept, in this browser.
 - **Claims:** Active and Past, each claim its own card, titled for who and
   where (Arjun Raghavan · Lakeview Hospital) with the date (6 Oct 26) and
   its status as green text; an empty state when there are none. After a delete it says
-  which claim went.
+  which claim went, with Undo. While claims load, the list and the claim page
+  show their outline rather than a blank space.
 
 There's no backend, so claims are kept in the browser they were made in. The
 hospitals are a made-up sample list. The policy's Valid till is now
