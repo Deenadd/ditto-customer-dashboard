@@ -3,13 +3,7 @@
 import { useId, useRef, useState } from "react";
 import { buttonClass } from "@/components/ui/buttons";
 import { popoverPanelClass, useDismiss } from "@/components/ui/popover";
-
-/* Ditto's WhatsApp line, as joinditto.in links it (its site config's
-   whatsappNumber). wa.me opens the app on a phone and WhatsApp Web on a
-   computer, with the first message filled in. */
-const NUMBER = "918867919680";
-const MESSAGE = "Hi Ditto, I need help with my policy.";
-export const whatsappHref = `https://wa.me/${NUMBER}?text=${encodeURIComponent(MESSAGE)}`;
+import { whatsappHref } from "@/lib/whatsapp";
 
 /** WhatsApp's mark, filled, in the current colour: dark in the header beside
     the bell, white on the green tile in the panel. */

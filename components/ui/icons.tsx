@@ -15,6 +15,7 @@ import {
   ChevronRight,
   CircleHelp,
   Clock,
+  Compass,
   Ellipsis,
   Globe,
   Hospital,
@@ -28,6 +29,7 @@ import {
   ShieldCheck,
   ShieldX,
   Trash2,
+  TriangleAlert,
   X,
   type LucideIcon,
 } from "lucide-react";
@@ -73,6 +75,8 @@ export const IconDirections = from(Navigation);
 export const IconWebsite = from(Globe);
 export const IconClock = from(Clock);
 export const IconPin = from(MapPin);
+export const IconLost = from(Compass);
+export const IconAlert = from(TriangleAlert);
 
 /** The policy page's benefits and exclusions, one simple line icon each. */
 export const coverIcons: Record<CoverIcon, Icon> = {
