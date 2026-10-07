@@ -301,12 +301,12 @@ export function ClaimTicket({
                 shadow runs longer and softer there than along the sides. */}
             <span
               aria-hidden
-              className="pointer-events-none absolute inset-x-1 -bottom-2 -z-10 h-10 blur-[7px] [background:radial-gradient(45%_75%_at_6%_35%,rgb(40_32_20_/_0.28),transparent_70%),radial-gradient(45%_75%_at_94%_35%,rgb(40_32_20_/_0.28),transparent_70%)]"
+              className="pointer-events-none absolute inset-x-1 -bottom-2 -z-10 h-10 blur-[7px] [background:radial-gradient(45%_75%_at_6%_35%,rgb(0_0_0_/_0.28),transparent_70%),radial-gradient(45%_75%_at_94%_35%,rgb(0_0_0_/_0.28),transparent_70%)]"
             />
             {/* Held, the ticket lifts off the page a little, as paper does
                 when you pick it up; let go and it settles. */}
-            <div className="transition-[transform,filter] duration-200 ease-out [filter:drop-shadow(0_0.5px_0.5px_rgb(40_32_20_/_0.16))_drop-shadow(0_3px_5px_rgb(40_32_20_/_0.07))_drop-shadow(0_14px_22px_rgb(40_32_20_/_0.09))] [@media(pointer:coarse)]:active:-translate-y-0.5 [@media(pointer:coarse)]:active:scale-[1.012] [@media(pointer:coarse)]:active:[filter:drop-shadow(0_1px_1px_rgb(40_32_20_/_0.14))_drop-shadow(0_8px_12px_rgb(40_32_20_/_0.09))_drop-shadow(0_24px_34px_rgb(40_32_20_/_0.12))]">
-            <div className="ticket-paper relative bg-[#fbfaf6] px-5 pt-6 pb-8 font-mono text-[12px] leading-[18px] text-[#2a2a2c]">
+            <div className="transition-[transform,filter] duration-200 ease-out [filter:drop-shadow(0_0.5px_0.5px_rgb(0_0_0_/_0.16))_drop-shadow(0_3px_5px_rgb(0_0_0_/_0.07))_drop-shadow(0_14px_22px_rgb(0_0_0_/_0.09))] [@media(pointer:coarse)]:active:-translate-y-0.5 [@media(pointer:coarse)]:active:scale-[1.012] [@media(pointer:coarse)]:active:[filter:drop-shadow(0_1px_1px_rgb(0_0_0_/_0.14))_drop-shadow(0_8px_12px_rgb(0_0_0_/_0.09))_drop-shadow(0_24px_34px_rgb(0_0_0_/_0.12))]">
+            <div className="ticket-paper relative bg-white px-5 pt-6 pb-8 font-mono text-[12px] leading-[18px] text-label">
               <div className="flex items-center justify-between">
                 <span className="font-sans text-[17px] font-bold tracking-[-0.02em]">ditto</span>
                 <span className="text-[11px] tracking-[0.08em] text-label-secondary uppercase">Claim ticket</span>
@@ -355,14 +355,11 @@ export function ClaimTicket({
                 <Asset src="/claims/stamp-received.svg" className="size-[140px]" />
               </div>
 
-              {/* The paper itself, over the print so the ink sits in it: a
-                  fine speckle and faint horizontal fibres, multiplied in;
-                  the printer's lip shading the top edge; the sides a touch
-                  darker where the paper curls away from the light. */}
-              <span aria-hidden className="ticket-grain pointer-events-none absolute inset-0" />
+              {/* Fresh, clean paper: only the printer's lip shades its top
+                  edge, where it comes out of the slot. */}
               <span
                 aria-hidden
-                className="pointer-events-none absolute inset-0 [background:linear-gradient(to_bottom,rgb(30_24_14_/_0.09),transparent_20px),linear-gradient(90deg,rgb(60_48_30_/_0.05),transparent_7%,transparent_93%,rgb(60_48_30_/_0.05))]"
+                className="pointer-events-none absolute inset-0 [background:linear-gradient(to_bottom,rgb(0_0_0_/_0.06),transparent_16px)]"
               />
             </div>
             </div>

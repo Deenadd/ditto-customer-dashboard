@@ -297,10 +297,8 @@ page's one filled action, and the open claims once there are any.
   edge and barcode first, then the round deep-green "Request received" stamp
   (`public/claims/stamp-received.svg`, inked with multiply) lands. View claim
   opens it; Print again replays it. Reduced motion shows it finished.
-  The ticket is thermal paper: warm off-white stock with a fine grain and
-  faint fibres multiplied over the print, the printer's lip shading its top,
-  edges a touch darker where it curls, and layered shadows that run longer
-  under the lifted bottom corners. Tap the reference to copy it; tap the
+  The ticket is fresh white paper: the printer's lip shades its top edge,
+  and layered shadows run longer under the lifted bottom corners. Tap the reference to copy it; tap the
   stamp to stamp it again; on touch, holding the ticket lifts it.
   On the ticket, **Shift+Option+C** opens print controls: feed as pulls
   (duration, count, pause) or a spring (stiffness, damping, mass), the
