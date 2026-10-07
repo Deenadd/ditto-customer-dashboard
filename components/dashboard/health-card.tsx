@@ -247,32 +247,61 @@ export function PolicyCardFront({ policy, download = false }: { policy: ActivePo
 }
 
 /** Saves the card as a PNG: a small icon button in the action blue, in the
-    card's top-right corner, inside the card so it tilts with it. It shows a
-    tick for a moment afterwards. */
+    card's top-right corner, inside the card so it tilts with it. While the
+    card is drawn it shows a spinner and ignores more taps; then a tick, or,
+    if the browser couldn't make the image, a note saying to try again.
+    Each outcome is announced. */
 function DownloadPill({ policy }: { policy: ActivePolicy }) {
-  const [saved, setSaved] = useState(false);
+  const [state, setState] = useState<"idle" | "saving" | "saved" | "failed">("idle");
   const claims = useClaims(policy.id).length;
+  const label = { idle: "Download card", saving: "Saving card", saved: "Card saved", failed: "Download card again" }[state];
   return (
-    <button
-      type="button"
-      aria-label={saved ? "Card saved" : "Download card"}
-      title="Download card"
-      onClick={async (event) => {
-        event.stopPropagation();
-        await downloadPolicyCard(policy, claims);
-        setSaved(true);
-        window.setTimeout(() => setSaved(false), 1600);
-      }}
-      className="touch-hit absolute top-3 right-3 z-20 grid size-9 place-items-center rounded-full text-accent-text transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.92] active:bg-accent-tint [@media(hover:hover)]:hover:bg-accent-tint"
-    >
-      {saved ? (
-        <IconCheck size={16} className="text-green-text" />
-      ) : (
-        <svg aria-hidden width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 2v8.5m0 0L4.75 7.25M8 10.5l3.25-3.25M2.75 13.25h10.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      )}
-    </button>
+    <>
+      <button
+        type="button"
+        aria-label={label}
+        aria-busy={state === "saving"}
+        title={label}
+        onClick={async (event) => {
+          event.stopPropagation();
+          if (state === "saving") return;
+          setState("saving");
+          const ok = await downloadPolicyCard(policy, claims).catch(() => false);
+          setState(ok ? "saved" : "failed");
+          if (ok) window.setTimeout(() => setState((now) => (now === "saved" ? "idle" : now)), 1600);
+        }}
+        className="touch-hit absolute top-3 right-3 z-20 grid size-9 place-items-center rounded-full text-accent-text transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.92] active:bg-accent-tint aria-busy:cursor-progress [@media(hover:hover)]:hover:bg-accent-tint"
+      >
+        {state === "saved" ? (
+          <IconCheck size={16} className="text-green-text" />
+        ) : state === "saving" ? (
+          /* Faded in after a beat, so a quick save doesn't flash it. */
+          <svg aria-hidden width="16" height="16" viewBox="0 0 16 16" fill="none" className="animate-spin opacity-100 transition-opacity delay-150 duration-150 ease-out [animation-duration:700ms] starting:opacity-0">
+            <circle cx="8" cy="8" r="6" stroke="currentColor" strokeOpacity="0.25" strokeWidth="1.8" />
+            <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+          </svg>
+        ) : (
+          <svg aria-hidden width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 2v8.5m0 0L4.75 7.25M8 10.5l3.25-3.25M2.75 13.25h10.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        )}
+      </button>
+      {state === "failed" ? (
+        <p
+          aria-hidden
+          className="absolute top-[52px] right-3 z-20 origin-top-right rounded-full bg-red-tint px-2.5 py-1 text-[12px] leading-4 font-medium text-red-text shadow-tile motion-safe:animate-pop"
+        >
+          Couldn&rsquo;t save. Try again.
+        </p>
+      ) : null}
+      <span role="status" className="sr-only">
+        {state === "saved"
+          ? "Card saved to your downloads."
+          : state === "failed"
+            ? "Couldn't save the card. Try again."
+            : ""}
+      </span>
+    </>
   );
 }
 

@@ -2,6 +2,7 @@
 
 import { useRef, useState, type ReactNode } from "react";
 import { Note } from "@/components/claims/claim-bits";
+import { Button } from "@/components/ui/buttons";
 import { Chevron } from "@/components/dashboard/policy-pair";
 import { cardClass } from "@/components/ui/card-bits";
 import { FrostedSideSheet } from "@/components/ui/frosted-side-sheet/frosted-side-sheet";
@@ -85,6 +86,7 @@ export function QuickActions() {
 
 function NetworkList() {
   const [query, setQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
   const [openId, setOpenId] = useState<string | null>(null);
   const q = query.trim().toLowerCase();
   const results = hospitals.filter((h) => [h.name, h.address, h.city, h.pin].some((f) => f.toLowerCase().includes(q)));
@@ -94,6 +96,7 @@ function NetworkList() {
         Search hospitals
       </label>
       <input
+        ref={inputRef}
         id="network-q"
         type="search"
         value={query}
@@ -105,16 +108,43 @@ function NetworkList() {
       <p role="status" className="mt-2.5 text-[12px] leading-4 text-label-secondary tabular-nums">
         {results.length} of {hospitals.length} · a sample list for this prototype
       </p>
-      <Rows>
-        {results.map((h) => (
-          <HospitalRow
-            key={h.id}
-            hospital={h}
-            open={openId === h.id}
-            onToggle={() => setOpenId((current) => (current === h.id ? null : h.id))}
-          />
-        ))}
-      </Rows>
+      {results.length ? (
+        <Rows>
+          {results.map((h) => (
+            <HospitalRow
+              key={h.id}
+              hospital={h}
+              open={openId === h.id}
+              onToggle={() => setOpenId((current) => (current === h.id ? null : h.id))}
+            />
+          ))}
+        </Rows>
+      ) : (
+        /* No match: say so, how to search instead, and the way back to the list. */
+        <div className="mt-3 flex flex-col items-center rounded-[16px] bg-surface px-5 pt-6 pb-5 text-center shadow-soft">
+          <span aria-hidden className="grid size-11 place-items-center rounded-[12px] bg-fill text-label-secondary">
+            <IconHospital size={20} />
+          </span>
+          <p className="mt-3 max-w-full text-[15px] leading-5 font-semibold break-words text-label">
+            No hospitals match &ldquo;{query.trim()}&rdquo;
+          </p>
+          <p className="mt-1 max-w-[280px] text-[13px] leading-[18px] text-pretty text-label-secondary">
+            Try the area, city or PIN code. The hospital&apos;s insurance desk can also tell you if it takes Care Health
+            cashless.
+          </p>
+          <Button
+            variant="tinted"
+            size="small"
+            className="mt-4"
+            onClick={() => {
+              setQuery("");
+              inputRef.current?.focus();
+            }}
+          >
+            Clear search
+          </Button>
+        </div>
+      )}
     </div>
   );
 }

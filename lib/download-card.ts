@@ -26,11 +26,14 @@ function loadImage(src: string) {
   });
 }
 
-export async function downloadPolicyCard(policy: ActivePolicy, claims: number) {
+/** Draws the card and starts the download. False when the browser couldn't
+    make the image (no canvas, or out of memory), so the caller can say so. */
+export async function downloadPolicyCard(policy: ActivePolicy, claims: number): Promise<boolean> {
   const canvas = document.createElement("canvas");
   canvas.width = W;
   canvas.height = H;
-  const ctx = canvas.getContext("2d")!;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return false;
 
   /* The white card, with its soft blue glow in the top-right corner. */
   roundRect(ctx, 0, 0, W, H, 22 * S);
@@ -109,7 +112,7 @@ export async function downloadPolicyCard(policy: ActivePolicy, claims: number) {
   ctx.stroke();
 
   const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/png"));
-  if (!blob) return;
+  if (!blob) return false;
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -118,4 +121,5 @@ export async function downloadPolicyCard(policy: ActivePolicy, claims: number) {
   a.click();
   a.remove();
   window.setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return true;
 }
