@@ -208,6 +208,10 @@ returns to the row that opened it; Escape or a click outside closes it.
   - Bottom sheets float as white cards, 8px in from the sides and bottom.
   - On the policy page the card is one card that turns over on a tap (or
     Show who's covered) to show its members, and the Claims card follows it.
+  - **Haptics** (`lib/haptics.ts`) for the moments that earn them: a tab
+    change, the card turning over, the welcome sheet, each printer pull and
+    the stamp landing, a code right or wrong. Android uses the Vibration
+    API; iOS 18+ Safari gets the system tap from a hidden switch.
   - The sign-in status bar takes the wash's colour (Safari on iOS 26 fills it
     from the page background), fading into the wash below.
 
@@ -293,6 +297,11 @@ page's one filled action, and the open claims once there are any.
   edge and barcode first, then the round deep-green "Request received" stamp
   (`public/claims/stamp-received.svg`, inked with multiply) lands. View claim
   opens it; Print again replays it. Reduced motion shows it finished.
+  The ticket is thermal paper: warm off-white stock with a fine grain and
+  faint fibres multiplied over the print, the printer's lip shading its top,
+  edges a touch darker where it curls, and layered shadows that run longer
+  under the lifted bottom corners. Tap the reference to copy it; tap the
+  stamp to stamp it again; on touch, holding the ticket lifts it.
   On the ticket, **Shift+Option+C** opens print controls: feed as pulls
   (duration, count, pause) or a spring (stiffness, damping, mass), the
   printer's hum, and the stamp's delay, start size and tilt, landing tilt,

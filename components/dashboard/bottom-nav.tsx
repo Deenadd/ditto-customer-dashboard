@@ -1,5 +1,6 @@
 "use client";
 
+import { haptic } from "@/lib/haptics";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { BadgeCheck, CircleMinus, Clock, Search, type LucideIcon } from "lucide-react";
@@ -55,6 +56,7 @@ export function BottomNav({ tab, customer }: { tab: Tab; customer: Customer }) {
                   aria-current={current ? "page" : undefined}
                   scroll={!current}
                   onClick={(event) => {
+                    haptic("selection");
                     if (!current) return;
                     event.preventDefault();
                     window.scrollTo({ top: 0, behavior: "smooth" });

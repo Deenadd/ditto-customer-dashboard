@@ -1,5 +1,6 @@
 "use client";
 
+import { haptic } from "@/lib/haptics";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
@@ -332,11 +333,13 @@ function CodeStep({
     /* A short pause stands in for the server checking the code. */
     later(() => {
       if (value === DEMO_CODE) {
+        haptic("success");
         setState("verified");
         setStatus("Code verified. Opening your dashboard.");
         onToneChange("green");
         later(() => router.push("/dashboard"), 900);
       } else {
+        haptic("error");
         setState("idle");
         setError("That code isn't right. Check the SMS and enter it again.");
         onToneChange("red");

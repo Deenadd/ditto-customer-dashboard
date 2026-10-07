@@ -1,5 +1,6 @@
 "use client";
 
+import { haptic } from "@/lib/haptics";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { AnimatePresence, motion, useDragControls, useReducedMotion } from "motion/react";
 import { Glow } from "@/components/ui/asset";
@@ -51,7 +52,10 @@ export function WelcomeSheet({ firstName, children }: { firstName: string; child
         type="button"
         aria-expanded={open}
         aria-controls={sheetId}
-        onClick={() => setOpen(true)}
+        onClick={() => {
+          haptic("light");
+          setOpen(true);
+        }}
         className="relative isolate -mx-3.5 -mt-6 flex h-14 w-[calc(100%+28px)] items-center gap-3 overflow-hidden rounded-b-[20px] bg-surface px-3.5 text-left shadow-[0_1px_0_rgb(0_0_0_/_0.06),0_6px_16px_-10px_rgb(0_0_0_/_0.14)] transition-transform duration-150 ease-out active:scale-[0.99]"
       >
         <span aria-hidden className="absolute inset-0 -z-10 bg-gradient-to-b from-[#f0f7ff] to-white" />

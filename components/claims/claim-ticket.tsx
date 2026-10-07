@@ -6,6 +6,7 @@ import { TicketControls } from "@/components/claims/ticket-controls";
 import { useTicketConfig } from "@/components/claims/ticket-config";
 import { Asset } from "@/components/ui/asset";
 import { Button } from "@/components/ui/buttons";
+import { haptic } from "@/lib/haptics";
 import { categoryLabel, formatDate, rupees, type Claim } from "@/lib/claims";
 
 /*
@@ -90,6 +91,30 @@ export function ClaimTicket({
   const [run, setRun] = useState(0);
   const [done, setDone] = useState(false);
   const viewRef = useRef<HTMLButtonElement>(null);
+  const [copied, setCopied] = useState(false);
+
+  async function copyReference() {
+    try {
+      await navigator.clipboard.writeText(claim.id);
+      setCopied(true);
+      haptic("success");
+      window.setTimeout(() => setCopied(false), 1500);
+    } catch {
+      /* Clipboard blocked; the reference is on screen to read. */
+    }
+  }
+
+  /* Tap the stamp once the ticket is out and it stamps again, with the
+     same knock and tap. */
+  function restamp() {
+    const stamp = stampRef.current;
+    const paper = paperRef.current;
+    if (!stamp || !paper || reduced) return;
+    const c = configRef.current;
+    haptic("medium");
+    animate(stamp, { transform: [`scale(1.12) rotate(${c.stampTilt - 3}deg)`, `scale(1) rotate(${c.stampTilt}deg)`] }, { type: "spring", duration: 0.35, bounce: 0.3 });
+    if (c.knock > 0) animate(paper, { transform: ["translateY(0px)", `translateY(${c.knock}px)`, "translateY(0px)"] }, { duration: 0.22, ease: "easeOut" });
+  }
 
   /* The latest tuning, read when a print starts, so dragging a slider
      doesn't restart the print; Print again plays the new values. */
@@ -153,6 +178,8 @@ export function ClaimTicket({
             onUpdate: setStamp,
           }),
         );
+        /* The stamp lands with a firm tap you can feel. */
+        later(90 / speed, () => haptic("medium"));
         /* The paper takes the knock as the stamp lands. */
         if (c.knock > 0)
           later(90 / speed, () =>
@@ -173,11 +200,15 @@ export function ClaimTicket({
     }
 
     if (c.feedMode === "spring") {
+      haptic("selection");
       const feed = animate(0, 1, { ...slowed(c.feedStiffness, c.feedDamping, c.feedMass, speed), onUpdate: setFeed });
       controls.push(feed);
       feed.then(fed);
     } else {
-      const { values, times } = pullKeyframes(Math.max(1, Math.round(c.pulls)), c.pause);
+      const pulls = Math.max(1, Math.round(c.pulls));
+      const { values, times } = pullKeyframes(pulls, c.pause);
+      /* A light tick as each pull starts, like the printer's motor. */
+      for (let k = 0; k < pulls; k++) later(((k / pulls) * c.feedDuration) / speed, () => haptic("selection"));
       const feed = animate(paper, { transform: values }, { duration: c.feedDuration / 1000 / speed, times, ease: "easeOut" });
       controls.push(feed);
       feed.then(fed);
@@ -262,17 +293,37 @@ export function ClaimTicket({
           />
         </div>
 
-        {/* The slot clips the ticket, so it appears to come out of it. */}
-        <div className="relative -mt-[9px] overflow-hidden px-5 pb-6">
-          <div ref={paperRef} className="[filter:drop-shadow(0_1px_1px_rgb(0_0_0_/_0.06))_drop-shadow(0_8px_16px_rgb(0_0_0_/_0.08))]" style={{ transform: "translateY(-100%)" }}>
-            <div className="ticket-paper relative bg-white px-5 pt-6 pb-8 font-mono text-[12px] leading-[18px] text-label">
+        {/* The slot clips the ticket's top edge only, so it appears to come
+            out of it and its shadows can still spread to the sides and below. */}
+        <div className="relative -mt-[9px] px-5 pb-8 [clip-path:inset(0_-48px_-400px_-48px)]">
+          <div ref={paperRef} className="relative isolate" style={{ transform: "translateY(-100%)" }}>
+            {/* Curl: thermal paper lifts at its bottom corners, so the
+                shadow runs longer and softer there than along the sides. */}
+            <span
+              aria-hidden
+              className="pointer-events-none absolute inset-x-1 -bottom-2 -z-10 h-10 blur-[7px] [background:radial-gradient(45%_75%_at_6%_35%,rgb(40_32_20_/_0.28),transparent_70%),radial-gradient(45%_75%_at_94%_35%,rgb(40_32_20_/_0.28),transparent_70%)]"
+            />
+            {/* Held, the ticket lifts off the page a little, as paper does
+                when you pick it up; let go and it settles. */}
+            <div className="transition-[transform,filter] duration-200 ease-out [filter:drop-shadow(0_0.5px_0.5px_rgb(40_32_20_/_0.16))_drop-shadow(0_3px_5px_rgb(40_32_20_/_0.07))_drop-shadow(0_14px_22px_rgb(40_32_20_/_0.09))] [@media(pointer:coarse)]:active:-translate-y-0.5 [@media(pointer:coarse)]:active:scale-[1.012] [@media(pointer:coarse)]:active:[filter:drop-shadow(0_1px_1px_rgb(40_32_20_/_0.14))_drop-shadow(0_8px_12px_rgb(40_32_20_/_0.09))_drop-shadow(0_24px_34px_rgb(40_32_20_/_0.12))]">
+            <div className="ticket-paper relative bg-[#fbfaf6] px-5 pt-6 pb-8 font-mono text-[12px] leading-[18px] text-[#2a2a2c]">
               <div className="flex items-center justify-between">
                 <span className="font-sans text-[17px] font-bold tracking-[-0.02em]">ditto</span>
                 <span className="text-[11px] tracking-[0.08em] text-label-secondary uppercase">Claim ticket</span>
               </div>
               <div className="mt-4 border-t border-dashed border-black/20" />
-              <p className="mt-4 text-[11px] tracking-[0.08em] text-label-secondary uppercase">Reference</p>
-              <p className="text-[26px] leading-8 font-semibold tracking-[0.04em] tabular-nums">{claim.id}</p>
+              <p className="mt-4 text-[11px] tracking-[0.08em] text-label-secondary uppercase" aria-live="polite">
+                {copied ? "Copied" : "Reference"}
+              </p>
+              {/* Tap the reference to copy it, for the hospital desk or a call. */}
+              <button
+                type="button"
+                onClick={copyReference}
+                aria-label={`Copy reference ${claim.id}`}
+                className="-mx-1 rounded-[6px] px-1 text-left text-[26px] leading-8 font-semibold tracking-[0.04em] tabular-nums transition-colors duration-150 active:bg-black/[0.06] [@media(hover:hover)]:hover:bg-black/[0.04]"
+              >
+                {claim.id}
+              </button>
               <p className="mt-1 text-[11px] leading-4 text-label-secondary">{policyName}</p>
               <div className="mt-4 border-t border-dashed border-black/20" />
               <dl className="mt-3 flex flex-col gap-1.5">
@@ -297,11 +348,23 @@ export function ClaimTicket({
               <div
                 ref={stampRef}
                 aria-hidden
-                className="pointer-events-none absolute top-[52px] right-0 opacity-0 mix-blend-multiply"
+                onClick={done ? restamp : undefined}
+                className={`absolute top-[52px] right-0 opacity-0 mix-blend-multiply ${done ? "cursor-pointer" : "pointer-events-none"}`}
                 style={{ transform: "rotate(-10deg)" }}
               >
                 <Asset src="/claims/stamp-received.svg" className="size-[140px]" />
               </div>
+
+              {/* The paper itself, over the print so the ink sits in it: a
+                  fine speckle and faint horizontal fibres, multiplied in;
+                  the printer's lip shading the top edge; the sides a touch
+                  darker where the paper curls away from the light. */}
+              <span aria-hidden className="ticket-grain pointer-events-none absolute inset-0" />
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0 [background:linear-gradient(to_bottom,rgb(30_24_14_/_0.09),transparent_20px),linear-gradient(90deg,rgb(60_48_30_/_0.05),transparent_7%,transparent_93%,rgb(60_48_30_/_0.05))]"
+              />
+            </div>
             </div>
           </div>
         </div>

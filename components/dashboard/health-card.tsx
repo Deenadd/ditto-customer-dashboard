@@ -1,5 +1,6 @@
 "use client";
 
+import { haptic } from "@/lib/haptics";
 import Link from "next/link";
 import { useState, useSyncExternalStore, type CSSProperties, type ReactNode } from "react";
 import { useCardConfig } from "@/components/dashboard/card-config";
@@ -67,7 +68,10 @@ export function PolicyCardPair({
   const config = useCardConfig();
   const [flipped, setFlipped] = useState(false);
   const phone = useSyncExternalStore(subscribePhone, isPhone, () => false);
-  const turnOver = () => setFlipped((value) => !value);
+  const turnOver = () => {
+    haptic("light");
+    setFlipped((value) => !value);
+  };
 
   /*
    * Flip, phones only (below 640px; wider, the two faces sit side by side as
