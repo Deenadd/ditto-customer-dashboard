@@ -14,7 +14,6 @@ It shares its stack and conventions with the
 | --- | --- | --- |
 | `/` | Sign in | `149:10704` |
 | `/dashboard` | Pending applications, card view | `149:8862` |
-| `/dashboard?view=timeline` | Pending applications, timeline view | `149:9509` |
 | `/dashboard?tab=active` | Active policies | `149:9845` |
 | `/dashboard?tab=inactive` | Inactive policies | `149:10213` |
 | `/dashboard?customer=new` | No pending applications (empty state) | `149:10485` |
@@ -34,7 +33,7 @@ polished Apple style:
   grows.
 - **Surfaces**: a white page with white 22px cards edged by a hairline and a
   soft shadow, facts in inset grey tiles, and spacing instead of divider lines.
-- **Controls**: segmented controls for the tabs and the grouped/timeline view,
+- **Controls**: segmented controls for the tabs,
   buttons with the input field's 14px corners (`--radius-control`), one
   filled action per view, and tinted status capsules
   with a dot.
@@ -242,7 +241,7 @@ colour points layer over the wash.
   - Every answer can be undone with Back; Start over asks the first question
     again. Each ending offers a next step, such as Check something else.
 - **Notifications** (the bell) lists the latest application updates and marks
-  them read; each opens the timeline. With nothing new it says No updates yet
+  them read; each opens the Pending tab. With nothing new it says No updates yet
   and what will show up there.
 - **Avatar menu** switches between the customer with pending applications and
   the one with none, and logs out. Log out clears this tab's sign-in step and
@@ -405,7 +404,7 @@ components/
   login/                      The sign-in wash and its colour ramps
   claims/                     Claims support card and conversation
   ui/frosted-side-sheet/      The reusable sheet and its config
-  dashboard/  policy/         Cards, timeline, empty state, policy view
+  dashboard/  policy/         Cards, empty state, policy view
   ui/                         Buttons, menus, logo tiles, segmented control
   ui/icons.tsx                Every interface icon, in one place
 lib/
@@ -419,10 +418,11 @@ lib/
 ## Home cards on a phone
 
 Below 640px each active policy on the home screen is one card that turns
-over, as on the policy page: tap it (or "Show who's covered") to see who it
-covers, tap again to turn back. "View policy" sits beside the turn, since a
-tap on the card turns it rather than opening it. Wider, the pair sits side
-by side and the whole pair opens the policy, as before.
+over, as on the policy page, but only from "Show who's covered" under it: a
+tap anywhere on the card, front or back, opens the policy, as the pair does
+wider. A card with no page of its own (Care Senior, the term card) does
+nothing on a tap. The pending applications are listed by status; the
+timeline view is gone (an old `?view=timeline` link opens Pending).
 
 ## Home card versions
 

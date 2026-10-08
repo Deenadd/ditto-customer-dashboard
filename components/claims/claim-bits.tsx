@@ -65,11 +65,12 @@ export function ChoiceCard({
   return (
     <label
       className={`choice-row relative flex min-h-[60px] items-center gap-3 px-4 py-3 transition-colors duration-150 ease-out has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-accent ${
+        /* The chosen row stays white: its blue radio (and bolder title)
+           says which it is, so a list of answers never reads as a list of
+           highlighted cards. */
         disabled
           ? "cursor-not-allowed [&>*:not(input)]:opacity-50"
-          : checked
-            ? "cursor-pointer bg-accent-tint/60"
-            : "cursor-pointer [@media(hover:hover)]:hover:bg-fill/70"
+          : "cursor-pointer [@media(hover:hover)]:hover:bg-fill/70"
       }`}
     >
       {leading}

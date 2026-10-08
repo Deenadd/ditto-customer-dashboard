@@ -51,7 +51,7 @@ export function SiteHeader({ customerState = "default" }: { customerState?: Cust
 
         <div className="flex items-center gap-1.5 sm:gap-3">
           <WhatsAppHelp />
-          <Notifications updates={updates} href={dashboardHref({ timeline: true, customer: customerState })} />
+          <Notifications updates={updates} href={dashboardHref({ tab: "pending", customer: customerState })} />
           <AccountMenu
             name={customer.name}
             value={customerState}

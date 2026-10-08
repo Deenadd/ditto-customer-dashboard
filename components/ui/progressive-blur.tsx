@@ -10,8 +10,10 @@ import { useEffect, useRef } from "react";
  * Technique adapted from Skiper UI — Skiper 41 "ProgressiveBlur" by
  * @gurvinder-singh02 (https://gxuri.me), inspired by devouringdetails.com;
  * free for personal and commercial use with attribution to Skiper UI.
- * Both edges are a pure progressive blur (below): the top a 28px band under
- * the header, the bottom 112px.
+ * Both edges are a pure progressive blur (below): the top a 20px band under
+ * the header, the bottom 72px. The bottom stays shorter than the pages' 80px
+ * of bottom padding, so at the end of a page the last row sits clear of it
+ * instead of staying soft, as if the page wouldn't scroll any further.
  *
  * The top edge sits behind the header and fades in over the first 80px of
  * scroll, so at rest the header floats on the plain page and nothing is
@@ -80,7 +82,7 @@ export function ProgressiveBlur() {
         ref={topRef}
         aria-hidden
         style={{ opacity: 0 }}
-        className="pointer-events-none fixed inset-x-0 top-[calc(56px+env(safe-area-inset-top))] z-[25] h-7 select-none sm:top-[calc(64px+env(safe-area-inset-top))]"
+        className="pointer-events-none fixed inset-x-0 top-[calc(56px+env(safe-area-inset-top))] z-[25] h-5 select-none sm:top-[calc(64px+env(safe-area-inset-top))]"
       >
         {topLayers.map((layer) => (
           <div key={layer.blur} className="progressive-blur-layer absolute inset-0" style={layer.style} />
@@ -89,7 +91,7 @@ export function ProgressiveBlur() {
       {/* Not on touch screens: phone browsers blur content behind their own
           toolbar, and iOS Safari stops the page short of its floating toolbar
           (filling the gap with white) when anything fixed touches the bottom. */}
-      <div aria-hidden className="pointer-events-none fixed inset-x-0 bottom-0 z-20 h-[calc(112px+env(safe-area-inset-bottom))] select-none [@media(pointer:coarse)]:hidden">
+      <div aria-hidden className="pointer-events-none fixed inset-x-0 bottom-0 z-20 h-[calc(72px+env(safe-area-inset-bottom))] select-none [@media(pointer:coarse)]:hidden">
         {bottomLayers.map((layer) => (
           <div key={layer.blur} className="progressive-blur-layer absolute inset-0" style={layer.style} />
         ))}

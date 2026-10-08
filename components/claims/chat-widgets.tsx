@@ -73,9 +73,7 @@ function NetworkCheck({ active, onAnswer }: WidgetProps) {
                 type="button"
                 aria-pressed={chosen}
                 onClick={() => setPicked(hospital)}
-                className={`flex min-h-11 w-full items-center gap-3 rounded-[10px] px-2 py-2 text-left transition-colors duration-150 ${
-                  chosen ? "bg-accent-tint/70" : "active:bg-fill [@media(hover:hover)]:hover:bg-fill"
-                }`}
+                className="flex min-h-11 w-full items-center gap-3 rounded-[10px] px-2 py-2 text-left transition-colors duration-150 active:bg-fill [@media(hover:hover)]:hover:bg-fill"
               >
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[14px] leading-5 font-medium text-label">{hospital.name}</span>
@@ -90,6 +88,14 @@ function NetworkCheck({ active, onAnswer }: WidgetProps) {
                 >
                   {hospital.network ? "Cashless" : "Not in network"}
                 </span>
+                {/* The pick shows as a radio, as in the claim flows; the row
+                    itself stays unfilled. */}
+                <span
+                  aria-hidden
+                  className={`size-5 shrink-0 rounded-full bg-surface transition-[border-width,border-color] duration-150 ease-out ${
+                    chosen ? "border-[6px] border-accent" : "border-[1.5px] border-label-tertiary/70"
+                  }`}
+                />
               </button>
             </li>
           );

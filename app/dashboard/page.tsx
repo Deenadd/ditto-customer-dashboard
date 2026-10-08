@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { ApplicationCard } from "@/components/dashboard/application-card";
-import { ApplicationTimeline } from "@/components/dashboard/application-timeline";
 import { CardControls } from "@/components/dashboard/card-controls";
 import { DittoBuddy } from "@/components/dashboard/ditto-buddy";
 import { EmptyApplications } from "@/components/dashboard/empty-applications";
@@ -16,7 +15,6 @@ import {
   activePolicyGroups,
   applicationCount,
   applicationGroups,
-  applicationTimeline,
   customer,
   expiredPolicies,
   inactiveCount,
@@ -84,7 +82,7 @@ export default async function DashboardPage({
                 },
                 {
                   value: "pending",
-                  href: dashboardHref({ tab: "pending", timeline: state.timeline, customer: state.customer }),
+                  href: dashboardHref({ tab: "pending", customer: state.customer }),
                   label: (
                     <>
                       Pending <Count value={counts.pending} />
@@ -102,25 +100,6 @@ export default async function DashboardPage({
                 },
               ]}
             />
-            {state.tab === "pending" && hasPending ? (
-              <SegmentedLinks
-                label="Show applications as"
-                size="small"
-                value={state.timeline ? "timeline" : "grouped"}
-                segments={[
-                  {
-                    value: "grouped",
-                    href: dashboardHref({ tab: "pending", customer: state.customer }),
-                    label: "By status",
-                  },
-                  {
-                    value: "timeline",
-                    href: dashboardHref({ timeline: true, customer: state.customer }),
-                    label: "Timeline",
-                  },
-                ]}
-              />
-            ) : null}
           </div>
 
           <div className="mt-8 max-sm:mt-6">
@@ -200,14 +179,6 @@ function TabPanel({ state, hasPending }: { state: DashboardState; hasPending: bo
   }
 
   if (!hasPending) return <EmptyApplications />;
-
-  if (state.timeline) {
-    return (
-      <section aria-label="Applications by latest update">
-        <ApplicationTimeline groups={applicationTimeline} />
-      </section>
-    );
-  }
 
   return (
     <div className="flex flex-col gap-10">

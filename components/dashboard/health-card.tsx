@@ -58,6 +58,7 @@ export function PolicyCardPair({
   stacked = false,
   download = false,
   flip = false,
+  turnOnTap = true,
 }: {
   policy: ActivePolicy;
   href?: string;
@@ -68,6 +69,9 @@ export function PolicyCardPair({
   download?: boolean;
   /** On a phone, one card that turns over to show its back (see below). */
   flip?: boolean;
+  /** Whether a tap on the card turns it. Off on the home screen, where a tap
+      opens the policy and only Show who's covered turns it. */
+  turnOnTap?: boolean;
 }) {
   const config = useCardConfig();
   const [flipped, setFlipped] = useState(false);
@@ -86,6 +90,10 @@ export function PolicyCardPair({
    */
   const face3d =
     "max-sm:[grid-area:1/1] max-sm:[backface-visibility:hidden] max-sm:transition-[transform,opacity] max-sm:duration-[600ms] max-sm:ease-[cubic-bezier(0.32,0.72,0,1)] max-sm:motion-reduce:duration-200";
+  /* Turned in 3D, each face is its own layer, which would keep everything on
+     it (Renew) under the pair's link; with a link over the pair, raise the
+     faces above it and let taps through, as Face does for the flat pair. */
+  const overLink = flip && href && !turnOnTap ? " relative z-[11] pointer-events-none" : "";
   const flipStyle = {
     "--flip": flipped ? "180deg" : "0deg",
     "--front-o": flipped ? 0 : 1,
@@ -101,21 +109,21 @@ export function PolicyCardPair({
       style={flip ? flipStyle : undefined}
     >
       <div
-        className={flip ? `${face3d} max-sm:[transform:rotateY(var(--flip))] max-sm:motion-reduce:[transform:none] max-sm:motion-reduce:[opacity:var(--front-o)]` : "contents"}
-        onClick={flip && phone ? turnOver : undefined}
+        className={flip ? `${face3d} max-sm:[transform:rotateY(var(--flip))] max-sm:motion-reduce:[transform:none] max-sm:motion-reduce:[opacity:var(--front-o)]${overLink}` : "contents"}
+        onClick={flip && phone && turnOnTap ? turnOver : undefined}
         inert={flip && phone && flipped}
       >
-        <Face plain={flip && phone} underLink={!!href} flip={flip}>
+        <Face plain={flip && phone} underLink={!!href} turnsOnPhone={flip && turnOnTap}>
           <PolicyCardFront policy={policy} download={download} />
         </Face>
       </div>
 
       <div
-        className={flip ? `${face3d} max-sm:[transform:rotateY(calc(var(--flip)+180deg))] max-sm:motion-reduce:[transform:none] max-sm:motion-reduce:[opacity:var(--back-o)]` : "contents"}
-        onClick={flip && phone ? turnOver : undefined}
+        className={flip ? `${face3d} max-sm:[transform:rotateY(calc(var(--flip)+180deg))] max-sm:motion-reduce:[transform:none] max-sm:motion-reduce:[opacity:var(--back-o)]${overLink}` : "contents"}
+        onClick={flip && phone && turnOnTap ? turnOver : undefined}
         inert={flip && phone && !flipped}
       >
-      <Face plain={flip && phone} underLink={!!href} flip={flip}>
+      <Face plain={flip && phone} underLink={!!href} turnsOnPhone={flip && turnOnTap}>
         <article aria-label={`People on ${policy.name}`} className={face}>
           <div aria-hidden className="absolute inset-0 -z-10">
             <Topography variant="members" tone={tone} />
@@ -135,11 +143,12 @@ export function PolicyCardPair({
       </Face>
       </div>
 
-      {/* The way to turn it over that a keyboard and a screen reader can use,
-          and the hint that it turns at all. On the home screen a tap turns
-          the card, so opening the policy is its own link beside it. */}
+      {/* The way to turn it over, for everyone, keyboards and screen
+          readers included, and the hint that it turns at all. It sits above
+          the card's link, so tapping it (or the space beside it) never opens
+          the policy. */}
       {flip ? (
-        <div className={`-mt-1 flex items-center sm:hidden ${href ? "justify-between" : "justify-center"}`}>
+        <div className="relative z-[12] -mt-1 flex justify-center sm:hidden">
           <button
             type="button"
             onClick={turnOver}
@@ -151,18 +160,6 @@ export function PolicyCardPair({
             </svg>
             {flipped ? "Show the policy details" : "Show who’s covered"}
           </button>
-          {href ? (
-            <Link
-              href={href}
-              aria-label={`View ${policy.name}`}
-              className="touch-hit inline-flex items-center gap-1 text-[13px] leading-[18px] font-medium text-accent-text transition-opacity duration-150 active:opacity-50"
-            >
-              View policy
-              <svg aria-hidden width="6" height="10" viewBox="0 0 7 12" fill="none">
-                <path d="M1.25 1.25 5.75 6l-4.5 4.75" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
-              </svg>
-            </Link>
-          ) : null}
         </div>
       ) : null}
 
@@ -170,7 +167,7 @@ export function PolicyCardPair({
         <Link
           href={href}
           aria-label={`${policy.name}, view policy details`}
-          className={`absolute inset-0 z-10 rounded-[22px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent ${flip ? "max-sm:hidden" : ""}`}
+          className={`absolute inset-0 z-10 rounded-[22px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent ${flip && turnOnTap ? "max-sm:hidden" : ""}`}
         />
       ) : null}
     </GlareGroup>
@@ -183,12 +180,26 @@ export function PolicyCardPair({
  * away side showed through, mirrored), and the hover lift grew the card past
  * the page's gutter in a narrow window used with a mouse.
  */
-function Face({ plain, underLink, flip, children }: { plain: boolean; underLink: boolean; flip: boolean; children: ReactNode }) {
+function Face({
+  plain,
+  underLink,
+  turnsOnPhone,
+  children,
+}: {
+  plain: boolean;
+  underLink: boolean;
+  turnsOnPhone: boolean;
+  children: ReactNode;
+}) {
   /* With a link over the pair, the faces sit above it but let the pointer
      through, so a tap anywhere opens the policy, and a control on a face
-     (Renew) takes its own taps with pointer-events-auto. A flip card on a
-     phone has no link over it (a tap turns it), so only from 640px. */
-  const above = !underLink ? "" : flip ? "sm:pointer-events-none sm:relative sm:z-[11]" : "pointer-events-none relative z-[11]";
+     (Renew) takes its own taps with pointer-events-auto. A card that turns
+     on a tap has no link over it on a phone, so then only from 640px. */
+  const above = !underLink
+    ? ""
+    : turnsOnPhone
+      ? "sm:pointer-events-none sm:relative sm:z-[11]"
+      : "pointer-events-none relative z-[11]";
   if (plain) return <div className={`h-full ${above}`}>{children}</div>;
   return (
     <GlareFace radius={22} className={`h-full ${above}`}>

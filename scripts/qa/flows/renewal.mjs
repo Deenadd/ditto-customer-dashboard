@@ -1,7 +1,7 @@
 import { chromium } from "playwright-core";
 import { channel } from "../browser.mjs";
 /* Home card v2: the renewal strip at each stage, desktop and phone; the rest
-   of the card opens the policy on a desktop and turns it over on a phone. */
+   of the card opens the policy. */
 const base = process.argv[2] ?? "http://localhost:3123";
 const b = await chromium.launch({ channel });
 const errors = [];
@@ -51,15 +51,8 @@ for (const [tag, viewport, mobile] of [["d", { width: 1280, height: 900 }, false
   const spot = p.getByRole("article", { name: "Your Health complete", exact: true }).getByText("Policy number");
   await spot.evaluate((n) => n.scrollIntoView({ block: "center" })); await p.waitForTimeout(300); const at = await spot.boundingBox();
   await p.mouse.click(at.x + 10, at.y + at.height / 2);
-  if (mobile) {
-    /* On a phone a tap turns the card over instead. */
-    await p.waitForTimeout(800);
-    console.log(tag, "card turns:", await p.getByRole("button", { name: /Show the policy details/ }).first().getAttribute("aria-pressed"));
-    await p.getByRole("button", { name: /Show the policy details/ }).first().tap(); await p.waitForTimeout(800);
-  } else {
-    await p.waitForURL("**/policies/**"); console.log(tag, "card opens:", new URL(p.url()).pathname);
-    await p.goBack(); await p.waitForTimeout(800);
-  }
+  await p.waitForURL("**/policies/**"); console.log(tag, "card opens:", new URL(p.url()).pathname);
+  await p.goBack(); await p.waitForTimeout(800);
   /* The menu is on the policy page too, and the card there follows. */
   await p.goto(base + "/dashboard/policies/474-981-34EDH20"); await p.waitForTimeout(1000);
   await choose(p, "Today");

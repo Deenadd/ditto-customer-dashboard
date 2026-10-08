@@ -157,7 +157,8 @@ export const applicationGroups: { title: string; items: Application[] }[] = [
 const byId = (id: string) =>
   applicationGroups.flatMap((group) => group.items).find((a) => a.id === id)!;
 
-/** Timeline view, node 149:9509: the same applications by latest update. */
+/** The applications by latest update (Figma node 149:9509), for the bell's
+    list of updates. */
 export const applicationTimeline: {
   date: string;
   current?: boolean;

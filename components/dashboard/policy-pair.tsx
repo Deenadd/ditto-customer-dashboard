@@ -21,8 +21,9 @@ export function PolicyPair({
   muted?: boolean;
 }) {
   /* An active policy is drawn as its card: blue for health, green for term.
-     On a phone it's one card that turns over, as on the policy page. */
-  if (!muted) return <PolicyCardPair policy={policy} href={href} tone={toneOf(policy)} flip />;
+     On a phone it's one card that turns over, as on the policy page, but
+     only from Show who's covered: a tap on the card opens the policy. */
+  if (!muted) return <PolicyCardPair policy={policy} href={href} tone={toneOf(policy)} flip turnOnTap={false} />;
   return (
     <div className="grid gap-4 sm:grid-cols-2">
       <PolicyCard policy={policy} href={href} muted={muted} />

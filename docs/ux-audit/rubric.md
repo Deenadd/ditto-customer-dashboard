@@ -54,7 +54,7 @@ The flows, A to Z:
 2. Sign in: one-time code
 3. Dashboard: welcome card (desktop) and top sheet (phone)
 4. Dashboard: Active, Pending, Inactive tabs and their lists, including an empty tab, and the home card v1 and v2 (renewal due, every stage)
-5. Pending application timeline
+5. Pending applications, by status
 6. Policy page: health card, flip on phone, members, download
 7. Policy page: network hospitals (expand, directions, call, website)
 8. Support: global help, WhatsApp

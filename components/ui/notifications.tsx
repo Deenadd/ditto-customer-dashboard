@@ -16,8 +16,8 @@ export type Update = {
 };
 
 /**
- * The bell opens the latest application updates, the same ones the timeline
- * shows. Opening the panel marks them read. With nothing to show, the panel
+ * The bell opens the latest application updates, newest first; its link goes
+ * to the Pending tab. Opening the panel marks them read. With nothing to show, the panel
  * says so and what will appear there, rather than the bell disappearing.
  */
 export function Notifications({ updates, href }: { updates: Update[]; href: string }) {
