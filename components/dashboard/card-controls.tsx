@@ -2,12 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { defaultCardConfig, setCardConfig, useCardConfig } from "@/components/dashboard/card-config";
+import { Visitors } from "@/components/dashboard/visitors";
 import { Section, Slider, TuningPanel } from "@/components/ui/tuning-panel";
 
 /**
- * Tuning panel for the dashboard's policy cards: their glare and tilt.
- * Shift+Option+C opens and closes it. Changes apply live and are
- * remembered in this browser; Copy config gives the JSON for card-config.ts.
+ * The home page's controls panel: who has viewed the prototype, then the
+ * policy cards' glare and tilt. Shift+Option+C opens and closes it. Card
+ * changes apply live and are remembered in this browser; Copy config gives
+ * the JSON for card-config.ts.
  */
 export function CardControls() {
   const config = useCardConfig();
@@ -28,12 +30,14 @@ export function CardControls() {
 
   return (
     <TuningPanel
-      title="Card controls"
+      title="Controls"
       open={open}
       onClose={() => setOpen(false)}
       onReset={() => setCardConfig(defaultCardConfig)}
       copyValue={config}
     >
+      <Visitors />
+
       <Section label="Glare">
         <Slider label="Glare" min={0} max={1} step={0.05} value={config.glare} onChange={(glare) => set({ glare })} />
         <Slider label="Foil" min={0} max={1} step={0.05} value={config.foil} onChange={(foil) => set({ foil })} />

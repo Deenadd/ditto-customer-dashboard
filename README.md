@@ -215,11 +215,21 @@ returns to the row that opened it; Escape or a click outside closes it.
   - The sign-in status bar takes the wash's colour (Safari on iOS 26 fills it
     from the page background), fading into the wash below.
 
-### Card controls
+### Controls (Shift+Option+C)
 
-On the dashboard, **Shift+Option+C** opens a panel for the cards' glare,
-foil, tilt, perspective, lift and settle time. Copy config gives the JSON
-for `components/dashboard/card-config.ts`.
+On the dashboard, **Shift+Option+C** opens the controls panel:
+
+- **Visitors**: who has viewed the prototype, newest first. Each browser is
+  a numbered user (User 1, User 2…), and each session is a visit, with the
+  device, the first page and the time. Anonymous: a random id kept in the
+  browser, no names and no IP addresses. Stored in Upstash Redis
+  (`lib/visits.ts`, `app/api/visits`); until the project has the
+  `KV_REST_API_URL` and `KV_REST_API_TOKEN` keys (Vercel → Storage → Upstash
+  for Redis, connected to this project, then a redeploy), the panel says
+  it's not connected. Automated browsers aren't counted, so the flow checks
+  never add visits. Locally, `node scripts/qa/fake-upstash.mjs` stands in.
+- **Cards**: glare, foil, tilt, perspective, lift and settle time. Copy
+  config gives the JSON for `components/dashboard/card-config.ts`.
 
 The sign-in glow panel has the same mesh pad: the ring is the blue dome, and
 colour points layer over the wash.

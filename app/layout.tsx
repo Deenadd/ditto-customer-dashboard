@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { TapHaptics } from "@/components/ui/tap-haptics";
 import { Toaster } from "@/components/ui/toast";
+import { VisitBeacon } from "@/components/visit-beacon";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -42,6 +43,7 @@ export default function RootLayout({
         {children}
         <TapHaptics />
         <Toaster />
+        <VisitBeacon />
       </body>
     </html>
   );
