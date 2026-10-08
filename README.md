@@ -463,6 +463,26 @@ rises 14px into place with its answers a beat behind, and Back reverses it.
 Switching into reimbursement and back plays the same. Reduced motion is a
 plain crossfade.
 
+## Deleting a claim, and toasts
+
+Delete sits at the foot of a claim as a plain row, what it does on the left
+and a tinted red Delete claim on the right. The confirmation's Delete is
+press and hold (`HoldButton`): a solid red fill sweeps across it over 2s,
+linear, wiping the label to white; let go early and it snaps back and says
+to keep holding. Holding Space or Enter works too, and focus starts on Keep
+claim.
+
+Toasts come from Sonner, one `<Toaster />` in the root layout, drawn
+headless in the site's style (`components/ui/toast.tsx`). Downloading the
+policy card confirms with "Card downloaded".
+
+## Claim type follows the hospital (v1)
+
+In the hospital-first flow, a hospital from the network list settles the
+claim type: in Care Health's network it's cashless only, outside it
+reimbursement only, already chosen, with a line saying why. Both are offered
+only when the network isn't known (no hospital yet, or one typed in).
+
 ## Checks and the weekly audit
 
 `npm run qa` drives every flow in Chrome against a running site (default

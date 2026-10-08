@@ -1,5 +1,13 @@
 import { chromium } from "playwright-core";
 import { channel } from "../browser.mjs";
+/* Delete in the confirmation is press and hold. */
+const hold = async (page, target, ms = 2300) => {
+  const box = await target.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(ms);
+  await page.mouse.up();
+};
 /* Nothing is lost: a pasted number and a refresh in sign-in, a refresh mid
    claim and on the ticket, errors beside the field and focused, Undo after a
    delete, and files that can't be added saying why (on a phone, with 40px
@@ -63,7 +71,7 @@ if (!/claims\/CL\d{4}/.test(p.url())) fail("refresh on the ticket didn't open th
 
 /* Delete, then Undo */
 await p.getByRole("button", { name: "Delete claim" }).click(); await p.waitForTimeout(300);
-await p.getByRole("dialog").getByRole("button", { name: "Delete claim" }).click();
+await hold(p, p.getByRole("dialog").getByRole("button", { name: "Delete claim" }));
 await p.waitForURL(/deleted=/); await p.waitForTimeout(500);
 await p.getByRole("button", { name: "Undo" }).click(); await p.waitForTimeout(700);
 const rows = await p.getByRole("region", { name: "Active claims" }).getByRole("link").count();

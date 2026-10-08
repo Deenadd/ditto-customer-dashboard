@@ -46,8 +46,9 @@ const download = p.waitForEvent("download");
 await p.getByRole("button", { name: "Download card" }).first().click();
 console.log("download:", (await download).suggestedFilename());
 await p.waitForTimeout(300);
-const saved = await p.getByRole("status").filter({ hasText: /Card saved/ }).count();
-console.log("download announced:", saved > 0);
+/* Confirmed by a toast, in Sonner's live region. */
+const saved = await p.locator("[data-sonner-toaster]").filter({ hasText: /Card downloaded/ }).count();
+console.log("download toast:", saved > 0, "|", (await p.locator("[data-sonner-toast]").first().innerText().catch(() => "")).replace(/\n/g, " · "));
 if (!saved) fail("download isn't confirmed");
 
 await p.getByRole("button", { name: /Network hospitals/ }).click(); await p.waitForTimeout(900);

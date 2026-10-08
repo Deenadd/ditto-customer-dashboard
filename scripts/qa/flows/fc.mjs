@@ -1,5 +1,13 @@
 import { chromium } from "playwright-core";
 import { channel } from "../browser.mjs";
+/* Delete in the confirmation is press and hold. */
+const hold = async (page, target, ms = 2300) => {
+  const box = await target.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(ms);
+  await page.mouse.up();
+};
 const base = process.argv[2] ?? "http://localhost:3123";
 const mobile = process.argv[3] === "mobile";
 const tag = mobile ? "m" : "d";
@@ -57,9 +65,9 @@ log("v1 step1 error:", await p.locator("p[role=alert]").innerText());
 await p.getByLabel(/T\. Nagar Family Hospital/).check({ force: true }); await p.waitForTimeout(200);
 await click(p.getByRole("button", { name: "Continue" })); await p.waitForTimeout(600);
 log("v1 step2:", await p.locator("h1").innerText(), "|", await p.locator("h1 + p").innerText());
-log("cashless disabled:", await p.getByLabel(/^Cashless/).isDisabled());
+/* Outside the network: reimbursement only, already chosen. */
+log("only reimbursement:", (await p.getByLabel(/^Cashless/).count()) === 0, "| chosen:", await p.getByLabel(/^Reimbursement/).isChecked());
 await shot("v1-type");
-await p.getByLabel(/^Reimbursement/).check({ force: true });
 await click(p.getByRole("button", { name: "Continue" })); await p.waitForTimeout(600);
 log("v1 step3:", await p.locator("h1").innerText(), "| bar:", await p.getByRole("progressbar").getAttribute("aria-valuetext"));
 await click(p.getByRole("button", { name: "Continue" })); await p.waitForTimeout(200);
@@ -85,7 +93,7 @@ await click(p.getByRole("button", { name: /^Delete claim/ }).first()); await p.w
 const dlg = p.getByRole("dialog");
 log("dialog:", (await dlg.innerText()).replace(/\n/g, " | "), "| focus:", await p.evaluate(() => document.activeElement?.textContent));
 await shot("delete");
-await click(dlg.getByRole("button", { name: "Delete claim" })); await p.waitForTimeout(1200);
+await hold(p, dlg.getByRole("button", { name: "Delete claim" })); await p.waitForTimeout(1200);
 log("after delete:", await p.locator("p[role=status]").first().innerText());
 
 // v1 cashless at network hospital; switch remembered
@@ -93,8 +101,8 @@ await p.goto(base + pol + "/claims/new"); await p.waitForTimeout(1200);
 log("remembered v1:", await p.locator("h1").innerText());
 await p.getByLabel(/Lakeview Hospital/).check({ force: true });
 await click(p.getByRole("button", { name: "Continue" })); await p.waitForTimeout(600);
-log("cashless enabled:", !(await p.getByLabel(/^Cashless/).isDisabled()));
-await p.getByLabel(/^Cashless/).check({ force: true });
+/* In the network: cashless only, already chosen. */
+log("only cashless:", (await p.getByLabel(/^Reimbursement/).count()) === 0, "| chosen:", await p.getByLabel(/^Cashless/).isChecked());
 await click(p.getByRole("button", { name: "Continue" })); await p.waitForTimeout(600);
 await p.getByLabel(/Kavya Raghavan/).check({ force: true });
 await p.getByLabel("Treatment").fill("Knee surgery");

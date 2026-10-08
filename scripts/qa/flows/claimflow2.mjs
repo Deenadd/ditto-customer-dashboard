@@ -1,5 +1,13 @@
 import { chromium } from "playwright-core";
 import { channel } from "../browser.mjs";
+/* Delete in the confirmation is press and hold. */
+const hold = async (page, target, ms = 2300) => {
+  const box = await target.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.waitForTimeout(ms);
+  await page.mouse.up();
+};
 const base = process.argv[2] ?? "http://localhost:3123";
 const out = process.argv[3];
 const mobile = process.argv[4] === "mobile";
@@ -99,7 +107,7 @@ await p.getByRole("button", { name: "Delete claim" }).click();
 await p.waitForTimeout(250);
 log("delete dialog focus:", await p.evaluate(() => document.activeElement?.textContent));
 await shot("9-delete");
-await p.getByRole("dialog").getByRole("button", { name: "Delete claim" }).click();
+await hold(p, p.getByRole("dialog").getByRole("button", { name: "Delete claim" }));
 await p.waitForURL(/deleted=/);
 await p.waitForTimeout(500);
 log("after delete:", (await p.getByRole("status").first().innerText()), "| empty:", await p.getByText("No open claims").count());

@@ -9,6 +9,7 @@ import { PolicyCardFront } from "@/components/dashboard/health-card";
 import { Asset } from "@/components/ui/asset";
 import { Breadcrumbs } from "@/components/ui/breadcrumb";
 import { Button, buttonClass } from "@/components/ui/buttons";
+import { HoldButton } from "@/components/ui/hold-button";
 import { StatusPill, cardClass } from "@/components/ui/card-bits";
 import { IconCheck, IconDocuments, IconTrash } from "@/components/ui/icons";
 import { GlareFace, GlareGroup } from "@/components/ui/glare";
@@ -327,31 +328,26 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
 
       </div>
 
-      {/* Deleting is set apart in its own card, as iOS sets apart a
-          destructive row: it reads as an action, not a footnote, and the
-          line under it says what happens before anyone commits. */}
-      <section aria-label="Delete claim" className={`${cardClass} mt-6 p-2`}>
-        <button
-          type="button"
+      {/* Deleting sits at the foot as a plain row, not a card: what it does
+          on the left, the action on the right. The confirmation that follows
+          asks you to hold, so it can't happen by a slip. */}
+      <section aria-label="Delete claim" className="mt-8 flex items-center justify-between gap-4 px-1">
+        <p className="min-w-0 text-[13px] leading-[18px] text-pretty text-label-secondary">
+          Made it by mistake? Deleting withdraws the request and removes it from your claims.
+        </p>
+        <Button
+          variant="destructive-tinted"
           onClick={() => {
             lockScroll();
             dialogRef.current?.showModal();
-            /* The dialog would focus its first button, Delete; start on the
-               safe choice instead. */
+            /* The dialog would focus its first button, the hold to delete;
+               start on the safe choice instead. */
             keepRef.current?.focus();
           }}
-          className="group flex w-full items-center gap-3 rounded-[14px] px-3 py-3 text-left transition-colors duration-150 ease-out active:bg-red-tint [@media(hover:hover)]:hover:bg-red-tint/60"
         >
-          <span className="grid size-11 shrink-0 place-items-center rounded-[11px] bg-red-tint text-red-text">
-            <IconTrash size={20} />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[15px] leading-5 font-medium text-red-text">Delete claim</span>
-            <span className="block text-[13px] leading-[18px] text-pretty text-label-secondary">
-              Made it by mistake? The request is withdrawn and removed from your claims.
-            </span>
-          </span>
-        </button>
+          <IconTrash size={16} />
+          Delete claim
+        </Button>
       </section>
 
       <dialog
@@ -374,18 +370,16 @@ function ClaimDetail({ claim, customer, created }: { claim: Claim; customer: Cus
             The request for {claim.patient.name}
             {claim.hospital ? ` at ${claim.hospital.name}` : ""} is withdrawn and removed from your claims.
           </p>
-          <div className="mt-6 flex w-full flex-col gap-2">
-            <Button
-              variant="destructive"
-              size="large"
-              onClick={() => {
+          <div className="mt-6 flex w-full flex-col gap-3">
+            <HoldButton
+              label="Delete claim"
+              icon={<IconTrash size={18} />}
+              onConfirm={() => {
                 deleteClaim(claim.id);
                 dialogRef.current?.close();
                 router.replace(claimsHref(policyDetail.id, customer, `?deleted=${claim.id}`));
               }}
-            >
-              Delete claim
-            </Button>
+            />
             <Button ref={keepRef} variant="tinted" size="large" onClick={() => dialogRef.current?.close()}>
               Keep claim
             </Button>

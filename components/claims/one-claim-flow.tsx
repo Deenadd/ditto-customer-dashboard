@@ -59,8 +59,10 @@ const field =
  *   Hospital > Cashless > Member details > ticket
  *   Hospital > Reimbursement > Member details > Documents > ticket
  *
- * A hospital outside Care Health's network can't take cashless, so that
- * choice is shown but greyed, with the reason. Same parts as v2 (the bar,
+ * A hospital on the network list decides the type: in Care Health's network
+ * it's cashless, outside it reimbursement, so the claim type step offers just
+ * that one, already chosen, and says why. Only when the network isn't known
+ * (no hospital yet, or one typed in) are both offered. Same parts as v2 (the bar,
  * the step swap, errors beside the question and focused, answers kept for
  * this tab, a request sent once) and the same claim ticket.
  */
@@ -97,7 +99,9 @@ export function OneClaimFlow({ customer }: { customer: Customer }) {
   const labels = ["Hospital", "Claim type", "Member", ...(reimbursing ? ["Documents"] : [])];
   const last = labels.length;
   const hospital = draft.hospital && draft.hospital !== "undecided" ? draft.hospital : undefined;
-  const cashlessClosed = !!hospital?.id && !hospital.network;
+  /* A hospital from the list says whether it's in the network; one typed in,
+     or none yet, doesn't. */
+  const only: Draft["type"] = hospital?.id ? (hospital.network ? "cashless" : "reimbursement") : undefined;
 
   const set = (patch: Partial<Draft>) => {
     setDraft((value) => ({ ...value, ...patch }));
@@ -234,9 +238,10 @@ export function OneClaimFlow({ customer }: { customer: Customer }) {
                 <HospitalStep
                   hospital={draft.hospital}
                   onChange={(next) => {
-                    /* A hospital outside the network can't take cashless. */
-                    const closed = next !== "undecided" && !!next.id && !next.network;
-                    set({ hospital: next, type: closed && draft.type === "cashless" ? undefined : draft.type });
+                    /* A listed hospital settles the type; otherwise keep the
+                       choice already made. */
+                    const settled = next !== "undecided" && next.id ? (next.network ? "cashless" : "reimbursement") : draft.type;
+                    set({ hospital: next, type: settled });
                   }}
                 />
               ) : null}
@@ -244,39 +249,44 @@ export function OneClaimFlow({ customer }: { customer: Customer }) {
               {step === 2 ? (
                 <div className="flex flex-col gap-3">
                   <ChoiceGroup label="Claim type" inset={70}>
-                    <ChoiceCard
-                      name="claim-type"
-                      checked={draft.type === "cashless"}
-                      onChange={() => set({ type: "cashless" })}
-                      disabled={cashlessClosed}
-                      title="Cashless"
-                      hint={
-                        cashlessClosed
-                          ? `Not available: ${hospital!.name} isn't in Care Health's network`
-                          : "The hospital bills Care Health directly, with nothing to pay upfront"
-                      }
-                      leading={
-                        <span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-accent-tint text-accent">
-                          <IconClaim />
-                        </span>
-                      }
-                    />
-                    <ChoiceCard
-                      name="claim-type"
-                      checked={draft.type === "reimbursement"}
-                      onChange={() => set({ type: "reimbursement" })}
-                      title="Reimbursement"
-                      hint="You've paid, and claim the costs back"
-                      leading={
-                        <span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-accent-tint text-accent">
-                          <IconDocuments />
-                        </span>
-                      }
-                    />
+                    {only !== "reimbursement" ? (
+                      <ChoiceCard
+                        name="claim-type"
+                        checked={draft.type === "cashless"}
+                        onChange={() => set({ type: "cashless" })}
+                        title="Cashless"
+                        hint="The hospital bills Care Health directly, with nothing to pay upfront"
+                        leading={
+                          <span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-accent-tint text-accent">
+                            <IconClaim />
+                          </span>
+                        }
+                      />
+                    ) : null}
+                    {only !== "cashless" ? (
+                      <ChoiceCard
+                        name="claim-type"
+                        checked={draft.type === "reimbursement"}
+                        onChange={() => set({ type: "reimbursement" })}
+                        title="Reimbursement"
+                        hint="You've paid, and claim the costs back"
+                        leading={
+                          <span className="grid size-10 shrink-0 place-items-center rounded-[10px] bg-accent-tint text-accent">
+                            <IconDocuments />
+                          </span>
+                        }
+                      />
+                    ) : null}
                   </ChoiceGroup>
-                  {draft.hospital === "undecided" || (hospital && !hospital.id) ? (
+                  {only === "cashless" ? (
+                    <Note>{hospital!.name} is in Care Health&apos;s network, so the hospital bills Care Health directly.</Note>
+                  ) : only === "reimbursement" ? (
+                    <Note>
+                      {hospital!.name} isn&apos;t in Care Health&apos;s network, so you pay the hospital and claim the costs back.
+                    </Note>
+                  ) : (
                     <Note>We&apos;ll check whether the hospital is in Care Health&apos;s network before cashless goes ahead.</Note>
-                  ) : null}
+                  )}
                 </div>
               ) : null}
 

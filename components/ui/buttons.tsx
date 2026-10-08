@@ -1,7 +1,7 @@
 import type { ComponentPropsWithRef } from "react";
 
 export type ButtonVariant = Variant;
-type Variant = "filled" | "tinted" | "plain" | "destructive";
+type Variant = "filled" | "tinted" | "plain" | "destructive" | "destructive-tinted";
 type Size = "small" | "medium" | "large";
 
 const variants: Record<Variant, string> = {
@@ -12,6 +12,9 @@ const variants: Record<Variant, string> = {
   plain: "text-accent-text active:opacity-50 [@media(hover:hover)]:hover:opacity-70",
   /* For the one irreversible action in a confirmation; white on #c41e3a is 5.6:1. */
   destructive: "bg-red-text text-white [@media(hover:hover)]:hover:bg-[#a8182f]",
+  /* A destructive action's quiet first step, before its confirmation;
+     #c41e3a on #fdeeee is 5.2:1. */
+  "destructive-tinted": "bg-red-tint text-red-text [@media(hover:hover)]:hover:bg-[#fbe2e2]",
 };
 
 const sizes: Record<Size, string> = {

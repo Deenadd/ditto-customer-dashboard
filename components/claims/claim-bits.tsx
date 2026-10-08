@@ -132,8 +132,9 @@ export function ClaimRow({ claim, href }: { claim: Claim; href: string }) {
       href={href}
       className="group flex items-center gap-3 rounded-[14px] px-3 py-3 transition-colors duration-150 ease-out active:bg-fill [@media(hover:hover)]:hover:bg-fill"
     >
-      <span className="grid size-11 shrink-0 place-items-center rounded-[11px] bg-accent-tint text-accent">
-        <IconClaim />
+      {/* The same tile as the quick actions: white, raised, the icon blue. */}
+      <span className="grid size-9 shrink-0 place-items-center rounded-[10px] bg-surface text-accent shadow-tile">
+        <IconClaim size={18} />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate text-[15px] leading-5 font-medium text-label">

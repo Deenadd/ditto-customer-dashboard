@@ -102,7 +102,7 @@ export function ClaimsList({ customer, view, deleted }: { customer: Customer; vi
           <Loading label="Loading your claims" className="flex flex-col gap-3">
             {[0, 1].map((row) => (
               <div key={row} className={`${cardClass} flex items-center gap-3 p-5`}>
-                <Bone className="size-11 rounded-[11px]" />
+                <Bone className="size-9 rounded-[10px]" />
                 <div className="flex flex-1 flex-col gap-2">
                   <Bone className="h-4 w-3/5" />
                   <Bone className="h-3 w-2/5" />

@@ -11,6 +11,7 @@ import { GlareFace, GlareGroup } from "@/components/ui/glare";
 import { IconCheck } from "@/components/ui/icons";
 import { InsurerLogo } from "@/components/ui/insurer-logo";
 import { downloadPolicyCard } from "@/lib/download-card";
+import { notifySuccess } from "@/components/ui/toast";
 import { useClaims, useHydrated } from "@/lib/claims";
 import { cardFields, toneOf, type CardTone } from "@/lib/card-fields";
 import { RenewalStrip, renewalDot } from "@/components/dashboard/renewal-strip";
@@ -248,9 +249,9 @@ export function PolicyCardFront({ policy, download = false }: { policy: ActivePo
 
 /** Saves the card as a PNG: a small icon button in the action blue, in the
     card's top-right corner, inside the card so it tilts with it. While the
-    card is drawn it shows a spinner and ignores more taps; then a tick, or,
-    if the browser couldn't make the image, a note saying to try again.
-    Each outcome is announced. */
+    card is drawn it shows a spinner and ignores more taps; then a tick and a
+    "Card downloaded" toast, or, if the browser couldn't make the image, a
+    note saying to try again. Each outcome is announced. */
 function DownloadPill({ policy }: { policy: ActivePolicy }) {
   const [state, setState] = useState<"idle" | "saving" | "saved" | "failed">("idle");
   const claims = useClaims(policy.id).length;
@@ -268,7 +269,10 @@ function DownloadPill({ policy }: { policy: ActivePolicy }) {
           setState("saving");
           const ok = await downloadPolicyCard(policy, claims).catch(() => false);
           setState(ok ? "saved" : "failed");
-          if (ok) window.setTimeout(() => setState((now) => (now === "saved" ? "idle" : now)), 1600);
+          if (ok) {
+            notifySuccess("Card downloaded", `${policy.name} · saved to your downloads`);
+            window.setTimeout(() => setState((now) => (now === "saved" ? "idle" : now)), 1600);
+          }
         }}
         className="touch-hit absolute top-3 right-3 z-20 grid size-9 place-items-center rounded-full text-accent-text transition-[background-color,color,transform] duration-150 ease-out active:scale-[0.92] active:bg-accent-tint aria-busy:cursor-progress [@media(hover:hover)]:hover:bg-accent-tint"
       >
@@ -295,11 +299,8 @@ function DownloadPill({ policy }: { policy: ActivePolicy }) {
         </p>
       ) : null}
       <span role="status" className="sr-only">
-        {state === "saved"
-          ? "Card saved to your downloads."
-          : state === "failed"
-            ? "Couldn't save the card. Try again."
-            : ""}
+        {/* Success is announced by its toast. */}
+        {state === "failed" ? "Couldn't save the card. Try again." : ""}
       </span>
     </>
   );

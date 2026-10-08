@@ -40,6 +40,7 @@ const checks = [
   ["homeflip", "Home cards turn over on a phone; View policy; desktop link", []],
   ["empty", "No pending applications: no card, tiles dealt in, reduced motion", []],
   ["question", "Claim questions: Claiming on card stays put; vertical, reversible motion", []],
+  ["holddelete", "Delete a claim: plain row, hold to confirm, early release, keyboard", []],
   ["hap", "Haptics on taps, Android and iOS paths", []],
   ["lost", "Unknown pages and policies, the error boundary", []],
   ["states", "Empty states, next steps, download, log out, skip link", []],
