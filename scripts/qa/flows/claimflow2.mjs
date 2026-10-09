@@ -58,7 +58,8 @@ await p.getByLabel(/Yes, I know the date/).check();
 await p.getByLabel("Date of admission").fill("2026-09-01");
 await p.getByRole("button", { name: "Continue" }).click();
 log("past date error:", await p.locator("p[role=alert]").innerText());
-await p.getByLabel("Date of admission").fill("2026-10-08");
+/* A planned stay must be today or later, so the date is computed, not fixed. */
+await p.getByLabel("Date of admission").fill(new Date().toLocaleDateString("en-CA"));
 await shot("4-dates");
 await p.getByRole("button", { name: "Continue" }).click();
 await p.waitForTimeout(500);

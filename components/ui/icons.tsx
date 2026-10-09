@@ -21,11 +21,15 @@ import {
   Hospital,
   IdCard,
   FilePlus2,
+  FileText,
   Files,
+  Mail,
   MapPin,
   Navigation,
   Phone,
+  RefreshCw,
   RotateCcw,
+  Share,
   ShieldCheck,
   ShieldX,
   Trash2,
@@ -77,6 +81,10 @@ export const IconClock = from(Clock);
 export const IconPin = from(MapPin);
 export const IconLost = from(Compass);
 export const IconAlert = from(TriangleAlert);
+export const IconShare = from(Share);
+export const IconMail = from(Mail);
+export const IconFile = from(FileText);
+export const IconRenew = from(RefreshCw);
 
 /** The policy page's benefits and exclusions, one simple line icon each. */
 export const coverIcons: Record<CoverIcon, Icon> = {

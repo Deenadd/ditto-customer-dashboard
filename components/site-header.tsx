@@ -4,12 +4,13 @@ import { WhatsAppHelp } from "@/components/ui/whatsapp-help";
 import { AccountMenu } from "@/components/ui/account-menu";
 import { Notifications, type Update } from "@/components/ui/notifications";
 import { applicationCount, applicationTimeline, customer } from "@/lib/dashboard-data";
-import { dashboardHref, type Customer } from "@/lib/routes";
+import { applicationHref, dashboardHref, type Customer } from "@/lib/routes";
 
 const statusCopy = {
   "pending-uploads": "Upload the documents the insurer asked for.",
   "missing-details": "A few details are missing from your proposal.",
   verification: "Your application is with the insurer for review.",
+  issued: "Your policy is active. See what comes next.",
 } as const;
 
 /**
@@ -29,6 +30,7 @@ export function SiteHeader({ customerState = "default" }: { customerState?: Cust
             body: statusCopy[application.status],
             when: group.date,
             unread: group.current,
+            href: applicationHref(application.id, customerState),
           })),
         );
 
@@ -51,7 +53,7 @@ export function SiteHeader({ customerState = "default" }: { customerState?: Cust
 
         <div className="flex items-center gap-1.5 sm:gap-3">
           <WhatsAppHelp />
-          <Notifications updates={updates} href={dashboardHref({ tab: "pending", customer: customerState })} />
+          <Notifications updates={updates} />
           <AccountMenu
             name={customer.name}
             value={customerState}

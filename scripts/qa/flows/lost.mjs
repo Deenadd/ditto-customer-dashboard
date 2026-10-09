@@ -10,7 +10,7 @@ const fail = (msg) => errors.push(msg);
 for (const [tag, viewport, mobile] of [["d", { width: 1280, height: 860 }, false], ["m", { width: 320, height: 640 }, true]]) {
   const p = await (await b.newContext({ viewport, deviceScaleFactor: 2, hasTouch: mobile, isMobile: mobile })).newPage();
   p.on("pageerror", (e) => errors.push(e.message));
-  for (const path of ["/no-such-page", "/dashboard/policies/NOT-A-POLICY"]) {
+  for (const path of ["/no-such-page", "/dashboard/policies/NOT-A-POLICY", "/dashboard/applications/NOT-AN-APPLICATION"]) {
     const res = await p.goto(base + path); await p.waitForTimeout(600);
     const h1 = await p.locator("h1").innerText();
     const home = p.getByRole("link", { name: "Go to your policies" });

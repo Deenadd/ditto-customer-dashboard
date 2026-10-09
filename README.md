@@ -18,6 +18,8 @@ It shares its stack and conventions with the
 | `/dashboard?tab=inactive` | Inactive policies | `149:10213` |
 | `/dashboard?customer=new` | No pending applications (empty state) | `149:10485` |
 | `/dashboard/policies/474-981-34EDH20` | Policy view | `149:9188` |
+| `/dashboard/applications/care-verification` | An application's page: submitted | `210:7580` |
+| `/dashboard/applications/care-issued` | An application's page: policy issued | `210:7358` |
 
 State lives in the URL, so every screen has a link to share. The avatar menu
 switches between the customer with pending applications and the one with
@@ -462,6 +464,32 @@ one at a time, left to right, each sliding in from the left and settling into
 its angle on a spring; then the heading, the line and the button come into
 focus in turn, a short blur clearing as they rise. Reduced motion keeps the
 order as plain fades.
+
+## An application's page
+
+Every pending card opens its application (`/dashboard/applications/<id>`),
+the two older Figma screens redrawn in the dashboard's style:
+
+- **Submitted** (`210:7580`): the heading and a line on where it stands,
+  which application it is, What's next (the two emails on their way), Your
+  advisor (WhatsApp, the phone, and where a complaint goes) and three folded
+  questions. Beside them, **Next steps for you**: application submitted,
+  insurer underwriting, policy issued, down a rail coloured by the step it
+  leaves (green done, blue in progress, grey to come), each with what may
+  happen at it. When the insurer is waiting on you, that step's tile turns
+  orange and offers WhatsApp with the application named; the current step is
+  `aria-current="step"` and the states are spoken.
+- **Policy issued** (`210:7358`): the good news on a green-glow card, the
+  policy card itself, Open policy (the page's one filled action) and Share
+  (the phone's share sheet, else the link to the clipboard with a toast),
+  Good to know (renewals, claims, who to ask) beside, then the policy page's
+  What's covered and What's not covered, and Things to note (waiting
+  periods). The issued application isn't pending any more, so it isn't on the
+  Pending tab: the bell's "Your policy is active" update opens it (every
+  update now opens its own application).
+
+An unknown id is lost like an unknown policy. `lib/application-detail.ts`
+has the copy and the steps; `lib/contact.ts` the phone and email.
 
 ## Claim questions
 

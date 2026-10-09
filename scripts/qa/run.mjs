@@ -42,6 +42,7 @@ const checks = [
   ["question", "Claim questions: Claiming on card stays put; vertical, reversible motion", []],
   ["holddelete", "Delete a claim: plain row, hold to confirm, early release, keyboard", []],
   ["visits", "Visitors in the controls panel: not connected, or counted per browser", []],
+  ["application", "An application's page: steps, needs-you, FAQ, the issued screen, Share, lost", []],
   ["hap", "Haptics on taps, Android and iOS paths", []],
   ["lost", "Unknown pages and policies, the error boundary", []],
   ["states", "Empty states, next steps, download, log out, skip link", []],

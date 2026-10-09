@@ -10,10 +10,12 @@ export type Insurer = "maxlife" | "care";
 
 export type Field = { label: string; value: string };
 
+/* The first three are pending; `issued` is the one that has become a policy. */
 export type ApplicationStatus =
   | "pending-uploads"
   | "missing-details"
-  | "verification";
+  | "verification"
+  | "issued";
 
 export type Application = {
   id: string;
@@ -24,6 +26,8 @@ export type Application = {
   status: ApplicationStatus;
   fields: Field[];
   addOns: string[];
+  /** Once issued, the active policy it became. */
+  policyId?: string;
 };
 
 export type Member = { name: string; dob: string; primary?: boolean };
@@ -154,8 +158,30 @@ export const applicationGroups: { title: string; items: Application[] }[] = [
   },
 ];
 
+/**
+ * The application that went straight through: the insurer accepted it and
+ * it is now the health policy on the Active tab. It isn't pending any more,
+ * so it's not in the groups above; the bell's "Your policy is active" update
+ * opens its page (the Figma STP screen, node 210:7358).
+ */
+export const issuedApplication: Application = {
+  id: "care-issued",
+  insurer: "care",
+  name: "Your Health complete",
+  kind: "Health insurance",
+  applicationNo: "12345678960",
+  status: "issued",
+  fields: healthFields(),
+  addOns: healthAddOns,
+  policyId: "474-981-34EDH20",
+};
+
 const byId = (id: string) =>
   applicationGroups.flatMap((group) => group.items).find((a) => a.id === id)!;
+
+/** Every application with a page of its own, pending or issued. */
+export const findApplication = (id: string): Application | undefined =>
+  [...applicationGroups.flatMap((group) => group.items), issuedApplication].find((a) => a.id === id);
 
 /** The applications by latest update (Figma node 149:9509), for the bell's
     list of updates. */
@@ -167,7 +193,7 @@ export const applicationTimeline: {
   {
     date: "Today",
     current: true,
-    items: [byId("care-verification"), byId("maxlife-uploads")],
+    items: [issuedApplication, byId("care-verification"), byId("maxlife-uploads")],
   },
   { date: "19 Aug 2024", items: [byId("care-missing")] },
   { date: "5 Jun 2024", items: [byId("maxlife-verification")] },

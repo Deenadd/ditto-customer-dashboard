@@ -46,6 +46,8 @@ await go(pol + "/claims", "claims");
 const claimHref = await p.locator("a[href*='/claims/']:not([href$='/new'])").first().getAttribute("href").catch(() => null);
 if (claimHref) await go(claimHref, "claim");
 await go(pol + "/claims/new", "newclaim");
+await go("/dashboard/applications/maxlife-uploads", "application");
+await go("/dashboard/applications/care-issued", "issued");
 // sheets
 await p.goto(base + "/dashboard"); await p.waitForTimeout(1000);
 await p.getByRole("button", { name: /Ask Ditto Buddy/ }).click().catch((e) => console.log("buddy:", e.message.slice(0, 80)));

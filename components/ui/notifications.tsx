@@ -13,14 +13,16 @@ export type Update = {
   body: string;
   when: string;
   unread?: boolean;
+  /** Where the update leads: the application's own page. */
+  href: string;
 };
 
 /**
- * The bell opens the latest application updates, newest first; its link goes
- * to the Pending tab. Opening the panel marks them read. With nothing to show, the panel
+ * The bell opens the latest application updates, newest first; each opens
+ * its application. Opening the panel marks them read. With nothing to show, the panel
  * says so and what will appear there, rather than the bell disappearing.
  */
-export function Notifications({ updates, href }: { updates: Update[]; href: string }) {
+export function Notifications({ updates }: { updates: Update[] }) {
   const [open, setOpen] = useState(false);
   const [seen, setSeen] = useState(false);
   const triggerRef = useRef<HTMLButtonElement>(null);
@@ -70,7 +72,7 @@ export function Notifications({ updates, href }: { updates: Update[]; href: stri
                 {updates.map((update) => (
                   <li key={update.id}>
                     <Link
-                      href={href}
+                      href={update.href}
                       onClick={() => setOpen(false)}
                       className="flex gap-3 rounded-[12px] p-3 transition-colors duration-150 active:bg-black/[0.05] [@media(hover:hover)]:hover:bg-black/[0.035]"
                     >

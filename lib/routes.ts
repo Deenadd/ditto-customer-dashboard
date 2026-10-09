@@ -41,3 +41,9 @@ export function policyHref(id: string, customer: Customer = "default") {
   const base = `/dashboard/policies/${encodeURIComponent(id)}`;
   return customer === "new" ? `${base}?customer=new` : base;
 }
+
+/** An application's own page: where it stands and what comes next. */
+export function applicationHref(id: string, customer: Customer = "default") {
+  const base = `/dashboard/applications/${encodeURIComponent(id)}`;
+  return customer === "new" ? `${base}?customer=new` : base;
+}

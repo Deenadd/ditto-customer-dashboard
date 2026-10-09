@@ -22,6 +22,7 @@ import {
   requirementRequests,
 } from "@/lib/dashboard-data";
 import {
+  applicationHref,
   dashboardHref,
   policyHref,
   readDashboardState,
@@ -190,7 +191,7 @@ function TabPanel({ state, hasPending }: { state: DashboardState; hasPending: bo
           <ul className="mt-3 flex flex-col gap-4">
             {group.items.map((application) => (
               <li key={application.id}>
-                <ApplicationCard application={application} />
+                <ApplicationCard application={application} href={applicationHref(application.id, state.customer)} />
               </li>
             ))}
           </ul>

@@ -4,6 +4,9 @@ import type { ApplicationStatus, Field } from "@/lib/dashboard-data";
 /** White card on the grey page: the one surface everything sits on. */
 export const cardClass = "rounded-[22px] bg-surface shadow-card";
 
+/** A card's title, 17/22 semibold. */
+export const cardTitleClass = "text-[17px] leading-[22px] font-semibold tracking-[-0.022em] text-label";
+
 export type Status = ApplicationStatus | "rejected" | "active" | "expired" | "received";
 
 const statusStyles: Record<Status, { label: string; tone: string; dot: string }> = {
@@ -22,6 +25,7 @@ const statusStyles: Record<Status, { label: string; tone: string; dot: string }>
     tone: "bg-teal-tint text-teal-text",
     dot: "bg-teal-dot",
   },
+  issued: { label: "Policy issued", tone: "bg-green-tint text-green-text", dot: "bg-green-dot" },
   active: { label: "Active", tone: "bg-green-tint text-green-text", dot: "bg-green-dot" },
   expired: { label: "Expired", tone: "bg-grey-tint text-grey-text", dot: "bg-grey-dot" },
   rejected: { label: "Rejected", tone: "bg-grey-tint text-grey-text", dot: "bg-grey-dot" },
