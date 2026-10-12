@@ -5,7 +5,9 @@ import { channel } from "../browser.mjs";
    WhatsApp link when the insurer is waiting on you; the questions fold; the
    bell's "Your policy is active" update opens the issued screen, with the
    card, Open policy and Share (which copies the link); an unknown id is
-   lost. Then the same pages on a phone: no overflow, the side card after
+   lost. The green banner at the top of the policies says the verification
+   is done, opens the issued screen, and stays dismissed across a reload.
+   Then the same pages on a phone: no overflow, the side card after
    the top of the page, the mascot kept off the narrow card. */
 const base = process.argv[2] ?? "http://localhost:3123";
 const b = await chromium.launch({ channel });
@@ -22,6 +24,21 @@ const ctx = await b.newContext({ viewport: { width: 1280, height: 900 }, permiss
 const p = await ctx.newPage(); watch(p);
 
 await p.goto(base + "/dashboard?tab=pending"); await p.waitForTimeout(800);
+
+/* The issued banner: above the list, opens the issued screen, dismisses for good */
+const banner = p.locator("[data-issued-banner]");
+const bannerText = (await banner.innerText().catch(() => "")).replace(/\n/g, " · ");
+console.log("banner:", bannerText);
+if (!/Verification completed/.test(bannerText) || !/474-981-34EDH20/.test(bannerText)) fail("the issued banner doesn't say the verification is done, with the policy number");
+const bannerHref = await banner.getByRole("link", { name: /View policy/ }).getAttribute("href");
+if (bannerHref !== "/dashboard/applications/care-issued") fail(`the banner opens ${bannerHref}, not the issued screen`);
+await banner.getByRole("button", { name: "Dismiss this notice" }).click(); await p.waitForTimeout(500);
+const afterDismiss = await banner.count();
+await p.reload(); await p.waitForTimeout(800);
+const afterReload = await banner.count();
+console.log("banner after dismiss:", afterDismiss, "| after reload:", afterReload);
+if (afterDismiss || afterReload) fail("the dismissed banner comes back");
+
 const cardLinks = await p.locator("a[data-card-link]").evaluateAll((links) => links.map((a) => new URL(a.href).pathname));
 console.log("pending cards open:", cardLinks.join(" "));
 if (cardLinks.length !== 4 || !cardLinks.every((href) => href.startsWith("/dashboard/applications/"))) fail("pending cards don't open their application");

@@ -486,7 +486,12 @@ the two older Figma screens redrawn in the dashboard's style:
   What's covered and What's not covered, and Things to note (waiting
   periods). The issued application isn't pending any more, so it isn't on the
   Pending tab: the bell's "Your policy is active" update opens it (every
-  update now opens its own application).
+  update now opens its own application), and so does the **issued banner**
+  at the top of the policies, under the tabs: a green-tint card, a tick that
+  pops in once, "Verification completed", the policy's name and number, and
+  View policy (the whole banner is the link). Its cross dismisses it: the
+  rows below slide up as it folds, and a cookie (`ditto.seen.<id>`, a year)
+  keeps it away across reloads, so the server never renders it again.
 
 An unknown id is lost like an unknown policy. `lib/application-detail.ts`
 has the copy and the steps; `lib/contact.ts` the phone and email.

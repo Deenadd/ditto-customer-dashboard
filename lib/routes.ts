@@ -47,3 +47,9 @@ export function applicationHref(id: string, customer: Customer = "default") {
   const base = `/dashboard/applications/${encodeURIComponent(id)}`;
   return customer === "new" ? `${base}?customer=new` : base;
 }
+
+/** The cookie that remembers a dismissed notice (the issued banner), by
+    application id, so the server leaves it out of the page. */
+export function seenCookie(id: string) {
+  return `ditto.seen.${id}`;
+}

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
+import { cookies } from "next/headers";
 import { SiteHeader } from "@/components/site-header";
 import { ApplicationCard } from "@/components/dashboard/application-card";
 import { CardControls } from "@/components/dashboard/card-controls";
 import { DittoBuddy } from "@/components/dashboard/ditto-buddy";
 import { EmptyApplications } from "@/components/dashboard/empty-applications";
+import { IssuedBanner } from "@/components/dashboard/issued-banner";
 import { PolicyPair } from "@/components/dashboard/policy-pair";
 import { RejectedCard } from "@/components/dashboard/rejected-card";
 import { WelcomeCard } from "@/components/dashboard/sidebar-cards";
@@ -18,6 +20,7 @@ import {
   customer,
   expiredPolicies,
   inactiveCount,
+  issuedApplication,
   rejectedApplications,
   requirementRequests,
 } from "@/lib/dashboard-data";
@@ -26,6 +29,7 @@ import {
   dashboardHref,
   policyHref,
   readDashboardState,
+  seenCookie,
   type DashboardState,
 } from "@/lib/routes";
 
@@ -40,6 +44,8 @@ export default async function DashboardPage({
 }) {
   const state = readDashboardState(await searchParams);
   const hasPending = state.customer === "default";
+  /* The issued application's banner, until it's dismissed (a cookie, a year). */
+  const showIssued = hasPending && !(await cookies()).has(seenCookie(issuedApplication.id));
   const counts = {
     pending: hasPending ? applicationCount : 0,
     active: activePolicyCount,
@@ -104,6 +110,7 @@ export default async function DashboardPage({
           </div>
 
           <div className="mt-8 max-sm:mt-6">
+            {showIssued ? <IssuedBanner application={issuedApplication} customer={state.customer} /> : null}
             <TabPanel state={state} hasPending={hasPending} />
           </div>
         </div>
